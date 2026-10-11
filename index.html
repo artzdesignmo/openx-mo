@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f7f7f4">
+  <link rel="icon" href="data:,">
+  <title>Open Source Editions</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@75..125,400..800&family=Manrope:wght@400;500;600;700&display=swap');
+
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f7f4;
+      --ink: #11110f;
+      --muted: #66665f;
+      --line: rgba(17, 17, 15, .17);
+      --card: #ffffff;
+      --accent: #ff347d;
+      --shadow: 0 26px 68px rgba(26, 25, 22, .16);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #10100f;
+        --ink: #f4f3ee;
+        --muted: #aaa89f;
+        --line: rgba(244, 243, 238, .2);
+        --card: #191917;
+        --shadow: 0 30px 74px rgba(0, 0, 0, .48);
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; overflow-x: hidden; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Manrope", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, a { font: inherit; color: inherit; }
+    a { text-decoration: none; }
+    button { border: 0; }
+    .page {
+      min-height: 100vh;
+      padding: max(18px, env(safe-area-inset-top)) 0 max(24px, env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+    }
+    .masthead {
+      width: 100%;
+      padding: 0 clamp(18px, 3vw, 48px);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      font-size: 11px;
+      letter-spacing: .08em;
+    }
+    .issue { color: var(--muted); }
+    .collection { justify-self: center; font-weight: 600; }
+    .github {
+      justify-self: end;
+      padding: 9px 15px;
+      border-radius: 99px;
+      background: var(--ink);
+      color: var(--bg);
+      font-weight: 600;
+      letter-spacing: 0;
+      transition: opacity .2s ease;
+    }
+    .github:hover { opacity: .72; }
+    .github:focus-visible, .arrow:focus-visible, .gallery:focus-visible, .launch:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+    .hero {
+      text-align: center;
+      padding: 0 18px;
+      margin: clamp(42px, 7vh, 84px) auto clamp(20px, 3vh, 34px);
+      position: relative;
+      z-index: 20;
+    }
+    h1 {
+      margin: 0;
+      font-family: "Anybody", sans-serif;
+      font-size: clamp(43px, 6vw, 86px);
+      font-stretch: 112%;
+      line-height: .88;
+      letter-spacing: -.052em;
+      font-weight: 760;
+    }
+    .hero p {
+      max-width: 480px;
+      margin: 18px auto 0;
+      color: var(--muted);
+      font-size: clamp(12px, 1.15vw, 15px);
+      line-height: 1.55;
+    }
+    .gallery-wrap {
+      position: relative;
+      min-height: clamp(390px, 43vw, 530px);
+      isolation: isolate;
+      overflow: hidden;
+      contain: layout paint;
+    }
+    .gallery-wrap::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 49%;
+      width: min(88vw, 1240px);
+      height: 210px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--ink) 5%, transparent);
+      filter: blur(54px);
+      opacity: .44;
+      pointer-events: none;
+    }
+    .gallery {
+      position: relative;
+      width: 100%;
+      height: clamp(360px, 40vw, 495px);
+      perspective: 1050px;
+      perspective-origin: 50% 42%;
+      touch-action: pan-y;
+      cursor: grab;
+      user-select: none;
+      outline: none;
+    }
+    .gallery.is-dragging { cursor: grabbing; }
+    .project {
+      --x: 0px;
+      --y: 0px;
+      --z: 0px;
+      --ry: 0deg;
+      --rz: 0deg;
+      --scale: 1;
+      --alpha: 1;
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: clamp(248px, 24vw, 336px);
+      transform: translate3d(calc(-50% + var(--x)), var(--y), var(--z)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(var(--scale));
+      transform-origin: 50% 50%;
+      opacity: var(--alpha);
+      will-change: transform, opacity;
+      transition: box-shadow .25s ease;
+    }
+    .project.is-active { pointer-events: auto; }
+    .project.has-link.is-active { cursor: pointer; }
+    .frame {
+      position: relative;
+      aspect-ratio: .79 / 1;
+      overflow: hidden;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      cursor: inherit;
+    }
+    .project.is-active .frame { box-shadow: 0 30px 76px rgba(24, 23, 20, .22); }
+    .project.has-link.is-active .frame::after {
+      content: "OPEN  ↗";
+      position: absolute;
+      right: 13px;
+      bottom: 13px;
+      z-index: 8;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(15, 15, 14, .86);
+      color: #fff;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: .11em;
+      backdrop-filter: blur(8px);
+    }
+    .frame img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      pointer-events: none;
+    }
+    .project:first-child .frame img { object-position: 55% center; }
+    .cover {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      color: #111;
+    }
+    .cover::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+      opacity: .18;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+    }
+    .cover-copy {
+      position: absolute;
+      z-index: 5;
+      left: 22px;
+      right: 22px;
+      bottom: 22px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .cover-copy strong {
+      font-size: clamp(27px, 3vw, 42px);
+      line-height: .84;
+      letter-spacing: -.07em;
+    }
+    .cover-copy small {
+      font-size: 9px;
+      font-weight: 600;
+      writing-mode: vertical-rl;
+      letter-spacing: .12em;
+    }
+    .acid { background: #ddff2f; }
+    .acid .ring {
+      position: absolute;
+      width: 82%;
+      aspect-ratio: 1;
+      right: -28%;
+      top: -17%;
+      border: 31px solid #111;
+      border-radius: 50%;
+    }
+    .acid .ring::before {
+      content: "";
+      position: absolute;
+      inset: 20%;
+      border: 3px solid #111;
+      border-radius: 50%;
+    }
+    .acid .ring::after {
+      content: "";
+      position: absolute;
+      width: 27%;
+      aspect-ratio: 1;
+      left: 36.5%;
+      top: 36.5%;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .blue { background: #1248ee; color: #f9f7f0; }
+    .blue .bands {
+      position: absolute;
+      inset: -15%;
+      transform: rotate(14deg);
+      background: repeating-linear-gradient(90deg, transparent 0 15%, #f9f7f0 15.7% 18.8%, transparent 19.5% 32%);
+    }
+    .blue .dot {
+      position: absolute;
+      left: 42%;
+      top: 31%;
+      width: 31%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: #121416;
+    }
+    .blue .dot::after {
+      content: "";
+      position: absolute;
+      width: 12px;
+      height: 120%;
+      left: 46%;
+      top: -10%;
+      background: #ff532d;
+      transform: rotate(19deg);
+    }
+    .grid { background: #171717; color: #f5f2e9; }
+    .grid .pixels {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      gap: 1px;
+      background: #3e3e3e;
+    }
+    .grid .pixels i { background: #171717; }
+    .grid .pixels i:nth-child(5n), .grid .pixels i:nth-child(13n) { background: #ff347d; }
+    .grid .pixels i:nth-child(7n) { background: #ddff2f; }
+    .paper { background: #ece8dd; }
+    .paper .type {
+      position: absolute;
+      inset: 24px;
+      display: grid;
+      place-content: center;
+      text-align: center;
+      font-size: clamp(60px, 8vw, 118px);
+      font-weight: 700;
+      line-height: .62;
+      letter-spacing: -.12em;
+      transform: rotate(-8deg);
+    }
+    .paper .type span:last-child { color: #ff347d; transform: translateX(15%); }
+    .mono { background: #ececec; }
+    .mono .sphere {
+      position: absolute;
+      width: 72%;
+      aspect-ratio: 1;
+      left: 14%;
+      top: 15%;
+      border-radius: 50%;
+      background: repeating-radial-gradient(circle at 42% 37%, #101010 0 2px, #ececec 2px 6px);
+      box-shadow: 22px 30px 0 #ff347d;
+    }
+    .status {
+      position: absolute;
+      z-index: 4;
+      top: 14px;
+      left: 14px;
+      padding: 7px 9px;
+      border-radius: 99px;
+      color: #fff;
+      background: rgba(15, 15, 14, .78);
+      backdrop-filter: blur(8px);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .1em;
+    }
+    .caption {
+      padding-top: 11px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      opacity: .42;
+      transition: opacity .25s ease;
+    }
+    .project.is-active .caption { opacity: 1; }
+    .caption h2 { margin: 0; font-family: "Anybody", sans-serif; font-size: 15px; font-stretch: 108%; letter-spacing: -.025em; font-weight: 650; }
+    .caption span { color: var(--muted); font-size: 10px; padding-top: 3px; }
+    .arrow {
+      position: absolute;
+      z-index: 140;
+      top: 43%;
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      color: var(--ink);
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+    }
+    .arrow:hover { background: var(--ink); color: var(--bg); }
+    .arrow.prev { left: clamp(12px, 3vw, 42px); }
+    .arrow.next { right: clamp(12px, 3vw, 42px); }
+    .arrow svg { width: 15px; height: 15px; }
+    .details {
+      position: relative;
+      z-index: 30;
+      text-align: center;
+      padding: 0 18px;
+      margin: -4px auto 0;
+      min-height: 104px;
+    }
+    .details p {
+      max-width: 520px;
+      margin: 0 auto 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .launch {
+      display: inline-block;
+      padding-bottom: 2px;
+      border-bottom: 1px solid currentColor;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .launch[hidden] { display: none; }
+    .drag-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .drag-note::before, .drag-note::after { content: ""; width: 20px; height: 1px; background: var(--line); }
+    footer {
+      width: calc(100% - clamp(36px, 6vw, 96px));
+      margin: auto auto 0;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.5;
+    }
+    footer span:last-child { text-align: right; }
+
+    @media (max-width: 700px) {
+      .masthead { font-size: 9px; }
+      .collection { letter-spacing: .04em; }
+      .hero { margin-top: 48px; margin-bottom: 22px; }
+      h1 { font-size: clamp(42px, 13.2vw, 60px); }
+      .hero p { max-width: 315px; }
+      .gallery-wrap { min-height: 390px; }
+      .gallery { height: 390px; perspective: 900px; }
+      .project { width: min(62vw, 260px); }
+      .arrow { display: none; }
+      .details { margin-top: -8px; }
+      footer { margin-top: 12px; flex-direction: column; gap: 6px; }
+      footer span:last-child { text-align: left; }
+    }
+    @media (max-width: 430px) {
+      .issue { max-width: 68px; line-height: 1.25; }
+      .github { padding: 8px 12px; }
+      .gallery-wrap { min-height: 360px; }
+      .gallery { height: 352px; }
+      .project { width: min(62vw, 244px); }
+      .cover-copy { left: 17px; right: 17px; bottom: 18px; }
+      .caption h2 { font-size: 13px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition-duration: .001ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="masthead">
+      <span class="issue">01 — 2026</span>
+      <span class="collection">OPEN SOURCE EDITIONS</span>
+      <a class="github" href="https://artzdesignmo.github.io/halftone-mo/" target="_blank" rel="noopener noreferrer">View live</a>
+    </header>
+
+    <section class="hero" aria-labelledby="main-title">
+      <h1 id="main-title">Open Source<br>Visual Experiments<br>Made to Play</h1>
+      <p>Independent tools where graphic design, code and curiosity meet.</p>
+    </section>
+
+    <section class="gallery-wrap" aria-label="Project carousel">
+      <button class="arrow prev" id="prev" aria-label="Previous project">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="gallery" id="gallery" tabindex="0" aria-label="Drag left or right to browse projects">
+        <article class="project" data-title="Halftone Mo" data-description="Turn any image into a tactile two-colour halftone composition — directly in your browser." data-link="https://artzdesignmo.github.io/halftone-mo/">
+          <div class="frame">
+            <span class="status">LIVE PROJECT</span>
+            <img src="https://raw.githubusercontent.com/artzdesignmo/halftone-mo/main/IMG_6944.png" alt="Halftone Mo interface showing a vivid pink and cyan halftone composition">
+          </div>
+          <div class="caption"><h2>Halftone Mo</h2><span>01 / LIVE</span></div>
+        </article>
+
+        <article class="project" data-title="Edition 02" data-description="A new open-source visual experiment arrives on Wednesday." data-link="">
+          <div class="frame">
+            <div class="cover acid" role="img" aria-label="Acid yellow project cover with concentric black rings and a pink centre">
+              <div class="ring" aria-hidden="true"></div>
+              <div class="cover-copy"><strong>NEXT<br>DROP</strong><small>WEDNESDAY</small></div>
+            </div>
+          </div>
+          <div class="caption"><h2>Edition 02</h2><span>02 / SOON</span></div>
+        </article>
+
+        <article class="project" data-title="Edition 03" data-description="Another playful browser tool joins the collection on Saturday." data-link="">
+          <div class="frame">
+            <div class="cover blue" role="img" aria-label="Electric blue project cover with diagonal white bands and a black sphere">
+              <div class="bands" aria-hidden="true"></div><div class="dot" aria-hidden="true"></div>
+              <div class="cover-copy"><strong>NEW<br>TOOL</strong><small>SATURDAY</small></div>
+            </div>
+          </div>
+          <div class="caption"><h2>Edition 03</h2><span>03 / SOON</span></div>
+        </article>
+
+        <article class="project" data-title="Edition 04" data-description="A growing series of small tools, made openly and released twice a week." data-link="">
+          <div class="frame">
+            <div class="cover grid" role="img" aria-label="Dark project cover built from a grid of pink and acid yellow pixels">
+              <div class="pixels" id="pixels" aria-hidden="true"></div>
+              <div class="cover-copy"><strong>OPEN<br>CODE</strong><small>EDITION 04</small></div>
+            </div>
+          </div>
+          <div class="caption"><h2>Edition 04</h2><span>04 / SOON</span></div>
+        </article>
+
+        <article class="project" data-title="Edition 05" data-description="An upcoming experiment in typography, rhythm and interaction." data-link="">
+          <div class="frame">
+            <div class="cover paper" role="img" aria-label="Warm paper project cover with oversized abstract letterforms">
+              <div class="type" aria-hidden="true"><span>MO</span><span>05</span></div>
+              <div class="cover-copy"><strong>TYPE<br>IN MOTION</strong><small>EDITION 05</small></div>
+            </div>
+          </div>
+          <div class="caption"><h2>Edition 05</h2><span>05 / SOON</span></div>
+        </article>
+
+        <article class="project" data-title="Edition 06" data-description="The collection keeps moving — each project will have its own cover and live page." data-link="">
+          <div class="frame">
+            <div class="cover mono" role="img" aria-label="Monochrome project cover with a rippling line sphere and pink shadow">
+              <div class="sphere" aria-hidden="true"></div>
+              <div class="cover-copy"><strong>MORE<br>TO COME</strong><small>EDITION 06</small></div>
+            </div>
+          </div>
+          <div class="caption"><h2>Edition 06</h2><span>06 / SOON</span></div>
+        </article>
+      </div>
+      <button class="arrow next" id="next" aria-label="Next project">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </section>
+
+    <section class="details" aria-live="polite">
+      <p id="description">Turn any image into a tactile two-colour halftone composition — directly in your browser.</p>
+      <a class="launch" id="launch" href="https://artzdesignmo.github.io/halftone-mo/" target="_blank" rel="noopener noreferrer">Launch project</a>
+      <div class="drag-note">Drag to explore</div>
+    </section>
+
+    <footer>
+      <span>New open-source experiments every Wednesday and Saturday.</span>
+      <span>Designed to use, remix and make your own.</span>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      var pixels = document.getElementById('pixels');
+      for (var p = 0; p < 48; p++) pixels.appendChild(document.createElement('i'));
+
+      var gallery = document.getElementById('gallery');
+      var projects = Array.prototype.slice.call(document.querySelectorAll('.project'));
+      var description = document.getElementById('description');
+      var launch = document.getElementById('launch');
+      var position = 0;
+      var target = 0;
+      var velocity = 0;
+      var dragging = false;
+      var moved = false;
+      var pointerStart = 0;
+      var positionStart = 0;
+      var lastPointer = 0;
+      var lastTime = 0;
+      var animationFrame = 0;
+      var activeIndex = -1;
+      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      projects.forEach(function (item) {
+        if (item.getAttribute('data-link')) {
+          item.classList.add('has-link');
+          item.setAttribute('role', 'link');
+          item.setAttribute('aria-label', 'Open ' + item.getAttribute('data-title'));
+        }
+      });
+
+      function wrap(value, length) {
+        while (value > length / 2) value -= length;
+        while (value < -length / 2) value += length;
+        return value;
+      }
+
+      function nearestIndex() {
+        var n = Math.round(position) % projects.length;
+        return (n + projects.length) % projects.length;
+      }
+
+      function updateDetails(index) {
+        if (index === activeIndex) return;
+        activeIndex = index;
+        var item = projects[index];
+        description.textContent = item.getAttribute('data-description');
+        var href = item.getAttribute('data-link');
+        if (href) {
+          launch.hidden = false;
+          launch.href = href;
+          launch.textContent = 'Launch project';
+        } else {
+          launch.hidden = true;
+          launch.removeAttribute('href');
+        }
+      }
+
+      function render() {
+        var width = gallery.clientWidth;
+        var compact = width < 700;
+        var spacing = compact ? Math.min(184, width * .49) : Math.min(278, width * .272);
+        var curve = compact ? 25 : 34;
+
+        projects.forEach(function (item, index) {
+          var delta = wrap(index - position, projects.length);
+          var absolute = Math.abs(delta);
+          var capped = Math.min(absolute, 3);
+          var x = delta * spacing + Math.sign(delta) * Math.pow(capped, 1.7) * (compact ? 5 : 10);
+          var y = (compact ? 4 : 2) + Math.pow(capped, 1.55) * curve;
+          var z = -Math.pow(capped, 1.16) * (compact ? 42 : 62);
+          var scale = Math.max(compact ? .64 : .61, (compact ? 1.04 : 1.075) - capped * (compact ? .15 : .165));
+          var alpha = absolute > 3.05 ? 0 : Math.max(.16, 1 - Math.max(0, absolute - 2.15) * .82);
+          var rotateY = -delta * (compact ? 10 : 8.5);
+          var rotateZ = delta * (compact ? 2.2 : 1.65);
+          item.style.setProperty('--x', x.toFixed(2) + 'px');
+          item.style.setProperty('--y', y.toFixed(2) + 'px');
+          item.style.setProperty('--z', z.toFixed(2) + 'px');
+          item.style.setProperty('--ry', rotateY.toFixed(2) + 'deg');
+          item.style.setProperty('--rz', rotateZ.toFixed(2) + 'deg');
+          item.style.setProperty('--scale', scale.toFixed(3));
+          item.style.setProperty('--alpha', alpha.toFixed(3));
+          item.style.zIndex = String(200 - Math.round(absolute * 22));
+          item.classList.toggle('is-active', absolute < .5);
+          item.setAttribute('aria-hidden', absolute > 2.7 ? 'true' : 'false');
+        });
+        updateDetails(nearestIndex());
+      }
+
+      function animate() {
+        if (!dragging) {
+          var force = (target - position) * (reduceMotion ? 1 : .085);
+          velocity = (velocity + force) * (reduceMotion ? 0 : .8);
+          position += velocity;
+          if (Math.abs(target - position) < .0008 && Math.abs(velocity) < .0008) {
+            position = target;
+            velocity = 0;
+          }
+        }
+        render();
+        animationFrame = requestAnimationFrame(animate);
+      }
+
+      function go(step) {
+        target = Math.round(target + step);
+        velocity = 0;
+      }
+
+      document.getElementById('prev').addEventListener('click', function () { go(-1); });
+      document.getElementById('next').addEventListener('click', function () { go(1); });
+      gallery.addEventListener('keydown', function (event) {
+        if (event.key === 'ArrowLeft') { event.preventDefault(); go(-1); }
+        if (event.key === 'ArrowRight') { event.preventDefault(); go(1); }
+        if (event.key === 'Enter') {
+          var href = projects[nearestIndex()].getAttribute('data-link');
+          if (href) window.open(href, '_blank', 'noopener,noreferrer');
+        }
+      });
+
+      gallery.addEventListener('pointerdown', function (event) {
+        dragging = true;
+        moved = false;
+        pointerStart = event.clientX;
+        lastPointer = event.clientX;
+        lastTime = performance.now();
+        positionStart = position;
+        velocity = 0;
+        gallery.classList.add('is-dragging');
+        gallery.setPointerCapture(event.pointerId);
+      });
+      gallery.addEventListener('pointermove', function (event) {
+        if (!dragging) return;
+        var dx = event.clientX - pointerStart;
+        if (Math.abs(dx) > 4) moved = true;
+        var sensitivity = gallery.clientWidth < 700 ? 150 : 260;
+        position = positionStart - dx / sensitivity;
+        target = position;
+        var now = performance.now();
+        var elapsed = Math.max(8, now - lastTime);
+        velocity = -((event.clientX - lastPointer) / sensitivity) * (16 / elapsed);
+        lastPointer = event.clientX;
+        lastTime = now;
+        if (moved) event.preventDefault();
+      }, { passive: false });
+
+      function release(event) {
+        if (!dragging) return;
+        dragging = false;
+        gallery.classList.remove('is-dragging');
+        if (event && gallery.hasPointerCapture(event.pointerId)) gallery.releasePointerCapture(event.pointerId);
+        target = Math.round(position + velocity * 4.2);
+        velocity *= .5;
+      }
+      gallery.addEventListener('pointerup', release);
+      gallery.addEventListener('pointercancel', release);
+
+      projects.forEach(function (item, index) {
+        item.addEventListener('click', function (event) {
+          if (moved) { event.preventDefault(); moved = false; return; }
+          var delta = wrap(index - nearestIndex(), projects.length);
+          if (Math.abs(delta) > .1) {
+            event.preventDefault();
+            target = Math.round(position + delta);
+          } else if (item.getAttribute('data-link')) {
+            window.open(item.getAttribute('data-link'), '_blank', 'noopener,noreferrer');
+          }
+        });
+      });
+
+      window.addEventListener('resize', render, { passive: true });
+      render();
+      animationFrame = requestAnimationFrame(animate);
+    }());
+  </script>
+</body>
+</html>
