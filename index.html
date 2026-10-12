@@ -12,22 +12,22 @@
   <style>
     :root{
       color-scheme: light;
-      --bg:#faf8f2;
-      --bg-2:#f1ede3;
+      --bg:#e9e9e7;
+      --bg-2:#dcdad6;
       --ink:#16130e;
-      --muted:#6f6a5e;
+      --muted:#65625c;
       --line:rgba(22,19,14,.16);
       --line-strong:rgba(22,19,14,.85);
-      --card:#fffdf8;
+      --card:#fdfdfb;
       --card-ink:#16130e;
       --accent:#c8401f; /* burnt orange-red, print ink */
       --accent-ink:#fffdf8;
       --badge-live:#16130e;
       --badge-live-ink:#fffdf8;
       --badge-soon:transparent;
-      --cover-shadow: 0 22px 38px -14px rgba(112,94,72,.38), 0 6px 14px -6px rgba(112,94,72,.22);
-      --card-shadow: 0 26px 44px -18px rgba(112,94,72,.34);
-      --panel:#fffdf8;
+      --cover-shadow: 0 22px 38px -14px rgba(72,72,70,.4), 0 6px 14px -6px rgba(72,72,70,.24);
+      --card-shadow: 0 26px 44px -18px rgba(72,72,70,.36);
+      --panel:#fdfdfb;
       --focus:#c8401f;
     }
     html[data-theme="dark"]{
@@ -52,7 +52,10 @@
     *{box-sizing:border-box}
     html,body{margin:0;min-height:100%;overflow-x:hidden}
     body{
-      background:var(--bg);
+      background-color:var(--bg);
+      /* fine paper grain over the light-grey ground */
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+      background-repeat:repeat;
       color:var(--ink);
       font-family:"Geist","Noto Sans TC",system-ui,-apple-system,"Segoe UI",sans-serif;
       -webkit-font-smoothing:antialiased;
@@ -179,64 +182,28 @@
       font-size:13px;letter-spacing:.08em;opacity:.75;
     }
 
-    /* Cover art — print-lab graphics, no gradients-as-decoration beyond ink shading */
-    .cover-diffcast{background:#14110e;color:#f3eee3}
-    .cover-diffcast .streaks{position:absolute;inset:0;overflow:hidden}
-    .cover-diffcast .streaks i{position:absolute;left:-12%;width:124%;height:9px;background:#f3eee3;opacity:.9;transform:rotate(-7deg)}
-    .cover-diffcast .streaks i:nth-child(1){top:26%}
-    .cover-diffcast .streaks i:nth-child(2){top:38%;height:3px;opacity:.5}
-    .cover-diffcast .streaks i:nth-child(3){top:47%;height:16px;background:var(--accent);opacity:1}
-    .cover-diffcast .streaks i:nth-child(4){top:64%;height:3px;opacity:.45}
-    .cover-diffcast .streaks i:nth-child(5){top:71%;height:6px;opacity:.75}
-    .cover-diffcast .big-d{
-      position:absolute;right:6px;top:-30px;font-family:"Dela Gothic One",sans-serif;font-size:190px;line-height:1;
-      color:transparent;-webkit-text-stroke:2px rgba(243,238,227,.5);
+    /* Cover art — Halftone Mo uses its real app screenshot; bench cards stay unnamed */
+    .cover-halftone{background:#14100e;color:#f3eee3}
+    .cover-halftone img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 16%;display:block}
+    .cover-halftone .ht-tag{
+      position:absolute;z-index:5;left:16px;bottom:14px;padding:5px 9px;background:rgba(20,16,14,.88);color:#f3eee3;
+      font-size:10px;letter-spacing:.22em;text-transform:uppercase;
     }
-    .cover-diffcast .carbon-tag{position:absolute;left:16px;bottom:14px;font-size:10px;letter-spacing:.22em;text-transform:uppercase;opacity:.85}
+    .cover-halftone .ht-tag b{color:#ff5f9e;font-weight:700}
 
-    .cover-dot{background:#d7cec2;color:#211c15}
-    .cover-dot .halftone{position:absolute;inset:0;
-      background-image:radial-gradient(circle, #211c15 1.6px, transparent 1.7px);
-      background-size:15px 15px;opacity:.55;
-      -webkit-mask-image:radial-gradient(circle at 68% 38%, #000 0 34%, transparent 72%);
-      mask-image:radial-gradient(circle at 68% 38%, #000 0 34%, transparent 72%);
+    /* In-progress covers — distinct illustrated cover per project, previous version's treatment */
+    .cover-proj{color:#1b1712}
+    .cover-proj .cover-art{position:absolute;inset:0;width:100%;height:100%;display:block}
+    .cover-proj .proj-tag{
+      position:absolute;z-index:5;left:16px;bottom:14px;padding:4px 6px 4px 0;
+      font-size:10px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;
     }
-    .cover-dot .disc{position:absolute;right:12%;top:12%;width:46%;aspect-ratio:1;border-radius:50%;background:#211c15;
-      background-image:radial-gradient(circle, #d7cec2 1.4px, transparent 1.5px);background-size:9px 9px}
-    .cover-dot .vec{position:absolute;left:16px;bottom:14px;font-size:10px;letter-spacing:.22em;text-transform:uppercase;font-weight:600}
-    .cover-dot .vec b{color:var(--accent)}
-
-    .cover-specter{background:#efe9dc;color:#1b1712}
-    .cover-specter .fold-type{
-      position:absolute;inset:0;display:grid;place-items:center;font-family:"Dela Gothic One",sans-serif;
-      font-size:150px;line-height:1;transform:rotate(-6deg);
+    .cover-proj .proj-week{
+      position:absolute;z-index:5;right:16px;top:14px;
+      font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;opacity:.62;
     }
-    .cover-specter .fold-type span{position:relative}
-    .cover-specter .fold-type span::after{
-      content:"";position:absolute;top:0;bottom:0;left:52%;width:48%;
-      background:linear-gradient(105deg, rgba(27,23,18,.16), rgba(27,23,18,0) 65%);
-      border-left:2px solid rgba(27,23,18,.55);
-    }
-    .cover-specter .fold-tag{position:absolute;left:16px;bottom:14px;font-size:10px;letter-spacing:.22em;text-transform:uppercase}
-
-    .cover-lattice{background:#e7dfcd;color:#1b1712;
-      background-image:linear-gradient(rgba(27,23,18,.16) 1px, transparent 1px),linear-gradient(90deg, rgba(27,23,18,.16) 1px, transparent 1px);
-      background-size:30px 30px}
-    .cover-lattice .clock{position:absolute;left:50%;top:44%;width:52%;aspect-ratio:1;transform:translate(-50%,-50%);
-      border:3px solid #1b1712;border-radius:50%;background:#efe9dc}
-    .cover-lattice .clock::before,.cover-lattice .clock::after{content:"";position:absolute;left:50%;bottom:50%;background:#1b1712;transform-origin:bottom center}
-    .cover-lattice .clock::before{width:4px;height:34%;transform:translateX(-50%) rotate(38deg)}
-    .cover-lattice .clock::after{width:4px;height:24%;background:var(--accent);transform:translateX(-50%) rotate(-64deg)}
-    .cover-lattice .lat-tag{position:absolute;left:16px;bottom:14px;font-size:10px;letter-spacing:.22em;text-transform:uppercase;font-weight:600}
-
-    .cover-ink{background:#f2eee4;color:#171410}
-    .cover-ink .blot{position:absolute;border-radius:50%;background:#171410}
-    .cover-ink .blot.b1{width:34%;aspect-ratio:1;left:16%;top:16%}
-    .cover-ink .blot.b2{width:11%;aspect-ratio:1;left:56%;top:12%}
-    .cover-ink .blot.b3{width:6%;aspect-ratio:1;left:66%;top:34%}
-    .cover-ink .blot.b4{width:4%;aspect-ratio:1;left:26%;top:62%;background:var(--accent)}
-    .cover-ink .trail{position:absolute;left:18%;top:56%;width:58%;height:3px;background:#171410;transform:rotate(-4deg);opacity:.85}
-    .cover-ink .ink-tag{position:absolute;left:16px;bottom:14px;font-size:10px;letter-spacing:.22em;text-transform:uppercase}
+    .cover-proj.on-dark{color:#f3eee3}
+    .cover-proj.on-dark .proj-tag{background:transparent}
 
     .card-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:5px;min-height:132px}
     .card-body h3{margin:0;font-size:23px;font-weight:700;letter-spacing:-.02em;line-height:1.05}
@@ -324,7 +291,7 @@
       </div>
 
       <div class="chrome-right">
-        <a class="star-cta" href="https://github.com/whynotartmoney/openx-co" target="_blank" rel="noopener noreferrer">
+        <a class="star-cta" href="https://github.com/artzdesignmo/halftone-mo" target="_blank" rel="noopener noreferrer">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z"/></svg>
           <span class="star-label" data-i18n="star">Star on GitHub</span>
         </a>
@@ -334,7 +301,7 @@
 
     <section class="hero" aria-labelledby="main-title">
       <div>
-        <p class="kicker" data-i18n="kicker">diffcast lab</p>
+        <p class="kicker" data-i18n="kicker">openx-mo · two drops a week</p>
         <h1 class="headline" id="main-title">
           <span class="line-1" data-i18n="h1">Open</span>
           <span class="line-2" data-i18n="h2">Source</span>
@@ -343,7 +310,7 @@
       </div>
       <div class="hero-side">
         <p class="tagline" data-i18n="tagline">Sharp tools, written in the open.</p>
-        <p class="hero-meta" data-i18n-html="meta"><strong>OpenX — Open Source Lab.</strong><br>Small graphic tools, built in public. Drag the arc, open a demo, read the code.</p>
+        <p class="hero-meta" data-i18n-html="meta"><strong>OpenX — Open Source Lab.</strong><br>Our own bench, in public: Halftone Mo is live, the next drops are already in progress — every Wed &amp; Sat.</p>
       </div>
     </section>
 
@@ -366,10 +333,10 @@
     </section>
 
     <footer>
-      <span data-i18n="footNote">Coming-soon pieces are still on the bench — in the lab, not yet on the shelf.</span>
+      <span data-i18n="footNote">Projects 02–05 are still on the bench — names stay under wraps until release day.</span>
       <span class="foot-links">
-        <a href="https://github.com/whynotartmoney/openx-co" target="_blank" rel="noopener noreferrer" data-i18n="star">Star on GitHub</a>
-        <a href="https://diffcast-co.vercel.app" target="_blank" rel="noopener noreferrer" data-i18n="footDemo">Diffcast demo</a>
+        <a href="https://github.com/artzdesignmo/halftone-mo" target="_blank" rel="noopener noreferrer" data-i18n="star">Star on GitHub</a>
+        <a href="https://artzdesignmo.github.io/halftone-mo/" target="_blank" rel="noopener noreferrer" data-i18n="footDemo">Halftone Mo demo</a>
       </span>
     </footer>
   </main>
@@ -378,70 +345,68 @@
     (function () {
       var PROJECTS = [
         {
-          id: 'diffcast', state: 'live', cover: 'cover-diffcast',
-          title: { en: 'Diffcast', zh: 'Diffcast' },
-          sub: { en: 'Carbon for motion', zh: '碳感，為動態而生' },
-          desc: { en: 'A motion tool with a carbon-dark surface — built for moving type and image.', zh: '碳黑介面的動態工具——為流動的字體與影像而做。' },
-          demo: 'https://diffcast-co.vercel.app',
-          github: 'https://github.com/whynotartmoney/diffcast-co',
-          art: '<div class="streaks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><div class="big-d" aria-hidden="true">D</div><div class="carbon-tag">Carbon · Motion</div>'
+          id: 'halftone-mo', state: 'live', cover: 'cover-halftone',
+          title: { en: 'Halftone Mo', zh: 'Halftone Mo' },
+          sub: { en: 'Risograph & duotone poster studio', zh: '孔版印刷 · 雙色調海報工作室' },
+          desc: { en: 'Week 01, live now: turn any image into a two-ink riso poster — dot size, screen angle, duotone presets, print-ready export. 100% offline, MIT.', zh: '第 01 週，已上線：將任何圖片變成雙墨孔版海報——點大小、網角、雙色調預設，可輸出印刷檔。100% 離線，MIT。' },
+          demo: 'https://artzdesignmo.github.io/halftone-mo/',
+          github: 'https://github.com/artzdesignmo/halftone-mo',
+          art: '<img src="https://raw.githubusercontent.com/artzdesignmo/halftone-mo/main/IMG_6944.png" alt="" aria-hidden="true"><div class="ht-tag">Riso <b>·</b> Duotone <b>·</b> V1.0</div>'
         },
         {
-          id: 'dot', state: 'live', cover: 'cover-dot',
-          title: { en: 'Dot', zh: '網點' },
-          sub: { en: 'Halftone, still a vector', zh: '網點，依然是向量' },
-          desc: { en: 'Halftone printing dots that stay true vectors — scale them forever, they never rasterise.', zh: '印刷網點，放大縮小都保持純向量，永不模糊。' },
-          demo: 'https://dot-co.vercel.app',
-          github: 'https://github.com/whynotartmoney/dot-co',
-          art: '<div class="halftone" aria-hidden="true"></div><div class="disc" aria-hidden="true"></div><div class="vec">Halftone <b>/</b> Vector</div>'
+          id: 'project-02', state: 'soon', cover: 'cover-proj',
+          title: { en: 'Project 02', zh: '項目 02' },
+          sub: { en: 'Next drop · Wednesday', zh: '下一件 · 週三發布' },
+          desc: { en: 'Already on the bench and in progress — the next weekly build. Tool or art piece, the name stays under wraps until release day.', zh: '已在工作檯上進行中——本週下一件新作。工具定藝術作品，名字留到發布當日先揭曉。' },
+          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><pattern id="dt02" width="15" height="15" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="rgba(22,19,14,.35)"/></pattern><pattern id="ht02" width="11" height="11" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="2.1" fill="#e9e9e7"/></pattern></defs><rect width="400" height="310" fill="#e4e1da"/><rect width="400" height="310" fill="url(#dt02)"/><circle cx="212" cy="142" r="90" fill="#16130e"/><circle cx="212" cy="142" r="90" fill="url(#ht02)" opacity=".85"/><circle cx="316" cy="66" r="9" fill="#c8401f"/></svg><div class="proj-tag">In progress · dots taking shape</div><div class="proj-week">Wed drop</div>'
         },
         {
-          id: 'specterfold', state: 'soon', cover: 'cover-specter',
-          title: { en: 'Specterfold', zh: 'Specterfold' },
-          sub: { en: 'Type, folded in light', zh: '字體，在光中摺疊' },
-          desc: { en: 'An experiment in folding letterforms with light and shadow.', zh: '以光影摺疊字形的實驗。' },
-          art: '<div class="fold-type" aria-hidden="true"><span>Sf</span></div><div class="fold-tag">Type · Light</div>'
+          id: 'project-03', state: 'soon', cover: 'cover-proj on-dark',
+          title: { en: 'Project 03', zh: '項目 03' },
+          sub: { en: 'Next drop · Saturday', zh: '下一件 · 週六發布' },
+          desc: { en: 'The Saturday drop, queued right behind Project 02. Direction is picked fresh each week — no name until it ships.', zh: '週六發布嗰件，排在項目 02 之後。方向每週新鮮決定——出貨之前唔改名、唔預告。' },
+          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="400" height="310" fill="#171410"/><g transform="rotate(-7 200 155)"><rect x="-30" y="86" width="460" height="7" fill="#f3eee3" opacity=".9"/><rect x="-30" y="112" width="460" height="3" fill="#f3eee3" opacity=".45"/><rect x="-30" y="140" width="460" height="15" fill="#c8401f"/><rect x="-30" y="178" width="460" height="5" fill="#f3eee3" opacity=".7"/><rect x="-30" y="204" width="460" height="2.5" fill="#f3eee3" opacity=".35"/></g><text x="238" y="128" font-family="\'Dela Gothic One\',sans-serif" font-size="118" fill="none" stroke="#f3eee3" stroke-width="1.6" opacity=".55">03</text></svg><div class="proj-tag">On the bench · lines in motion</div><div class="proj-week">Sat drop</div>'
         },
         {
-          id: 'latticehour', state: 'soon', cover: 'cover-lattice',
-          title: { en: 'Latticehour', zh: 'Latticehour' },
-          sub: { en: 'Time, drawn as a grid', zh: '時間，畫成格子' },
-          desc: { en: 'A clock redrawn as a lattice — hours you can read as pattern.', zh: '將時鐘重畫成格陣——把時間讀成圖案。' },
-          art: '<div class="clock" aria-hidden="true"></div><div class="lat-tag">Time · Grid</div>'
+          id: 'project-04', state: 'soon', cover: 'cover-proj',
+          title: { en: 'Project 04', zh: '項目 04' },
+          sub: { en: 'Following week · Queued', zh: '再下一週 · 排隊中' },
+          desc: { en: 'Part of the two-a-week run — each new project has to beat the last one. Still unnamed, still a surprise.', zh: '每週兩件節奏嘅一部分——每件新作都要比上一件更好。未命名，保持驚喜。' },
+          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><pattern id="gr04" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M22 0H0v22" fill="none" stroke="rgba(22,19,14,.16)" stroke-width="1"/></pattern></defs><rect width="400" height="310" fill="#ebe9e3"/><rect width="400" height="310" fill="url(#gr04)"/><circle cx="200" cy="140" r="80" fill="#f7f6f2" stroke="#16130e" stroke-width="3"/><line x1="200" y1="140" x2="200" y2="88" stroke="#16130e" stroke-width="4" stroke-linecap="round"/><line x1="200" y1="140" x2="238" y2="162" stroke="#16130e" stroke-width="4" stroke-linecap="round"/><line x1="200" y1="140" x2="168" y2="176" stroke="#c8401f" stroke-width="3" stroke-linecap="round"/><circle cx="200" cy="140" r="5.5" fill="#16130e"/></svg><div class="proj-tag">Queued · counted in grids</div><div class="proj-week">Week +1</div>'
         },
         {
-          id: 'inkresidue', state: 'soon', cover: 'cover-ink',
-          title: { en: 'Inkresidue', zh: 'Inkresidue' },
-          sub: { en: 'What the edit leaves', zh: '編輯留下的痕跡' },
-          desc: { en: 'A study of residue — the marks an edit leaves behind.', zh: '研究殘留——每次編輯留下的印記。' },
-          art: '<div class="blot b1" aria-hidden="true"></div><div class="blot b2" aria-hidden="true"></div><div class="blot b3" aria-hidden="true"></div><div class="blot b4" aria-hidden="true"></div><div class="trail" aria-hidden="true"></div><div class="ink-tag">Ink · Residue</div>'
+          id: 'project-05', state: 'soon', cover: 'cover-proj',
+          title: { en: 'Project 05', zh: '項目 05' },
+          sub: { en: 'Following week · Queued', zh: '再下一週 · 排隊中' },
+          desc: { en: 'The bench keeps moving: two open-source drops a week, in public, towards 222 stars. This slot gets its name on release day.', zh: '工作檯唔停：每週兩件開源新作，公開進行，向住 222 星進發。呢個位嘅名字，發布日先有。' },
+          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="400" height="310" fill="#e1ddd4"/><circle cx="96" cy="88" r="34" fill="#16130e"/><circle cx="330" cy="212" r="15" fill="#16130e"/><circle cx="356" cy="96" r="8" fill="#16130e"/><circle cx="298" cy="238" r="6" fill="#c8401f"/><text x="72" y="204" font-family="\'Dela Gothic One\',sans-serif" font-size="124" fill="#16130e">Mo</text><polygon points="252,84 400,84 400,238 314,238" fill="#f7f6f2" opacity=".38"/></svg><div class="proj-tag">Queued · type, still folding</div><div class="proj-week">Week +1</div>'
         }
       ];
 
       var STR = {
         en: {
-          index: 'Index', star: 'Star on GitHub', kicker: 'diffcast lab',
+          index: 'Index', star: 'Star on GitHub', kicker: 'openx-mo · two drops a week',
           h1: 'Open', h2: 'Source', h3: 'Lab',
           tagline: 'Sharp tools, written in the open.',
-          meta: '<strong>OpenX — Open Source Lab.</strong><br>Small graphic tools, built in public. Drag the arc, open a demo, read the code.',
+          meta: '<strong>OpenX — Open Source Lab.</strong><br>Our own bench, in public: Halftone Mo is live, the next drops are already in progress — every Wed &amp; Sat.',
           drag: 'Drag · Scroll · ← →',
-          live: 'Live', soon: 'Coming soon',
+          live: 'Live', soon: 'On the bench',
           demo: 'Demo', github: 'GitHub',
-          bench: 'Still on the bench — not yet released.',
-          footNote: 'Coming-soon pieces are still on the bench — in the lab, not yet on the shelf.',
-          footDemo: 'Diffcast demo'
+          bench: 'Still on the bench — name lands on release day.',
+          footNote: 'Projects 02–05 are still on the bench — names stay under wraps until release day.',
+          footDemo: 'Halftone Mo demo'
         },
         zh: {
-          index: '目錄', star: '在 GitHub 加星', kicker: 'diffcast 實驗室',
+          index: '目錄', star: '在 GitHub 加星', kicker: 'openx-mo · 每週兩件新作',
           h1: '開放', h2: '源碼', h3: '實驗室',
           tagline: '銳利的工具，公開寫成。',
-          meta: '<strong>OpenX — 開放源碼實驗室。</strong><br>小型圖形工具，公開地做。拖動弧形，開演示，讀源碼。',
+          meta: '<strong>OpenX — 開放源碼實驗室。</strong><br>我哋自己嘅工作檯，公開進行中：Halftone Mo 已上線，下一件已在製作——逢週三、週六發布。',
           drag: '拖動 · 滾動 · ← →',
-          live: '已上線', soon: '即將推出',
+          live: '已上線', soon: '工作檯上',
           demo: '演示', github: 'GitHub',
-          bench: '還在工作檯上——尚未推出。',
-          footNote: '即將推出的作品還在工作檯上——在實驗室裡，未上架。',
-          footDemo: 'Diffcast 演示'
+          bench: '還在工作檯上——名字發布當日先有。',
+          footNote: '項目 02–05 還在工作檯上——名字留到發布當日先揭曉。',
+          footDemo: 'Halftone Mo 演示'
         }
       };
 
