@@ -20,8 +20,8 @@
       --line:rgba(26,21,18,.16);
       --line-strong:rgba(26,21,18,.8);
       --placard:#fdfcf9;
-      --frame:#2b241c;          /* dark wood frame */
-      --frame-hi:#4a3d2c;
+      --frame:#83817c;          /* gallery gray frame */
+      --frame-hi:#a5a39c;
       --mat:#fbf9f4;            /* passe-partout */
       --brass:#b08d3e;          /* brass accents */
       --accent:#c8401f;
@@ -38,8 +38,8 @@
       --line:rgba(240,233,216,.16);
       --line-strong:rgba(240,233,216,.8);
       --placard:#1e1a14;
-      --frame:#0d0b08;
-      --frame-hi:#3a2f1e;
+      --frame:#55534e;
+      --frame-hi:#7a7873;
       --mat:#efe9db;
       --brass:#d4af5a;
       --accent:#e05a2b;
@@ -156,11 +156,12 @@
       content:"";position:absolute;inset:0;pointer-events:none;
       background:linear-gradient(115deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 32%);
     }
-    .slide{transition:opacity .45s ease, transform .45s ease}
-    .slide.out-left{opacity:0;transform:translateX(-60px)}
-    .slide.out-right{opacity:0;transform:translateX(60px)}
-    .slide.pre-left{opacity:0;transform:translateX(60px);transition:none}
-    .slide.pre-right{opacity:0;transform:translateX(-60px);transition:none}
+    .slide{transition:opacity .45s cubic-bezier(.22,.8,.3,1), transform .45s cubic-bezier(.22,.8,.3,1)}
+    .slide.out-left{opacity:0;transform:translateX(-90px) rotate(-1.2deg)}
+    .slide.out-right{opacity:0;transform:translateX(90px) rotate(1.2deg)}
+    .slide.pre-left{opacity:0;transform:translateX(90px);transition:none}
+    .slide.pre-right{opacity:0;transform:translateX(-90px);transition:none}
+    .slide.dragging{transition:none}
 
     .wall-arrow{
       position:absolute;top:50%;transform:translateY(-50%);z-index:5;
@@ -221,6 +222,26 @@
     .foot-links a:hover{color:var(--accent);border-color:var(--accent)}
     .bmc{display:inline-flex;align-items:center;gap:8px;background:#ffdd00;color:#171512;font-weight:700;border-radius:10px;padding:9px 16px;font-size:13px}
 
+    .menu-panel{
+      position:fixed;top:64px;left:clamp(16px,3.5vw,44px);z-index:300;width:min(330px,86vw);
+      background:var(--placard);border:1px solid var(--line-strong);
+      box-shadow:var(--shadow);padding:10px;max-height:70vh;overflow:auto;
+    }
+    .menu-panel[hidden]{display:none}
+    .menu-panel .mp-head{
+      font-size:10.5px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+      color:var(--brass);padding:8px 12px 10px;border-bottom:1px solid var(--line);margin-bottom:4px;
+    }
+    .menu-panel button{
+      width:100%;display:flex;align-items:baseline;gap:12px;text-align:left;padding:11px 12px;
+      border-bottom:1px solid var(--line);font-family:"Dela Gothic One","Noto Sans TC",sans-serif;
+    }
+    .menu-panel button:last-child{border-bottom:0}
+    .menu-panel button:hover{background:var(--wall-2)}
+    .menu-panel .idx{font-size:11px;color:var(--brass);font-weight:400;min-width:26px;font-family:"Dela Gothic One",sans-serif}
+    .menu-panel .m-title{font-size:15px;font-weight:400}
+    .menu-panel .m-wall{margin-left:auto;font-size:10px;letter-spacing:.12em;color:var(--muted);white-space:nowrap;font-family:"Geist","Noto Sans TC",sans-serif}
+
     .reveal{opacity:0;transform:translateY(34px);transition:opacity .8s ease,transform .8s ease}
     .reveal.in{opacity:1;transform:none}
 
@@ -239,6 +260,9 @@
 </head>
 <body>
   <header class="topbar">
+    <button class="tbtn" id="menuBtn" aria-label="目錄" aria-haspopup="true" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
     <span class="wordmark">OPEN<em>X</em> — <span data-i18n="gallery">GALLERY</span></span>
     <span class="sp"></span>
     <button class="tbtn" id="themeToggle" aria-label="Gallery lights">
@@ -251,6 +275,7 @@
       <span class="star-label" data-i18n="star">Star on GitHub</span>
     </a>
   </header>
+  <nav class="menu-panel" id="menuPanel" hidden aria-label="目錄"></nav>
 
   <section class="entrance">
     <p class="eyebrow" data-i18n="eyebrow">An exhibition of open-source works</p>
@@ -366,7 +391,7 @@
           eyebrow: 'An exhibition of open-source works',
           intro: '<strong>Eight works</strong>, written in the open — tools, toys and instruments, hung on these walls. Walk in. Touch everything.',
           works: 'WORKS', admission: 'Free admission · forever', enter: 'Enter the gallery',
-          star: 'Star on GitHub', wall: 'Wall', artist: 'X', year: '2026',
+          star: 'Star on GitHub', toc: 'Index', wall: 'Wall', artist: 'X', year: '2026',
           demo: 'Visit', github: 'GitHub',
           soon: 'Next wall opens soon', soonSub: 'A new work, every 3 days',
           foot: '<strong>The OpenX Gallery.</strong> Every work is MIT-licensed and free forever.<br>Curated by X · New wing opens every 3 days.'
@@ -376,7 +401,7 @@
           eyebrow: '開放源碼作品展',
           intro: '<strong>八件作品</strong>，公開寫成——工具、玩具同樂器，掛喺呢啲牆上。入嚟，樣樣掂得。',
           works: '作品', admission: '免費入場 · 永久', enter: '進入展館',
-          star: '在 GitHub 加星', wall: '展覽牆', artist: 'X', year: '2026',
+          star: '在 GitHub 加星', toc: '目錄', wall: '展覽牆', artist: 'X', year: '2026',
           demo: '參觀', github: 'GitHub',
           soon: '下一幅牆即將開幕', soonSub: '每 3 日一件新作',
           foot: '<strong>OpenX 展覽館。</strong>每件作品 MIT 授權，永久免費。<br>X 策展 · 每 3 日開一個新展廳。'
@@ -502,17 +527,43 @@
           st.el.querySelectorAll('[data-nav]').forEach(function (btn) {
             btn.addEventListener('click', function () { stepWall(w, +btn.dataset.nav); });
           });
-          // swipe
+          // swipe — drag follows finger, release snaps with momentum
           var frame = st.el.querySelector('.frame');
-          var sx = null;
-          frame.addEventListener('pointerdown', function (e) { sx = e.clientX; frame.classList.add('grabbing'); frame.setPointerCapture(e.pointerId); });
-          frame.addEventListener('pointerup', function (e) {
-            frame.classList.remove('grabbing');
-            if (sx === null) return;
-            var dx = e.clientX - sx; sx = null;
-            if (Math.abs(dx) > 48) stepWall(w, dx < 0 ? 1 : -1);
+          var artEl = st.el.querySelector('[data-art]');
+          var sx = null, dx0 = 0, dragging = false, lastX = 0, lastT = 0, vel = 0;
+          frame.addEventListener('pointerdown', function (e) {
+            sx = e.clientX; lastX = sx; lastT = performance.now(); vel = 0;
+            dragging = true; artEl.classList.add('dragging');
+            frame.classList.add('grabbing');
+            try { frame.setPointerCapture(e.pointerId); } catch (err) {}
           });
-          frame.addEventListener('pointercancel', function () { sx = null; frame.classList.remove('grabbing'); });
+          frame.addEventListener('pointermove', function (e) {
+            if (!dragging || sx === null) return;
+            var now = performance.now();
+            vel = 0.8 * vel + 0.2 * ((e.clientX - lastX) / Math.max(1, now - lastT));
+            lastX = e.clientX; lastT = now;
+            dx0 = e.clientX - sx;
+            // resistance at the ends (single painting per wall loops, so keep it free)
+            var rot = Math.max(-4, Math.min(4, dx0 * 0.012));
+            artEl.style.transform = 'translateX(' + dx0 + 'px) rotate(' + rot + 'deg)';
+            artEl.style.opacity = String(Math.max(0.35, 1 - Math.abs(dx0) / (frame.offsetWidth * 1.4)));
+          });
+          function endDrag(e) {
+            if (!dragging) return;
+            dragging = false; sx = null;
+            frame.classList.remove('grabbing');
+            artEl.classList.remove('dragging');
+            artEl.style.transform = ''; artEl.style.opacity = '';
+            var go = 0;
+            if (Math.abs(dx0) > 70 || Math.abs(vel) > 0.55) go = (dx0 < 0 || vel < -0.55) ? 1 : -1;
+            // if swiped far, velocity already implies direction; unify:
+            if (Math.abs(dx0) > 70) go = dx0 < 0 ? 1 : -1;
+            else if (Math.abs(vel) > 0.55) go = vel < 0 ? 1 : -1;
+            dx0 = 0; vel = 0;
+            if (go !== 0) stepWall(w, go);
+          }
+          frame.addEventListener('pointerup', endDrag);
+          frame.addEventListener('pointercancel', endDrag);
         });
         observe();
       }
@@ -528,6 +579,7 @@
         });
         langToggle.textContent = lang === 'zh' ? '中' : 'EN';
         render();
+        if (!menuPanel.hidden) buildMenu();
         try { localStorage.setItem('openx-lang', lang); } catch (e) {}
       }
 
@@ -557,6 +609,39 @@
         }, { threshold: 0.12 });
         els.forEach(function (el) { io.observe(el); });
       }
+
+      var menuBtn = document.getElementById('menuBtn');
+      var menuPanel = document.getElementById('menuPanel');
+      function buildMenu() {
+        var s = '<div class="mp-head">' + t('toc') + '</div>';
+        PROJECTS.forEach(function (p, i) {
+          var w = Math.floor(i / PER_WALL);
+          s += '<button data-goto="' + i + '"><span class="idx">' + pad(i + 1) + '</span>'
+            + '<span class="m-title">' + p.title[lang] + '</span>'
+            + '<span class="m-wall">' + t('wall') + ' ' + String.fromCharCode(65 + w) + '</span></button>';
+        });
+        menuPanel.innerHTML = s;
+        menuPanel.querySelectorAll('[data-goto]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var i = +b.dataset.goto;
+            var w = Math.floor(i / PER_WALL);
+            var local = i % PER_WALL;
+            if (wallState[w]) { wallState[w].idx = local; paintWall(w, 0); }
+            closeMenu();
+            var sec = document.getElementById('wall-' + (w + 1));
+            if (sec) sec.scrollIntoView({ behavior: 'smooth' });
+          });
+        });
+      }
+      function closeMenu() { menuPanel.hidden = true; menuBtn.setAttribute('aria-expanded', 'false'); }
+      menuBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (menuPanel.hidden) { buildMenu(); menuPanel.hidden = false; menuBtn.setAttribute('aria-expanded', 'true'); }
+        else closeMenu();
+      });
+      document.addEventListener('click', function (e) {
+        if (!menuPanel.hidden && !menuPanel.contains(e.target)) closeMenu();
+      });
 
       /* init */
       root.setAttribute('data-lang', lang);
