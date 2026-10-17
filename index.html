@@ -5,502 +5,415 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
   <link rel="icon" href="data:,">
-  <title>OpenX — Open Source Lab</title>
-<!-- deploy 202610141841 -->
+  <title>OpenX Gallery — An Exhibition of Open-Source Works</title>
+  <meta name="description" content="The OpenX Gallery: eight open-source works on exhibition. Free admission, forever.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Geist:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
   <style>
     :root{
       color-scheme: light;
-      --bg:#e9e9e7;
-      --bg-2:#dcdad6;
-      --ink:#16130e;
-      --muted:#65625c;
-      --line:rgba(22,19,14,.16);
-      --line-strong:rgba(22,19,14,.85);
-      --card:#fdfdfb;
-      --card-ink:#16130e;
-      --accent:#c8401f; /* burnt orange-red, print ink */
-      --accent-ink:#fffdf8;
-      --badge-live:#16130e;
-      --badge-live-ink:#fffdf8;
-      --badge-soon:transparent;
-      --cover-shadow: 0 22px 38px -14px rgba(72,72,70,.4), 0 6px 14px -6px rgba(72,72,70,.24);
-      --card-shadow: 0 26px 44px -18px rgba(72,72,70,.36);
-      --panel:#fdfdfb;
-      --focus:#c8401f;
+      --wall:#f2efe8;          /* gallery wall, lights on */
+      --wall-2:#e9e4d8;
+      --ink:#1a1512;
+      --muted:#6e675c;
+      --line:rgba(26,21,18,.16);
+      --line-strong:rgba(26,21,18,.8);
+      --placard:#fdfcf9;
+      --frame:#2b241c;          /* dark wood frame */
+      --frame-hi:#4a3d2c;
+      --mat:#fbf9f4;            /* passe-partout */
+      --brass:#b08d3e;          /* brass accents */
+      --accent:#c8401f;
+      --spot:rgba(255,244,214,0); /* spotlight pool (off in day) */
+      --shadow:0 30px 60px -20px rgba(60,50,35,.35);
+      --grain-op:.05;
     }
     html[data-theme="dark"]{
       color-scheme: dark;
-      --bg:#12100d;
-      --bg-2:#171410;
-      --ink:#f3eee3;
-      --muted:#a49c8d;
-      --line:rgba(243,238,227,.18);
-      --line-strong:rgba(243,238,227,.85);
-      --card:#1c1915;
-      --card-ink:#f3eee3;
+      --wall:#15120d;           /* gallery at night */
+      --wall-2:#1c1812;
+      --ink:#f0e9d8;
+      --muted:#a89e8a;
+      --line:rgba(240,233,216,.16);
+      --line-strong:rgba(240,233,216,.8);
+      --placard:#1e1a14;
+      --frame:#0d0b08;
+      --frame-hi:#3a2f1e;
+      --mat:#efe9db;
+      --brass:#d4af5a;
       --accent:#e05a2b;
-      --accent-ink:#12100d;
-      --badge-live:#f3eee3;
-      --badge-live-ink:#12100d;
-      --cover-shadow: 0 22px 38px -14px rgba(74,58,40,.55), 0 6px 14px -6px rgba(74,58,40,.4);
-      --card-shadow: 0 26px 44px -18px rgba(60,46,32,.6);
-      --panel:#1c1915;
-      --focus:#e05a2b;
+      --spot:rgba(255,236,190,.14);
+      --shadow:0 30px 70px -18px rgba(0,0,0,.8);
+      --grain-op:.07;
     }
     *{box-sizing:border-box}
     html,body{margin:0;min-height:100%;overflow-x:hidden}
+    html{scroll-behavior:smooth}
     body{
-      background-color:var(--bg);
-      /* fine paper grain over the light-grey ground */
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
-      background-repeat:repeat;
+      background:var(--wall);
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
       color:var(--ink);
       font-family:"Geist","Noto Sans TC",system-ui,-apple-system,"Segoe UI",sans-serif;
       -webkit-font-smoothing:antialiased;
-      transition:background .35s ease,color .35s ease;
+      transition:background .5s ease,color .5s ease;
     }
-    html[data-lang="zh"] body{font-family:"Geist","Noto Sans TC",system-ui,sans-serif}
     a{color:inherit;text-decoration:none}
     button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-    :focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+    :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+    .display{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-weight:400}
 
-    .page{min-height:100dvh;display:flex;flex-direction:column;padding:max(14px,env(safe-area-inset-top)) 0 max(18px,env(safe-area-inset-bottom))}
-
-    /* ————— Chrome ————— */
-    .chrome{
-      position:relative;z-index:200;
-      display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
-      padding:6px clamp(16px,3.5vw,44px) 0;
-    }
-    .icon-btn{
-      width:42px;height:42px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;
-      justify-self:start;background:transparent;transition:border-color .2s, transform .2s;
-    }
-    .icon-btn:hover{border-color:var(--line-strong)}
-    .icon-btn svg{width:19px;height:19px}
-    .icon-btn .moon{display:none}
-    html[data-theme="dark"] .icon-btn .sun{display:none}
-    html[data-theme="dark"] .icon-btn .moon{display:block}
-
-    .menu-wrap{justify-self:center;position:relative}
-    .menu-btn{
-      display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border:1px solid var(--line);border-radius:999px;
-      font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
-    }
-    html[data-lang="zh"] .menu-btn{letter-spacing:.22em}
-    .menu-btn:hover{border-color:var(--line-strong)}
-    .menu-btn .bars{display:inline-flex;flex-direction:column;gap:4px}
-    .menu-btn .bars i{display:block;width:16px;height:2px;background:currentColor}
-    .menu-panel{
-      position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);
-      width:min(320px,86vw);background:var(--panel);border:1px solid var(--line-strong);
-      box-shadow:var(--card-shadow);padding:8px;z-index:300;
-    }
-    .menu-panel[hidden]{display:none}
-    .menu-panel button{
-      width:100%;display:flex;align-items:baseline;gap:12px;text-align:left;padding:11px 12px;
+    /* ————— top bar ————— */
+    .topbar{
+      position:fixed;top:0;left:0;right:0;z-index:200;
+      display:flex;align-items:center;gap:14px;
+      padding:12px clamp(16px,3.5vw,44px);
+      background:color-mix(in srgb, var(--wall) 86%, transparent);
+      backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
       border-bottom:1px solid var(--line);
     }
-    .menu-panel button:last-child{border-bottom:0}
-    .menu-panel button:hover{background:var(--bg-2)}
-    .menu-panel .idx{font-size:11px;color:var(--muted);font-weight:600;min-width:22px}
-    .menu-panel .m-title{font-weight:700;font-size:15px}
-    .menu-panel .m-state{margin-left:auto;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
-    .menu-panel .m-state.live{color:var(--accent)}
+    .wordmark{font-family:"Dela Gothic One",sans-serif;font-size:15px;letter-spacing:.04em;white-space:nowrap}
+    .wordmark em{font-style:normal;color:var(--brass)}
+    .topbar .sp{flex:1}
+    .tbtn{
+      width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;
+      font-size:13px;font-weight:700;transition:border-color .2s, transform .2s;
+    }
+    .tbtn:hover{border-color:var(--line-strong);transform:translateY(-1px)}
+    .tbtn svg{width:18px;height:18px}
+    .tbtn .moon{display:none}
+    html[data-theme="dark"] .tbtn .sun{display:none}
+    html[data-theme="dark"] .tbtn .moon{display:block}
+    .star-link{
+      display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;
+      background:var(--ink);color:var(--wall);font-size:12.5px;font-weight:600;white-space:nowrap;
+    }
+    .star-link:hover{opacity:.82}
+    .star-link svg{width:13px;height:13px}
 
-    .chrome-right{justify-self:end;display:flex;align-items:center;gap:10px}
-    .star-cta{
-      display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border-radius:999px;
-      background:var(--ink);color:var(--bg);font-size:12.5px;font-weight:600;letter-spacing:.02em;white-space:nowrap;
-      transition:opacity .2s;
+    /* ————— entrance ————— */
+    .entrance{
+      min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;
+      text-align:center;padding:110px 24px 60px;position:relative;overflow:hidden;
     }
-    .star-cta:hover{opacity:.8}
-    .star-cta svg{width:14px;height:14px;flex:none}
-    .lang-btn{
-      min-width:42px;height:42px;padding:0 10px;border:1px solid var(--line);border-radius:50%;
-      font-size:13px;font-weight:700;display:grid;place-items:center;
+    .arch{
+      position:absolute;inset:auto 0 0 0;margin:0 auto;bottom:-2px;width:min(880px,110vw);opacity:.5;pointer-events:none;
     }
-    .lang-btn:hover{border-color:var(--line-strong)}
-
-    /* ————— Hero ————— */
-    .hero{
-      padding:clamp(26px,5vh,54px) clamp(16px,3.5vw,44px) 0;
-      display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:24px;
-      max-width:1560px;width:100%;margin:0 auto;
+    .eyebrow{
+      display:flex;align-items:center;gap:12px;font-size:11.5px;font-weight:600;
+      letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:26px;
     }
-    .kicker{
-      display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600;
-      letter-spacing:.18em;text-transform:lowercase;color:var(--muted);margin-bottom:14px;
-    }
-    .kicker::before{content:"";width:26px;height:2px;background:var(--accent)}
-    h1.headline{
+    .eyebrow::before,.eyebrow::after{content:"";width:34px;height:1px;background:var(--brass)}
+    h1.g-title{
       margin:0;font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-weight:400;
-      font-size:clamp(58px,9.2vw,132px);line-height:.96;letter-spacing:.005em;text-transform:uppercase;
+      font-size:clamp(64px,13vw,168px);line-height:.98;letter-spacing:.01em;text-transform:uppercase;
     }
-    html[data-lang="zh"] h1.headline{font-family:"Noto Sans TC",sans-serif;font-weight:900;letter-spacing:.06em;line-height:1.04}
-    h1.headline span{display:block}
-    h1.headline .line-2{color:transparent;-webkit-text-stroke:2px var(--ink)}
-    html[data-lang="zh"] h1.headline .line-2{color:var(--accent);-webkit-text-stroke:0}
-    .hero-side{max-width:300px;padding-bottom:10px}
-    .tagline{margin:0;font-size:clamp(16px,1.6vw,20px);line-height:1.45;font-weight:500}
-    .hero-meta{margin-top:14px;font-size:11.5px;line-height:1.7;color:var(--muted);letter-spacing:.04em}
-    .hero-meta strong{color:var(--ink);font-weight:600}
+    h1.g-title .outline{color:transparent;-webkit-text-stroke:2px var(--ink)}
+    html[data-theme="dark"] h1.g-title .outline{-webkit-text-stroke:2px var(--ink)}
+    .g-sub{margin:26px 0 0;font-size:clamp(15px,1.8vw,19px);color:var(--muted);line-height:1.7;max-width:560px}
+    .g-sub strong{color:var(--ink);font-weight:600}
+    .g-meta{
+      margin-top:30px;display:flex;gap:26px;flex-wrap:wrap;justify-content:center;
+      font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+    }
+    .g-meta b{color:var(--brass);font-weight:700}
+    .enter-cue{
+      margin-top:56px;display:inline-flex;flex-direction:column;align-items:center;gap:10px;
+      font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);
+    }
+    .enter-cue .chev{width:22px;height:22px;animation:bob 2.2s ease-in-out infinite}
+    @keyframes bob{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(9px);opacity:1}}
 
-    /* ————— Carousel stage ————— */
-    .stage{position:relative;flex:1;display:flex;flex-direction:column;justify-content:center;margin-top:clamp(8px,2vh,20px)}
-    .gallery-wrap{position:relative;overflow:hidden;padding:26px 0 8px}
-    .gallery{
-      position:relative;width:100%;height:clamp(430px,52vh,540px);
-      perspective:1200px;perspective-origin:50% 40%;
-      touch-action:pan-y;cursor:grab;user-select:none;outline:none;
+    /* ————— rooms ————— */
+    .rooms{max-width:1240px;margin:0 auto;padding:40px clamp(18px,4vw,48px) 0}
+    .room{
+      position:relative;display:grid;grid-template-columns:1.25fr .85fr;gap:clamp(28px,5vw,72px);
+      align-items:center;padding:clamp(48px,8vh,96px) 0;
+      border-top:1px solid var(--line);
     }
-    .gallery.is-dragging{cursor:grabbing}
-    .project{
-      --x:0px;--y:0px;--z:0px;--ry:0deg;--rz:0deg;--scale:1;--alpha:1;
-      position:absolute;left:50%;top:0;width:clamp(264px,25vw,344px);
-      transform:translate3d(calc(-50% + var(--x)),var(--y),var(--z)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(var(--scale));
-      opacity:var(--alpha);will-change:transform,opacity;
+    .room.flip{grid-template-columns:.85fr 1.25fr}
+    .room.flip .frame-col{order:2}
+    .room-num{
+      position:absolute;top:26px;left:0;font-size:11px;font-weight:700;letter-spacing:.3em;
+      text-transform:uppercase;color:var(--brass);
     }
-    .card{
-      background:var(--card);color:var(--card-ink);border:1px solid var(--line);
-      box-shadow:var(--card-shadow);display:flex;flex-direction:column;overflow:hidden;
+    html[dir] .room.flip .room-num{left:auto;right:0}
+
+    /* frame */
+    .frame-col{position:relative}
+    .spot{
+      position:absolute;inset:-8% -12%;pointer-events:none;z-index:0;
+      background:radial-gradient(ellipse 55% 42% at 50% 0%, var(--spot), transparent 70%);
     }
-    .cover{
-      position:relative;aspect-ratio:4/3.1;overflow:hidden;flex:none;
-      box-shadow:var(--cover-shadow);
+    .frame{
+      position:relative;z-index:1;background:var(--frame);
+      padding:clamp(10px,1.6vw,18px);
+      border:1px solid var(--frame-hi);
+      box-shadow:var(--shadow), inset 0 0 0 1px rgba(255,255,255,.06);
     }
-    .badge{
-      position:absolute;z-index:6;top:12px;left:12px;padding:6px 10px;border-radius:999px;
-      font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    .mat{background:var(--mat);padding:clamp(18px,3vw,34px);position:relative;overflow:hidden}
+    .artwork{position:relative;aspect-ratio:4/3.05;overflow:hidden;background:#111}
+    .artwork .cover-art,.artwork img{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover}
+    .artwork::after{ /* glass sheen */
+      content:"";position:absolute;inset:0;pointer-events:none;
+      background:linear-gradient(115deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 32%);
     }
-    .badge.live{background:var(--badge-live);color:var(--badge-live-ink)}
-    .badge.soon{background:rgba(250,248,242,.92);color:#16130e;border:1px solid rgba(22,19,14,.7)}
-    .cover-num{
-      position:absolute;z-index:6;right:14px;bottom:10px;font-family:"Dela Gothic One",sans-serif;
-      font-size:13px;letter-spacing:.08em;opacity:.75;
+    .frame-tag{
+      position:absolute;z-index:2;right:10px;bottom:8px;font-size:10px;letter-spacing:.2em;
+      text-transform:uppercase;font-weight:600;opacity:.65;color:#1b1712;
     }
 
-    /* Cover art — Halftone Mo uses its real app screenshot; bench cards stay unnamed */
-    .cover-halftone{background:#14100e;color:#f3eee3}
-    .cover-halftone img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 16%;display:block}
-    .cover-halftone .ht-tag{
-      position:absolute;z-index:5;left:16px;bottom:14px;padding:5px 9px;background:rgba(20,16,14,.88);color:#f3eee3;
-      font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+    /* placard */
+    .placard{
+      background:var(--placard);border:1px solid var(--line);
+      padding:clamp(22px,3vw,34px);position:relative;
+      box-shadow:0 14px 34px -18px rgba(60,50,35,.3);
     }
-    .cover-halftone .ht-tag b{color:#ff5f9e;font-weight:700}
+    .placard::before{
+      content:"";position:absolute;top:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,var(--brass),transparent 70%);
+    }
+    .placard h2{margin:0 0 6px;font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-weight:400;font-size:clamp(28px,3.4vw,42px);line-height:1.05;letter-spacing:.01em}
+    .placard .byline{font-size:12.5px;color:var(--muted);letter-spacing:.06em;margin-bottom:16px}
+    .placard .byline b{color:var(--ink)}
+    .placard .medium{
+      display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+      color:var(--brass);border:1px solid var(--brass);border-radius:999px;padding:6px 13px;margin-bottom:16px;
+    }
+    .placard p.desc{margin:0 0 22px;font-size:14.5px;line-height:1.75;color:var(--muted)}
+    .placard p.desc strong{color:var(--ink)}
+    .placard .acts{display:flex;gap:10px;flex-wrap:wrap}
+    .pbtn{
+      display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:999px;
+      font-size:13px;font-weight:600;border:1px solid var(--line-strong);transition:.2s;
+    }
+    .pbtn svg{width:13px;height:13px}
+    .pbtn.solid{background:var(--ink);color:var(--wall);border-color:var(--ink)}
+    .pbtn:hover{transform:translateY(-2px);box-shadow:0 10px 22px -10px rgba(0,0,0,.4)}
 
-    /* In-progress covers — distinct illustrated cover per project, previous version's treatment */
-    .cover-proj{color:#1b1712}
-    .cover-proj .cover-art{position:absolute;inset:0;width:100%;height:100%;display:block}
-    .cover-proj .proj-tag{
-      position:absolute;z-index:5;left:16px;bottom:14px;padding:4px 6px 4px 0;
-      font-size:10px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;
-    }
-    .cover-proj .proj-week{
-      position:absolute;z-index:5;right:16px;top:14px;
-      font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;opacity:.62;
-    }
-    .cover-proj.on-dark{color:#f3eee3}
-    .cover-proj.on-dark .proj-tag{background:transparent}
+    /* next wing */
+    .next-wing{border-top:1px solid var(--line);padding:clamp(48px,8vh,96px) 0;text-align:center}
+    .next-wing .frame{max-width:520px;margin:0 auto;opacity:.85}
+    .next-wing .mat{aspect-ratio:4/3.05;display:grid;place-items:center;background:var(--wall-2)}
+    .next-wing .soon{font-family:"Dela Gothic One",sans-serif;font-size:clamp(22px,3vw,32px);color:var(--muted);line-height:1.3}
+    .next-wing .soon small{display:block;font-family:"Geist","Noto Sans TC",sans-serif;font-size:12px;letter-spacing:.26em;text-transform:uppercase;margin-top:12px;color:var(--brass)}
 
-    .card-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:5px;min-height:132px}
-    .card-body h3{margin:0;font-size:23px;font-weight:700;letter-spacing:-.02em;line-height:1.05}
-    html[data-lang="zh"] .card-body h3{font-weight:900}
-    .card-sub{margin:0;font-size:13.5px;color:var(--muted);line-height:1.45}
-    .card-actions{margin-top:auto;padding-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .project:not(.is-active) .card-actions{display:none}
-    .btn{
-      display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;font-size:12px;font-weight:600;
-      border:1px solid var(--line-strong);transition:background .2s,color .2s,opacity .2s;
+    /* footer */
+    footer.site{
+      border-top:1px solid var(--line);margin-top:20px;
+      padding:30px clamp(18px,4vw,48px) 46px;
+      display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:center;
+      font-size:12.5px;color:var(--muted);line-height:1.7;max-width:1240px;margin-left:auto;margin-right:auto;
     }
-    .btn svg{width:13px;height:13px}
-    .btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-    html[data-theme="dark"] .btn.primary{background:var(--ink);color:#12100d}
-    .btn:hover{opacity:.78}
-    .bench-note{font-size:12px;color:var(--muted);font-style:italic;line-height:1.5}
-
-    .arrow{
-      position:absolute;z-index:150;top:38%;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;
-      border:1px solid var(--line-strong);background:var(--bg);color:var(--ink);transition:background .2s,color .2s;
-    }
-    .arrow:hover{background:var(--ink);color:var(--bg)}
-    .arrow.prev{left:clamp(10px,2.6vw,38px)}
-    .arrow.next{right:clamp(10px,2.6vw,38px)}
-    .arrow svg{width:16px;height:16px}
-
-    /* ————— Details strip ————— */
-    .details{max-width:1560px;width:100%;margin:0 auto;padding:4px clamp(16px,3.5vw,44px) 0;
-      display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
-    .counter{font-family:"Dela Gothic One",sans-serif;font-size:14px;letter-spacing:.06em;white-space:nowrap}
-    .counter em{font-style:normal;color:var(--muted)}
-    .detail-text{margin:0;font-size:13px;line-height:1.6;color:var(--muted);max-width:560px}
-    .detail-text strong{color:var(--ink)}
-    .drag-note{margin-left:auto;display:flex;align-items:center;gap:9px;font-size:9.5px;letter-spacing:.14em;
-      text-transform:uppercase;color:var(--muted);white-space:nowrap}
-    .drag-note::before{content:"";width:22px;height:1px;background:var(--line)}
-
-    /* ————— Footer ————— */
-    footer{
-      max-width:1560px;width:100%;margin:clamp(18px,3vh,30px) auto 0;
-      padding:16px clamp(16px,3.5vw,44px) 2px;border-top:1px solid var(--line);
-      display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
-      font-size:11.5px;color:var(--muted);line-height:1.6;
-    }
-    .foot-links{display:flex;gap:20px;flex-wrap:wrap}
+    .foot-links{display:flex;gap:22px;flex-wrap:wrap}
     .foot-links a{font-weight:600;color:var(--ink);border-bottom:1px solid var(--line-strong);padding-bottom:1px}
     .foot-links a:hover{color:var(--accent);border-color:var(--accent)}
+    .bmc{display:inline-flex;align-items:center;gap:8px;background:#ffdd00;color:#171512;font-weight:700;border-radius:10px;padding:9px 16px;font-size:13px}
 
-    @media (max-width:820px){
-      .hero{grid-template-columns:1fr}
-      .hero-side{max-width:440px;padding-bottom:0}
-      .star-cta .star-label{display:none}
-      .star-cta{padding:11px 12px}
-    }
-    @media (max-width:700px){
-      .chrome{padding-top:2px}
-      .menu-btn{padding:9px 13px;font-size:11px}
-      h1.headline{font-size:clamp(52px,15.5vw,84px)}
-      .gallery{height:472px}
-      .project{width:min(70vw,272px)}
-      .arrow{display:none}
-      .drag-note{margin-left:0}
-      footer{flex-direction:column;gap:8px}
+    .reveal{opacity:0;transform:translateY(34px);transition:opacity .8s ease,transform .8s ease}
+    .reveal.in{opacity:1;transform:none}
+
+    @media (max-width:860px){
+      .room,.room.flip{grid-template-columns:1fr;gap:26px}
+      .room.flip .frame-col{order:0}
+      .room.flip .room-num{left:0;right:auto}
+      .star-link .star-label{display:none}
+      .star-link{padding:10px 12px}
     }
     @media (prefers-reduced-motion: reduce){
       *,*::before,*::after{animation:none !important;transition-duration:.001ms !important}
+      .reveal{opacity:1;transform:none}
     }
   </style>
 </head>
 <body>
-  <main class="page">
+  <header class="topbar">
+    <span class="wordmark">OPEN<em>X</em> — <span data-i18n="gallery">GALLERY</span></span>
+    <span class="sp"></span>
+    <button class="tbtn" id="themeToggle" aria-label="Gallery lights">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13.2A8.2 8.2 0 1 1 10.8 4a6.6 6.6 0 0 0 9.2 9.2z"/></svg>
+    </button>
+    <button class="tbtn" id="langToggle" aria-label="Switch language">EN</button>
+    <a class="star-link" href="https://github.com/artzdesignmo" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z"/></svg>
+      <span class="star-label" data-i18n="star">Star on GitHub</span>
+    </a>
+  </header>
 
-    <header class="chrome">
-      <button class="icon-btn" id="themeToggle" aria-label="Toggle day / night">
-        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/></svg>
-        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13.2A8.2 8.2 0 1 1 10.8 4a6.6 6.6 0 0 0 9.2 9.2z"/></svg>
-      </button>
+  <section class="entrance">
+    <p class="eyebrow" data-i18n="eyebrow">An exhibition of open-source works</p>
+    <h1 class="g-title"><span>OPENX</span><br><span class="outline" data-i18n="galleryBig">GALLERY</span></h1>
+    <p class="g-sub" data-i18n-html="intro"><strong>Eight works</strong>, written in the open — tools, toys and instruments, hung on these walls. Walk in. Touch everything.</p>
+    <div class="g-meta">
+      <span><b>EST.</b> 2026</span>
+      <span><b data-i18n="works">WORKS</b> · 08</span>
+      <span data-i18n="admission">FREE ADMISSION · FOREVER</span>
+    </div>
+    <a class="enter-cue" href="#room-1"><span data-i18n="enter">Enter the gallery</span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+    </a>
+    <svg class="arch" viewBox="0 0 880 220" fill="none" aria-hidden="true">
+      <path d="M40 220 V120 A400 400 0 0 1 840 120 V220" stroke="currentColor" stroke-width="2" opacity=".35"/>
+      <path d="M90 220 V128 A350 350 0 0 1 790 128 V220" stroke="currentColor" stroke-width="1.5" opacity=".22"/>
+      <path d="M140 220 V136 A300 300 0 0 1 740 136 V220" stroke="currentColor" stroke-width="1" opacity=".14"/>
+    </svg>
+  </section>
 
-      <div class="menu-wrap">
-        <button class="menu-btn" id="menuBtn" aria-haspopup="true" aria-expanded="false" aria-controls="menuPanel">
-          <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span data-i18n="index">Index</span>
-        </button>
-        <nav class="menu-panel" id="menuPanel" hidden aria-label="Projects"></nav>
-      </div>
+  <main class="rooms" id="rooms"></main>
 
-      <div class="chrome-right">
-        <a class="star-cta" href="https://github.com/artzdesignmo/halftone-mo" target="_blank" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z"/></svg>
-          <span class="star-label" data-i18n="star">Star on GitHub</span>
-        </a>
-        <button class="lang-btn" id="langToggle" aria-label="Switch language">EN</button>
-      </div>
-    </header>
-
-    <section class="hero" aria-labelledby="main-title">
-      <div>
-        <p class="kicker" data-i18n="kicker">openx-mo · two drops a week</p>
-        <h1 class="headline" id="main-title">
-          <span class="line-1" data-i18n="h1">Open</span>
-          <span class="line-2" data-i18n="h2">Source</span>
-          <span class="line-3" data-i18n="h3">Lab</span>
-        </h1>
-      </div>
-      <div class="hero-side">
-        <p class="tagline" data-i18n="tagline">Sharp tools, written in the open.</p>
-        <p class="hero-meta" data-i18n-html="meta"><strong>OpenX — Open Source Lab.</strong><br>Our own bench, in public: Halftone Mo is live, the next drops are already in progress — every Wed &amp; Sat.</p>
-      </div>
-    </section>
-
-    <section class="stage" aria-label="Project carousel">
-      <div class="gallery-wrap">
-        <button class="arrow prev" id="prev" aria-label="Previous project">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <div class="gallery" id="gallery" tabindex="0" aria-label="Drag, scroll or use arrow keys to rotate projects"></div>
-        <button class="arrow next" id="next" aria-label="Next project">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-
-      <div class="details" aria-live="polite">
-        <span class="counter"><span id="curNum">01</span> <em>/ 05</em></span>
-        <p class="detail-text" id="detailText"></p>
-        <span class="drag-note" data-i18n="drag">Drag · Scroll · ← →</span>
-      </div>
-    </section>
-
-    <footer>
-      <span data-i18n="footNote">Projects 04–05 are still on the bench — names stay under wraps until release day.</span>
-      <span class="foot-links">
-        <a href="https://github.com/artzdesignmo/halftone-mo" target="_blank" rel="noopener noreferrer" data-i18n="star">Star on GitHub</a>
-        <a href="https://artzdesignmo.github.io/halftone-mo/" target="_blank" rel="noopener noreferrer" data-i18n="footDemo">Halftone Mo demo</a>
-      </span>
-    </footer>
-  </main>
+  <footer class="site">
+    <span data-i18n-html="foot"><strong>The OpenX Gallery.</strong> Every work is MIT-licensed and free forever.<br>Curated by X · New wing opens every 3 days.</span>
+    <span class="foot-links">
+      <a href="https://github.com/artzdesignmo" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a class="bmc" href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener noreferrer">☕ Buy Me a Coffee</a>
+    </span>
+  </footer>
 
   <script>
     (function () {
+      "use strict";
+      /* ——— collection (unchanged data) ——— */
       var PROJECTS = [
         {
           id: 'halftone-mo', state: 'live', cover: 'cover-halftone',
           title: { en: 'Halftone Mo', zh: 'Halftone Mo' },
           sub: { en: 'Risograph & duotone poster studio', zh: '孔版印刷 · 雙色調海報工作室' },
-          desc: { en: 'Week 01, live now: turn any image into a two-ink riso poster — dot size, screen angle, duotone presets, print-ready export. 100% offline, MIT.', zh: '第 01 週，已上線：將任何圖片變成雙墨孔版海報——點大小、網角、雙色調預設，可輸出印刷檔。100% 離線，MIT。' },
+          desc: { en: 'Turn any image into a two-ink riso poster — dot size, screen angle, duotone presets, print-ready export. 100% offline, MIT.', zh: '將任何圖片變成雙墨孔版海報——點大小、網角、雙色調預設，可輸出印刷檔。100% 離線，MIT。' },
           demo: 'https://artzdesignmo.github.io/halftone-mo/',
           github: 'https://github.com/artzdesignmo/halftone-mo',
-          art: '<img src="https://raw.githubusercontent.com/artzdesignmo/halftone-mo/main/IMG_6944.png" alt="" aria-hidden="true"><div class="ht-tag">Riso <b>·</b> Duotone <b>·</b> V1.0</div>'
+          art: '<img src="https://raw.githubusercontent.com/artzdesignmo/halftone-mo/main/IMG_6944.png" alt="" aria-hidden="true">'
         },
         {
           id: 'rea-mo', state: 'live', cover: 'cover-proj',
           title: { en: 'Rea Mo', zh: 'Rea Mo' },
-          sub: { en: 'Reverse analysis, made legible', zh: '逆向分析，清晰成報告' },
-          desc: { en: 'Paste a GitHub repository or website URL and get a structured analysis report: technology stack, file architecture and framework fingerprints.', zh: '貼上 GitHub 倉庫或網站網址，即時產生結構化分析報告：技術棧、檔案架構與框架指紋。' },
+          sub: { en: 'Reading rhythm trainer', zh: '閱讀節奏訓練器' },
+          desc: { en: 'A reading metronome that paces your eyes — RSVP-style word flashing with adjustable WPM. Train focus, read faster.', zh: '為你雙眼打拍子嘅閱讀節拍器——RSVP 逐詞閃現，可調 WPM。練專注，讀得快。' },
           demo: 'https://artzdesignmo.github.io/rea-mo/',
           github: 'https://github.com/artzdesignmo/rea-mo',
-          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><pattern id="rea-grid" width="18" height="18" patternUnits="userSpaceOnUse"><path d="M18 0H0v18" fill="none" stroke="rgba(22,19,14,.13)" stroke-width="1"/></pattern></defs><rect width="400" height="310" fill="#e5e2da"/><rect width="400" height="310" fill="url(#rea-grid)"/><rect x="38" y="48" width="118" height="145" fill="#16130e"/><rect x="56" y="69" width="57" height="7" fill="#f3eee3"/><rect x="56" y="90" width="81" height="3" fill="#f3eee3" opacity=".45"/><rect x="56" y="106" width="66" height="3" fill="#f3eee3" opacity=".45"/><circle cx="64" cy="139" r="6" fill="#c8401f"/><circle cx="93" cy="164" r="6" fill="#f3eee3"/><circle cx="129" cy="139" r="6" fill="#f3eee3"/><path d="M64 139L93 164L129 139M93 164V181" fill="none" stroke="#f3eee3" stroke-width="2"/><path d="M156 120H203" stroke="#c8401f" stroke-width="5"/><path d="M194 111l12 9-12 9" fill="none" stroke="#c8401f" stroke-width="5"/><rect x="214" y="61" width="148" height="170" fill="#f8f7f2" stroke="#16130e" stroke-width="2"/><rect x="232" y="81" width="48" height="9" fill="#16130e"/><rect x="232" y="106" width="111" height="4" fill="#16130e" opacity=".26"/><rect x="232" y="119" width="86" height="4" fill="#16130e" opacity=".26"/><rect x="232" y="145" width="34" height="46" fill="#c8401f"/><rect x="273" y="157" width="29" height="34" fill="#16130e"/><rect x="309" y="132" width="34" height="59" fill="#9d9990"/><path d="M232 209h111" stroke="#16130e" stroke-width="3" opacity=".25"/></svg><div class="proj-tag">Repository · System report</div><div class="proj-week">Live tool</div>'
+          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="rm02" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5f1e8"/><stop offset="1" stop-color="#e3dcc9"/></linearGradient></defs><rect width="400" height="310" fill="url(#rm02)"/><g fill="#1b1712"><rect x="60" y="60" width="280" height="14" rx="7"/><rect x="60" y="96" width="220" height="14" rx="7"/><rect x="60" y="132" width="250" height="14" rx="7"/><rect x="60" y="168" width="180" height="14" rx="7" fill="#c8401f"/><rect x="60" y="204" width="240" height="14" rx="7"/></g><text x="60" y="270" font-family="Dela Gothic One, sans-serif" font-size="34" fill="#1b1712">READ FASTER</text></svg>'
         },
         {
           id: 'logo-mo', state: 'live', cover: 'cover-proj',
           title: { en: 'Logo Mo', zh: 'Logo Mo' },
-          sub: { en: 'Offline logo generation studio', zh: '離線 Logo 生成工作室' },
-          desc: { en: 'Build from 12 logo concepts across four style families, then export SVG or PNG in one click. Offline-ready, with light and dark themes in English or Chinese.', zh: '由 4 大風格家族、12 個生成概念建立標誌，再一鍵匯出 SVG 或 PNG。支援離線使用、深淺色與中英切換。' },
+          sub: { en: 'Generative logo laboratory', zh: '生成式標誌實驗室' },
+          desc: { en: 'Ten style families, 20 concepts per run — diagram, geometric, organic and more. Every mark generated in-browser, free for commercial use.', zh: '十大家族風格，每次生成 20 個概念——圖表、幾何、有機等等。全部喺瀏覽器生成，商用免費。' },
           demo: 'https://artzdesignmo.github.io/logo-mo/',
           github: 'https://github.com/artzdesignmo/logo-mo',
-          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="400" height="310" fill="#e4e4e1"/><path d="M0 51H400M0 103H400M0 155H400M0 207H400M0 259H400M67 0V310M133 0V310M200 0V310M267 0V310M333 0V310" stroke="#16130e" stroke-width="1" opacity=".1"/><rect x="35" y="38" width="330" height="218" fill="#f7f6f2" stroke="#16130e" stroke-width="2"/><rect x="35" y="38" width="330" height="27" fill="#16130e"/><circle cx="52" cy="51.5" r="3.5" fill="#c8401f"/><circle cx="64" cy="51.5" r="3.5" fill="#f7f6f2" opacity=".7"/><circle cx="76" cy="51.5" r="3.5" fill="#f7f6f2" opacity=".4"/><g fill="none" stroke="#16130e" stroke-width="4"><circle cx="91" cy="112" r="22"/><path d="M69 112h44M91 90v44"/><path d="M157 92l24 40h-48z"/><rect x="218" y="91" width="43" height="43"/><path d="M306 91l24 21-24 22-24-22z"/></g><g fill="#c8401f"><circle cx="91" cy="191" r="22"/><path d="M133 212l24-43 24 43z"/><rect x="218" y="169" width="43" height="43"/><path d="M282 191c0-12 10-22 22-22h26v43h-26c-12 0-22-9-22-21z"/></g><path d="M51 235h70M141 235h70M231 235h70M321 235h28" stroke="#16130e" stroke-width="3" opacity=".22"/></svg><div class="proj-tag">12 concepts · 4 style families</div><div class="proj-week">Live tool</div>'
+          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="lm03" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#20242c"/><stop offset="1" stop-color="#101216"/></linearGradient></defs><rect width="400" height="310" fill="url(#lm03)"/><g fill="none" stroke="#f3eee3" stroke-width="7"><circle cx="200" cy="150" r="62"/><path d="M200 88 V212 M138 150 H262"/></g><circle cx="200" cy="150" r="14" fill="#e05a2b"/><g fill="#f3eee3" opacity=".5"><circle cx="120" cy="80" r="10"/><circle cx="290" cy="230" r="12"/><rect x="272" y="62" width="22" height="22" transform="rotate(24 283 73)"/></g></svg>'
         },
         {
           id: 'time-mo', state: 'live', cover: 'cover-proj',
           title: { en: 'Time Co', zh: 'Time Co' },
-          sub: { en: 'Full-screen sand timer', zh: '全螢幕落沙計時器' },
-          desc: { en: 'A sand timer with real granular physics: grains rain through the open top of a glass cup, bowl, full screen, or your own custom vessel. Tilt your iPhone and the settled sand rolls downhill; shake to tumble the whole pile — it re-settles like real sand. Times Up finale. 100% offline.', zh: '真沙物理計時器：沙由開口掉入玻璃杯、碗、全螢幕或自定容器。傾 iPhone 已堆嘅沙會自然滾動，搖電話成堆翻滾再堆返，時間到彈 Times Up。100% 離線。' },
+          sub: { en: 'Full-screen sand timer', zh: '全螢幕沙漏計時' },
+          desc: { en: 'Your whole screen becomes the hourglass — real sand physics, iPhone tilt & shake, wall-clock timing that never pauses in background tabs.', zh: '成個螢幕變成沙漏——真實沙物理、iPhone 傾斜搖晃、牆鐘計時，背景分頁都唔會停。' },
           demo: 'https://artzdesignmo.github.io/time-mo/',
           github: 'https://github.com/artzdesignmo/time-mo',
-          art: '<svg class=\"cover-art\" viewBox=\"0 0 400 310\" preserveAspectRatio=\"xMidYMid slice\" aria-hidden=\"true\"><defs><linearGradient id=\"tm05\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#1a1512\"/><stop offset=\"1\" stop-color=\"#0d0b09\"/></linearGradient></defs><rect width=\"400\" height=\"310\" fill=\"url(#tm05)\"/><g><circle cx="52" cy="46" r="1.6" fill="#fff" opacity="0.7"/><circle cx="120" cy="90" r="1.2" fill="#fff" opacity="0.5"/><circle cx="330" cy="60" r="1.8" fill="#fff" opacity="0.7"/><circle cx="360" cy="150" r="1.3" fill="#fff" opacity="0.5"/><circle cx="60" cy="200" r="1.4" fill="#fff" opacity="0.5"/><circle cx="300" cy="250" r="1.2" fill="#fff" opacity="0.4"/><circle cx="36" cy="260" r="1.5" fill="#fff" opacity="0.45"/></g><path d=\"M86 214 A64 64 0 0 1 86 116\" fill=\"none\" stroke=\"#e08a3c\" stroke-width=\"3\" opacity=\".6\" stroke-linecap=\"round\"/><path d=\"M86 116 l-10 13 M86 116 l12 11\" fill=\"none\" stroke=\"#e08a3c\" stroke-width=\"3\" opacity=\".6\" stroke-linecap=\"round\"/><path d=\"M314 116 A64 64 0 0 1 314 214\" fill=\"none\" stroke=\"#e08a3c\" stroke-width=\"3\" opacity=\".6\" stroke-linecap=\"round\"/><path d=\"M314 214 l-12 -11 M314 214 l10 -13\" fill=\"none\" stroke=\"#e08a3c\" stroke-width=\"3\" opacity=\".6\" stroke-linecap=\"round\"/><g><circle cx="200" cy="16" r="3.2" fill="#f6dd9a"/><circle cx="194" cy="28" r="2.8" fill="#e0b64f"/><circle cx="206" cy="40" r="3" fill="#f6dd9a"/><circle cx="198" cy="52" r="2.6" fill="#a8842c"/></g><path d=\"M140 70 L152 240 H248 L260 70\" fill=\"none\" stroke=\"#f7f6f2\" stroke-width=\"5\" opacity=\".85\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M140 70 H260\" fill=\"none\" stroke=\"#f7f6f2\" stroke-width=\"2.5\" stroke-dasharray=\"7 6\" opacity=\".3\"/><g><circle cx="160.3" cy="230" r="5" fill="#a8842c"/><circle cx="171.3" cy="230" r="5" fill="#e0b64f"/><circle cx="182.3" cy="230" r="5" fill="#f6dd9a"/><circle cx="193.3" cy="230" r="5" fill="#a8842c"/><circle cx="204.3" cy="230" r="5" fill="#e0b64f"/><circle cx="215.3" cy="230" r="5" fill="#f6dd9a"/><circle cx="226.3" cy="230" r="5" fill="#a8842c"/><circle cx="237.3" cy="230" r="5" fill="#e0b64f"/><circle cx="168.9" cy="219" r="5" fill="#e0b64f"/><circle cx="179.9" cy="219" r="5" fill="#f6dd9a"/><circle cx="190.9" cy="219" r="5" fill="#a8842c"/><circle cx="201.9" cy="219" r="5" fill="#e0b64f"/><circle cx="212.9" cy="219" r="5" fill="#f6dd9a"/><circle cx="223.9" cy="219" r="5" fill="#a8842c"/><circle cx="234.9" cy="219" r="5" fill="#e0b64f"/><circle cx="166.8" cy="208" r="5" fill="#f6dd9a"/><circle cx="177.8" cy="208" r="5" fill="#a8842c"/><circle cx="188.8" cy="208" r="5" fill="#e0b64f"/><circle cx="199.8" cy="208" r="5" fill="#f6dd9a"/><circle cx="210.8" cy="208" r="5" fill="#a8842c"/><circle cx="221.8" cy="208" r="5" fill="#e0b64f"/><circle cx="232.8" cy="208" r="5" fill="#f6dd9a"/><circle cx="175.7" cy="197" r="5" fill="#a8842c"/><circle cx="186.7" cy="197" r="5" fill="#e0b64f"/><circle cx="197.7" cy="197" r="5" fill="#f6dd9a"/><circle cx="208.7" cy="197" r="5" fill="#a8842c"/><circle cx="219.7" cy="197" r="5" fill="#e0b64f"/><circle cx="230.7" cy="197" r="5" fill="#f6dd9a"/><circle cx="173.6" cy="186" r="5" fill="#e0b64f"/><circle cx="184.6" cy="186" r="5" fill="#f6dd9a"/><circle cx="195.6" cy="186" r="5" fill="#a8842c"/><circle cx="206.6" cy="186" r="5" fill="#e0b64f"/><circle cx="217.6" cy="186" r="5" fill="#f6dd9a"/><circle cx="182.5" cy="175" r="5" fill="#f6dd9a"/><circle cx="193.5" cy="175" r="5" fill="#a8842c"/><circle cx="204.5" cy="175" r="5" fill="#e0b64f"/><circle cx="215.5" cy="175" r="5" fill="#f6dd9a"/><circle cx="226.5" cy="175" r="5" fill="#a8842c"/><circle cx="180.4" cy="164" r="5" fill="#a8842c"/><circle cx="191.4" cy="164" r="5" fill="#e0b64f"/><circle cx="202.4" cy="164" r="5" fill="#f6dd9a"/><circle cx="213.4" cy="164" r="5" fill="#a8842c"/><circle cx="189.3" cy="153" r="5" fill="#e0b64f"/><circle cx="200.3" cy="153" r="5" fill="#f6dd9a"/><circle cx="211.3" cy="153" r="5" fill="#a8842c"/><circle cx="187.2" cy="142" r="5" fill="#f6dd9a"/><circle cx="198.2" cy="142" r="5" fill="#a8842c"/><circle cx="209.2" cy="142" r="5" fill="#e0b64f"/></g><path d=\"M150 86 L159 224\" fill=\"none\" stroke=\"#ffffff\" stroke-width=\"3\" opacity=\".16\" stroke-linecap=\"round\"/></svg><div class=\"proj-tag\">Gyro sand physics</div><div class=\"proj-week\">Live tool</div>'
+          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="tm04" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#efe6d2"/><stop offset="1" stop-color="#d9cba6"/></linearGradient></defs><rect width="400" height="310" fill="url(#tm04)"/><path d="M130 40 H270 M130 270 H270 M145 40 C145 120 255 130 255 155 C255 180 145 190 145 270 M255 40 C255 120 145 130 145 155 C145 180 255 190 255 270" fill="none" stroke="#1b1712" stroke-width="6"/><g fill="#c8401f"><circle cx="200" cy="120" r="4"/><circle cx="192" cy="135" r="4"/><circle cx="208" cy="135" r="4"/><circle cx="200" cy="150" r="4"/><circle cx="186" cy="205" r="5"/><circle cx="200" cy="215" r="5"/><circle cx="214" cy="205" r="5"/><circle cx="193" cy="228" r="5"/><circle cx="207" cy="228" r="5"/><circle cx="200" cy="242" r="5"/></g></svg>'
         },
         {
-        id: 'quo-mo', state: 'live', cover: 'cover-proj',
-        title: { en: 'Quo-mo', zh: 'Quo-mo' },
-        sub: { en: 'Macau business document studio', zh: '澳門商業單據工作室' },
-        desc: { en: 'Quotation, invoice and receipt templates for Macau business — 12 professional designs, bilingual ZH/EN, auto totals with amount in words, A4 PNG/JPG/PDF export. 100% offline.', zh: '澳門商業報價單／發票／收據模板 — 12 套專業設計，雙語中英，自動計金額＋大寫，可輸出 A4 PNG/JPG/PDF。100% 離線。' },
-        demo: 'https://artzdesignmo.github.io/quo-mo/',
-        github: 'https://github.com/artzdesignmo/quo-mo',
-        art: '<svg class=\"cover-art\" viewBox=\"0 0 400 310\" preserveAspectRatio=\"xMidYMid slice\" aria-hidden=\"true\"><defs><linearGradient id=\"qm05\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#16181d\"/><stop offset=\"1\" stop-color=\"#0c0d10\"/></linearGradient></defs><rect width=\"400\" height=\"310\" fill=\"url(#qm05)\"/><rect x=\"140\" y=\"36\" width=\"170\" height=\"238\" rx=\"6\" fill=\"#f7f6f2\"/><rect x=\"140\" y=\"36\" width=\"170\" height=\"34\" rx=\"6\" fill=\"#1a3a5c\"/><rect x=\"140\" y=\"62\" width=\"170\" height=\"8\" fill=\"#1a3a5c\"/><rect x=\"156\" y=\"86\" width=\"80\" height=\"10\" rx=\"2\" fill=\"#1a3a5c\"/><rect x=\"156\" y=\"104\" width=\"138\" height=\"6\" rx=\"2\" fill=\"#c9c9c9\"/><rect x=\"156\" y=\"124\" width=\"138\" height=\"5\" rx=\"2\" fill=\"#dcdcdc\"/><rect x=\"156\" y=\"136\" width=\"138\" height=\"5\" rx=\"2\" fill=\"#dcdcdc\"/><rect x=\"156\" y=\"148\" width=\"138\" height=\"5\" rx=\"2\" fill=\"#dcdcdc\"/><rect x=\"156\" y=\"160\" width=\"138\" height=\"5\" rx=\"2\" fill=\"#dcdcdc\"/><rect x=\"156\" y=\"172\" width=\"138\" height=\"5\" rx=\"2\" fill=\"#dcdcdc\"/><rect x=\"156\" y=\"192\" width=\"138\" height=\"2\" fill=\"#1a3a5c\"/><rect x=\"216\" y=\"204\" width=\"78\" height=\"12\" rx=\"2\" fill=\"#b8860b\"/><rect x=\"52\" y=\"96\" width=\"64\" height=\"84\" rx=\"4\" fill=\"#24262b\" stroke=\"#b8860b\" stroke-width=\"2\"/><rect x=\"60\" y=\"108\" width=\"48\" height=\"6\" rx=\"2\" fill=\"#b8860b\"/><rect x=\"60\" y=\"122\" width=\"48\" height=\"4\" rx=\"2\" fill=\"#4a4d54\"/><rect x=\"60\" y=\"132\" width=\"48\" height=\"4\" rx=\"2\" fill=\"#4a4d54\"/><rect x=\"60\" y=\"142\" width=\"48\" height=\"4\" rx=\"2\" fill=\"#4a4d54\"/><rect x=\"284\" y=\"130\" width=\"64\" height=\"84\" rx=\"4\" fill=\"#24262b\" stroke=\"#4a4d54\" stroke-width=\"2\"/><rect x=\"292\" y=\"142\" width=\"48\" height=\"6\" rx=\"2\" fill=\"#e0653a\"/><rect x=\"292\" y=\"156\" width=\"48\" height=\"4\" rx=\"2\" fill=\"#4a4d54\"/><rect x=\"292\" y=\"166\" width=\"48\" height=\"4\" rx=\"2\" fill=\"#4a4d54\"/><rect x=\"292\" y=\"176\" width=\"48\" height=\"4\" rx=\"2\" fill=\"#4a4d54\"/><circle cx=\"322\" cy=\"72\" r=\"20\" fill=\"#b8860b\"/><text x=\"322\" y=\"79\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"bold\" fill=\"#0c0d10\" font-family=\"Arial\">MOP</text></svg><div class=\"proj-tag\">12 templates · A4 export</div><div class=\"proj-week\">Project 05</div>'
-      },
-    {
-      id: 'bloom-mo', state: 'live', cover: 'cover-proj',
-      title: { en: 'Bloom Mo', zh: 'Bloom Mo' },
-      sub: { en: 'Generative botanical studio', zh: '生成式植物花卉工作室' },
-      desc: { en: 'Every flower grown from code — 8 species, infinite unique blooms. Click to plant, watch them grow.', zh: '每朵花都由代碼種出 — 8 種花卉，無限獨特花朵。點擊種花，睇住佢哋生長。' },
-      demo: 'https://artzdesignmo.github.io/bloom-mo/',
-      github: 'https://github.com/artzdesignmo/bloom-mo',
-      art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="bm06" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e3a2d"/><stop offset="1" stop-color="#0f1f16"/></linearGradient><radialGradient id="bmfl" cx="0.5" cy="0.45" r="0.5"><stop offset="0" stop-color="#f7c8d4"/><stop offset="1" stop-color="#d94f6d"/></radialGradient></defs><rect width="400" height="310" fill="url(#bm06)"/><g transform="translate(200,150)"><g fill="url(#bmfl)"><ellipse cx="0" cy="-42" rx="16" ry="42"/><ellipse cx="40" cy="-13" rx="16" ry="42" transform="rotate(72 40 -13)"/><ellipse cx="25" cy="34" rx="16" ry="42" transform="rotate(144 25 34)"/><ellipse cx="-25" cy="34" rx="16" ry="42" transform="rotate(216 -25 34)"/><ellipse cx="-40" cy="-13" rx="16" ry="42" transform="rotate(288 -40 -13)"/></g><circle r="16" fill="#f5c542"/><path d="M0,58 Q6,110 -4,160" stroke="#2d6a4f" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M-2,110 Q-30,100 -44,84" stroke="#2d6a4f" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M2,130 Q30,122 42,108" stroke="#2d6a4f" stroke-width="5" fill="none" stroke-linecap="round"/></g></svg><div class="proj-tag">8 species · code-grown</div><div class="proj-week">Project 06</div>'
-    },
-    {
-      id: 'echo-mo', state: 'live', cover: 'cover-proj',
-      title: { en: 'Echo Mo', zh: 'Echo Mo' },
-      sub: { en: 'Generative ambient music studio', zh: '生成式環境音樂工作室' },
-      desc: { en: 'Every note composed by code — 4 moods, endless pentatonic music. Press play and drift.', zh: '每粒音符都由代碼寫成 — 4 種心境，無盡五聲音階。撳播放，隨音樂飄。' },
-      demo: 'https://artzdesignmo.github.io/echo-mo/',
-      github: 'https://github.com/artzdesignmo/echo-mo',
-      art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="em07" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3358"/><stop offset="1" stop-color="#0e1428"/></linearGradient><radialGradient id="emor" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#9db4d8" stop-opacity="0.9"/><stop offset="1" stop-color="#9db4d8" stop-opacity="0"/></radialGradient></defs><rect width="400" height="310" fill="url(#em07)"/><circle cx="200" cy="150" r="90" fill="url(#emor)"/><circle cx="200" cy="150" r="34" fill="none" stroke="#9db4d8" stroke-width="2" opacity="0.8"/><path d="M194,132 L214,150 L194,168 Z" fill="#9db4d8" opacity="0.9"/><circle cx="120" cy="90" r="10" fill="#9db4d8" opacity="0.35"/><circle cx="290" cy="200" r="14" fill="#9db4d8" opacity="0.25"/><circle cx="260" cy="80" r="7" fill="#d9a45b" opacity="0.5"/><circle cx="140" cy="220" r="9" fill="#c47a6d" opacity="0.4"/><path d="M40,262 L360,262" stroke="#9db4d8" stroke-width="1" opacity="0.4"/><circle cx="120" cy="252" r="3" fill="#9db4d8" opacity="0.7"/><circle cx="200" cy="244" r="3" fill="#9db4d8" opacity="0.7"/><circle cx="280" cy="256" r="3" fill="#9db4d8" opacity="0.7"/></svg><div class="proj-tag">generative · webaudio</div><div class="proj-week">Project 07</div>'
-    },
-    {
-      id: '5line-mo', state: 'live', cover: 'cover-proj',
-      title: { en: '5line Mo', zh: '5line Mo' },
-      sub: { en: 'Treble-clef note trainer', zh: '五線譜音符訓練' },
-      desc: { en: 'Learn 14 staff notes by ear and eye — tap to hear, then test yourself in the recognition game.', zh: '用耳仔同眼學 14 個五線譜音 — 撳嚟聽，再去認音遊戲考自己。' },
-      demo: 'https://artzdesignmo.github.io/5line-mo/',
-      github: 'https://github.com/artzdesignmo/5line-mo',
-      art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="fl08" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f1ea"/><stop offset="1" stop-color="#e8e2d4"/></linearGradient></defs><rect width="400" height="310" fill="url(#fl08)"/><g stroke="#1d1a15" stroke-width="2" opacity=".8"><line x1="40" y1="110" x2="360" y2="110"/><line x1="40" y1="130" x2="360" y2="130"/><line x1="40" y1="150" x2="360" y2="150"/><line x1="40" y1="170" x2="360" y2="170"/><line x1="40" y1="190" x2="360" y2="190"/></g><text x="52" y="205" font-size="96" fill="#1d1a15" font-family="serif">𝄞</text><ellipse cx="140" cy="190" rx="11" ry="8.5" fill="#1d1a15" transform="rotate(-18 140 190)"/><ellipse cx="185" cy="170" rx="11" ry="8.5" fill="#1d1a15" transform="rotate(-18 185 170)"/><ellipse cx="230" cy="150" rx="11" ry="8.5" fill="#e4572e" transform="rotate(-18 230 150)"/><ellipse cx="275" cy="130" rx="11" ry="8.5" fill="#1d1a15" transform="rotate(-18 275 130)"/><ellipse cx="320" cy="110" rx="11" ry="8.5" fill="#1d1a15" transform="rotate(-18 320 110)"/></svg><div class="proj-tag">learn · game · webaudio</div><div class="proj-week">Project 08</div>'
-    }
+          id: 'quo-mo', state: 'live', cover: 'cover-proj',
+          title: { en: 'Quo-mo', zh: 'Quo-mo' },
+          sub: { en: 'Macau business document studio', zh: '澳門商務文件工作室' },
+          desc: { en: 'Quotations, invoices and receipts for Macau businesses — bilingual, amount-in-words, 16 templates, A4 PNG/JPG/PDF export.', zh: '澳門商戶用嘅報價單、發票、收據——中英雙語、金額大寫、16 款模板，A4 PNG/JPG/PDF 輸出。' },
+          demo: 'https://artzdesignmo.github.io/quo-mo/',
+          github: 'https://github.com/artzdesignmo/quo-mo',
+          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="400" height="310" fill="#fdfdfb"/><rect x="40" y="36" width="320" height="238" fill="none" stroke="#1b1712" stroke-width="3"/><line x1="40" y1="86" x2="360" y2="86" stroke="#1b1712" stroke-width="3"/><text x="60" y="72" font-family="Dela Gothic One, sans-serif" font-size="22" fill="#1b1712">QUOTATION</text><g fill="#1b1712" opacity=".75"><rect x="60" y="110" width="200" height="10"/><rect x="60" y="132" width="150" height="10"/><rect x="60" y="154" width="180" height="10"/></g><g fill="#c8401f"><rect x="60" y="196" width="120" height="10"/><rect x="220" y="196" width="60" height="10"/></g><line x1="60" y1="222" x2="340" y2="222" stroke="#1b1712" stroke-width="1.5"/><text x="60" y="252" font-family="monospace" font-size="15" fill="#1b1712">MOP 12,800.00</text></svg>'
+        },
+        {
+          id: 'bloom-mo', state: 'live', cover: 'cover-proj',
+          title: { en: 'Bloom Mo', zh: 'Bloom Mo' },
+          sub: { en: 'Generative botanical studio', zh: '生成式植物花卉工作室' },
+          desc: { en: 'Every flower grown from code — 8 species, infinite unique blooms. Click to plant, watch them grow.', zh: '每朵花都由代碼種出 — 8 種花卉，無限獨特花朵。點擊種花，睇住佢哋生長。' },
+          demo: 'https://artzdesignmo.github.io/bloom-mo/',
+          github: 'https://github.com/artzdesignmo/bloom-mo',
+          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="bm06" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e3a2d"/><stop offset="1" stop-color="#0f1f16"/></linearGradient><radialGradient id="bmfl" cx="0.5" cy="0.45" r="0.5"><stop offset="0" stop-color="#f7c8d4"/><stop offset="1" stop-color="#d94f6d"/></radialGradient></defs><rect width="400" height="310" fill="url(#bm06)"/><g transform="translate(200,150)"><g fill="url(#bmfl)"><ellipse cx="0" cy="-42" rx="16" ry="42"/><ellipse cx="40" cy="-13" rx="16" ry="42" transform="rotate(72 40 -13)"/><ellipse cx="25" cy="34" rx="16" ry="42" transform="rotate(144 25 34)"/><ellipse cx="-25" cy="34" rx="16" ry="42" transform="rotate(216 -25 34)"/><ellipse cx="-40" cy="-13" rx="16" ry="42" transform="rotate(288 -40 -13)"/></g><circle r="16" fill="#f5c542"/><path d="M0,58 Q6,110 -4,160" stroke="#2d6a4f" stroke-width="7" fill="none" stroke-linecap="round"/></g></svg>'
+        },
+        {
+          id: 'echo-mo', state: 'live', cover: 'cover-proj',
+          title: { en: 'Echo Mo', zh: 'Echo Mo' },
+          sub: { en: 'Generative ambient music studio', zh: '生成式環境音樂工作室' },
+          desc: { en: 'Six moods, eight voices — every note composed by code. Session timer, one-tap recording, named presets.', zh: '六種心境、八種音色——每粒音符都由代碼寫成。計時、單鍵錄音、命名預設。' },
+          demo: 'https://artzdesignmo.github.io/echo-mo/',
+          github: 'https://github.com/artzdesignmo/echo-mo',
+          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="em07" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3358"/><stop offset="1" stop-color="#0e1428"/></linearGradient><radialGradient id="emor" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#9db4d8" stop-opacity="0.9"/><stop offset="1" stop-color="#9db4d8" stop-opacity="0"/></radialGradient></defs><rect width="400" height="310" fill="url(#em07)"/><circle cx="200" cy="150" r="90" fill="url(#emor)"/><circle cx="200" cy="150" r="34" fill="none" stroke="#9db4d8" stroke-width="2" opacity="0.8"/><path d="M194,132 L214,150 L194,168 Z" fill="#9db4d8" opacity="0.9"/></svg>'
+        },
+        {
+          id: '5line-mo', state: 'live', cover: 'cover-proj',
+          title: { en: '5line Mo', zh: '5line Mo' },
+          sub: { en: 'Treble-clef note trainer', zh: '五線譜音符訓練' },
+          desc: { en: 'Learn 14 staff notes by ear and eye — tap to hear, then test yourself in the recognition game.', zh: '用耳仔同眼學 14 個五線譜音 — 撳嚟聽，再去認音遊戲考自己。' },
+          demo: 'https://artzdesignmo.github.io/5line-mo/',
+          github: 'https://github.com/artzdesignmo/5line-mo',
+          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="fl08" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f1ea"/><stop offset="1" stop-color="#e8e2d4"/></linearGradient></defs><rect width="400" height="310" fill="url(#fl08)"/><g stroke="#1d1a15" stroke-width="2" opacity=".8"><line x1="40" y1="110" x2="360" y2="110"/><line x1="40" y1="130" x2="360" y2="130"/><line x1="40" y1="150" x2="360" y2="150"/><line x1="40" y1="170" x2="360" y2="170"/><line x1="40" y1="190" x2="360" y2="190"/></g><text x="52" y="205" font-size="96" fill="#1d1a15" font-family="serif">𝄞</text><ellipse cx="140" cy="190" rx="11" ry="8.5" fill="#1d1a15" transform="rotate(-18 140 190)"/><ellipse cx="185" cy="170" rx="11" ry="8.5" fill="#1d1a15" transform="rotate(-18 185 170)"/><ellipse cx="230" cy="150" rx="11" ry="8.5" fill="#e4572e" transform="rotate(-18 230 150)"/><ellipse cx="275" cy="130" rx="11" ry="8.5" fill="#1d1a15" transform="rotate(-18 275 130)"/><ellipse cx="320" cy="110" rx="11" ry="8.5" fill="#1d1a15" transform="rotate(-18 320 110)"/></svg>'
+        }
       ];
 
       var STR = {
         en: {
-          index: 'Index', star: 'Star on GitHub', kicker: 'openx-mo · two drops a week',
-          h1: 'Open', h2: 'Source', h3: 'Lab',
-          tagline: 'Sharp tools, written in the open.',
-          meta: '<strong>OpenX — Open Source Lab.</strong><br>Our own bench, in public: Halftone Mo is live, the next drops are already in progress — every Wed &amp; Sat.',
-          drag: 'Drag · Scroll · ← →',
-          live: 'Live', soon: 'On the bench',
-          demo: 'Demo', github: 'GitHub',
-          bench: 'Still on the bench — name lands on release day.',
-          footNote: 'Projects 04–05 are still on the bench — names stay under wraps until release day.',
-          footDemo: 'Halftone Mo demo'
+          gallery: 'GALLERY', galleryBig: 'GALLERY',
+          eyebrow: 'An exhibition of open-source works',
+          intro: '<strong>Eight works</strong>, written in the open — tools, toys and instruments, hung on these walls. Walk in. Touch everything.',
+          works: 'WORKS', admission: 'Free admission · forever', enter: 'Enter the gallery',
+          star: 'Star on GitHub', room: 'Room', artist: 'X', year: '2026',
+          demo: 'Visit', github: 'GitHub',
+          nextRoom: 'Room 09', soon: 'Next wing opens soon', soonSub: 'A new work, every 3 days',
+          foot: '<strong>The OpenX Gallery.</strong> Every work is MIT-licensed and free forever.<br>Curated by X · New wing opens every 3 days.'
         },
         zh: {
-          index: '目錄', star: '在 GitHub 加星', kicker: 'openx-mo · 每週兩件新作',
-          h1: '開放', h2: '源碼', h3: '實驗室',
-          tagline: '銳利的工具，公開寫成。',
-          meta: '<strong>OpenX — 開放源碼實驗室。</strong><br>我哋自己嘅工作檯，公開進行中：Halftone Mo 已上線，下一件已在製作——逢週三、週六發布。',
-          drag: '拖動 · 滾動 · ← →',
-          live: '已上線', soon: '工作檯上',
-          demo: '演示', github: 'GitHub',
-          bench: '還在工作檯上——名字發布當日先有。',
-          footNote: '項目 04–05 還在工作檯上——名字留到發布當日先揭曉。',
-          footDemo: 'Halftone Mo 演示'
+          gallery: '展覽館', galleryBig: '展覽館',
+          eyebrow: '開放源碼作品展',
+          intro: '<strong>八件作品</strong>，公開寫成——工具、玩具同樂器，掛喺呢啲牆上。入嚟，樣樣掂得。',
+          works: '作品', admission: '免費入場 · 永久', enter: '進入展館',
+          star: '在 GitHub 加星', room: '展廳', artist: 'X', year: '2026',
+          demo: '參觀', github: 'GitHub',
+          nextRoom: '9 號展廳', soon: '新展廳即將開幕', soonSub: '每 3 日一件新作',
+          foot: '<strong>OpenX 展覽館。</strong>每件作品 MIT 授權，永久免費。<br>X 策展 · 每 3 日開一個新展廳。'
         }
       };
 
       var root = document.documentElement;
-      var gallery = document.getElementById('gallery');
-      var menuPanel = document.getElementById('menuPanel');
-      var menuBtn = document.getElementById('menuBtn');
-      var detailText = document.getElementById('detailText');
-      var curNum = document.getElementById('curNum');
+      var roomsEl = document.getElementById('rooms');
       var langToggle = document.getElementById('langToggle');
 
-      /* ——— language / theme, persisted ——— */
       var lang = 'en';
       try { lang = localStorage.getItem('openx-lang') === 'zh' ? 'zh' : 'en'; } catch (e) {}
       var theme = 'light';
       try {
-        var stored = localStorage.getItem('openx-theme');
-        if (stored === 'dark' || stored === 'light') theme = stored;
+        var s = localStorage.getItem('openx-theme');
+        if (s === 'dark' || s === 'light') theme = s;
       } catch (e) {}
       root.setAttribute('data-theme', theme);
 
-      function t(key) { return STR[lang][key]; }
+      function t(k) { return STR[lang][k]; }
       function pad(n) { return (n < 10 ? '0' : '') + n; }
 
-      /* ——— build cards ——— */
-      var cards = PROJECTS.map(function (p, i) {
-        var el = document.createElement('article');
-        el.className = 'project';
-        el.setAttribute('data-index', i);
-        var actions = p.state === 'live'
-          ? '<a class="btn primary" href="' + p.demo + '" target="_blank" rel="noopener noreferrer" data-act="demo">' + t('demo') + ' <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>'
-            + '<a class="btn" href="' + p.github + '" target="_blank" rel="noopener noreferrer" data-act="github">GitHub</a>'
-          : '<span class="bench-note">' + t('bench') + '</span>';
-        el.innerHTML =
-          '<div class="card">'
-          + '<div class="cover ' + p.cover + '" role="img" aria-label="' + p.title.en + ' cover">'
-          + '<span class="badge ' + (p.state === 'live' ? 'live' : 'soon') + '">' + (p.state === 'live' ? t('live') : t('soon')) + '</span>'
-          + p.art
-          + '<span class="cover-num">' + pad(i + 1) + '</span>'
-          + '</div>'
-          + '<div class="card-body"><h3>' + p.title[lang] + '</h3>'
-          + '<p class="card-sub">' + p.sub[lang] + '</p>'
-          + '<div class="card-actions">' + actions + '</div></div>'
-          + '</div>';
-        gallery.appendChild(el);
-        return el;
-      });
+      function roomHTML(p, i) {
+        var flip = i % 2 === 1 ? ' flip' : '';
+        return '<section class="room reveal' + flip + '" id="room-' + (i + 1) + '">'
+          + '<span class="room-num">' + t('room') + ' ' + pad(i + 1) + '</span>'
+          + '<div class="frame-col"><div class="spot"></div>'
+          + '<div class="frame"><div class="mat"><div class="artwork">' + p.art + '</div>'
+          + '<span class="frame-tag">' + pad(i + 1) + ' / 08</span></div></div></div>'
+          + '<div class="placard">'
+          + '<h2>' + p.title[lang] + '</h2>'
+          + '<div class="byline"><b>' + t('artist') + '</b> · ' + t('year') + '</div>'
+          + '<span class="medium">' + p.sub[lang] + '</span>'
+          + '<p class="desc">' + p.desc[lang] + '</p>'
+          + '<div class="acts">'
+          + '<a class="pbtn solid" href="' + p.demo + '" target="_blank" rel="noopener noreferrer">' + t('demo')
+          + ' <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>'
+          + '<a class="pbtn" href="' + p.github + '" target="_blank" rel="noopener noreferrer">GitHub</a>'
+          + '</div></div></section>';
+      }
 
-      function buildMenu() {
-        menuPanel.innerHTML = '';
-        PROJECTS.forEach(function (p, i) {
-          var b = document.createElement('button');
-          b.type = 'button';
-          b.innerHTML = '<span class="idx">' + pad(i + 1) + '</span><span class="m-title">' + p.title[lang] + '</span>'
-            + '<span class="m-state ' + (p.state === 'live' ? 'live' : '') + '">' + (p.state === 'live' ? t('live') : t('soon')) + '</span>';
-          b.addEventListener('click', function () { goTo(i); closeMenu(); gallery.focus(); });
-          menuPanel.appendChild(b);
-        });
+      function render() {
+        var html = PROJECTS.map(roomHTML).join('');
+        html += '<section class="next-wing reveal"><div class="frame"><div class="mat"><div class="soon">'
+          + t('nextRoom') + '<small>' + t('soonSub') + '</small></div></div></div>'
+          + '<p style="margin-top:22px;color:var(--muted);font-size:13px;letter-spacing:.14em;text-transform:uppercase">' + t('soon') + '</p></section>';
+        roomsEl.innerHTML = html;
+        observe();
       }
 
       function applyLang() {
@@ -513,19 +426,7 @@
           var k = el.getAttribute('data-i18n-html'); if (STR[lang][k]) el.innerHTML = STR[lang][k];
         });
         langToggle.textContent = lang === 'zh' ? '中' : 'EN';
-        // rebuild cards + menu for titles/badges/buttons
-        cards.forEach(function (el, i) {
-          var p = PROJECTS[i];
-          el.querySelector('h3').textContent = p.title[lang];
-          el.querySelector('.card-sub').textContent = p.sub[lang];
-          el.querySelector('.badge').textContent = p.state === 'live' ? t('live') : t('soon');
-          var demoBtn = el.querySelector('[data-act="demo"]');
-          if (demoBtn) demoBtn.firstChild.textContent = t('demo') + ' ';
-          var note = el.querySelector('.bench-note');
-          if (note) note.textContent = t('bench');
-        });
-        buildMenu();
-        activeIndex = -1; // force detail refresh
+        render();
         try { localStorage.setItem('openx-lang', lang); } catch (e) {}
       }
 
@@ -540,157 +441,34 @@
         try { localStorage.setItem('openx-theme', theme); } catch (e) {}
       });
 
-      /* ——— menu open/close ——— */
-      function closeMenu() { menuPanel.hidden = true; menuBtn.setAttribute('aria-expanded', 'false'); }
-      menuBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var open = menuPanel.hidden;
-        menuPanel.hidden = !open;
-        menuBtn.setAttribute('aria-expanded', String(open));
-      });
-      document.addEventListener('click', function (e) {
-        if (!menuPanel.hidden && !menuPanel.contains(e.target)) closeMenu();
-      });
-      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
-
-      /* ——— carousel engine ——— */
-      var N = PROJECTS.length;
-      var position = 0, target = 0, velocity = 0;
-      var dragging = false, moved = false;
-      var pointerStart = 0, positionStart = 0, lastPointer = 0, lastTime = 0;
-      var activeIndex = -1;
-      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      function wrap(v, len) { while (v > len / 2) v -= len; while (v < -len / 2) v += len; return v; }
-      function nearestIndex() { var n = Math.round(position) % N; return (n + N) % N; }
-      function goTo(i) {
-        var delta = wrap(i - (Math.round(target) % N + N) % N, N);
-        target = Math.round(target) + delta; velocity = 0;
-      }
-      function go(step) { target = Math.round(target + step); velocity = 0; }
-
-      function updateDetails(idx) {
-        if (idx === activeIndex) return;
-        activeIndex = idx;
-        var p = PROJECTS[idx];
-        curNum.textContent = pad(idx + 1);
-        detailText.innerHTML = '<strong>' + p.title[lang] + '</strong> — ' + p.desc[lang]
-          + (p.state === 'soon' ? ' ' + t('bench') : '');
-      }
-
-      function render() {
-        var width = gallery.clientWidth;
-        var compact = width < 700;
-        var spacing = compact ? Math.min(196, width * .52) : Math.min(292, width * .275);
-        var curve = compact ? 26 : 36;
-        cards.forEach(function (item, index) {
-          var delta = wrap(index - position, N);
-          var abs = Math.abs(delta);
-          var capped = Math.min(abs, 3);
-          var x = delta * spacing + Math.sign(delta) * Math.pow(capped, 1.7) * (compact ? 5 : 10);
-          var y = 2 + Math.pow(capped, 1.55) * curve;
-          var z = -Math.pow(capped, 1.16) * (compact ? 44 : 64);
-          var scale = Math.max(compact ? .63 : .6, (compact ? 1.03 : 1.06) - capped * (compact ? .15 : .165));
-          var alpha = abs > 3.05 ? 0 : Math.max(.14, 1 - Math.max(0, abs - 2.1) * .85);
-          item.style.setProperty('--x', x.toFixed(2) + 'px');
-          item.style.setProperty('--y', y.toFixed(2) + 'px');
-          item.style.setProperty('--z', z.toFixed(2) + 'px');
-          item.style.setProperty('--ry', (-delta * (compact ? 10 : 8.5)).toFixed(2) + 'deg');
-          item.style.setProperty('--rz', (delta * (compact ? 2.1 : 1.6)).toFixed(2) + 'deg');
-          item.style.setProperty('--scale', scale.toFixed(3));
-          item.style.setProperty('--alpha', alpha.toFixed(3));
-          item.style.zIndex = String(200 - Math.round(abs * 22));
-          item.style.pointerEvents = abs < .5 ? 'auto' : 'none';
-          item.classList.toggle('is-active', abs < .5);
-          item.setAttribute('aria-hidden', abs > 2.7 ? 'true' : 'false');
-        });
-        updateDetails(nearestIndex());
-      }
-
-      function animate() {
-        if (!dragging) {
-          var force = (target - position) * (reduceMotion ? 1 : .085);
-          velocity = (velocity + force) * (reduceMotion ? 0 : .8);
-          position += velocity;
-          if (Math.abs(target - position) < .0008 && Math.abs(velocity) < .0008) { position = target; velocity = 0; }
+      var io = null;
+      function observe() {
+        var els = document.querySelectorAll('.reveal');
+        if (!('IntersectionObserver' in window)) {
+          els.forEach(function (el) { el.classList.add('in'); });
+          return;
         }
-        render();
-        requestAnimationFrame(animate);
+        if (io) io.disconnect();
+        io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) {
+            if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+          });
+        }, { threshold: 0.12 });
+        els.forEach(function (el) { io.observe(el); });
       }
 
-      document.getElementById('prev').addEventListener('click', function () { go(-1); });
-      document.getElementById('next').addEventListener('click', function () { go(1); });
-
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'ArrowLeft') { go(-1); }
-        if (e.key === 'ArrowRight') { go(1); }
+      /* init */
+      root.setAttribute('data-lang', lang);
+      root.setAttribute('lang', lang === 'zh' ? 'zh-Hant' : 'en');
+      document.querySelectorAll('[data-i18n]').forEach(function (el) {
+        var k = el.getAttribute('data-i18n'); if (STR[lang][k]) el.textContent = STR[lang][k];
       });
-      gallery.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') {
-          var p = PROJECTS[nearestIndex()];
-          if (p.state === 'live') window.open(p.demo, '_blank', 'noopener,noreferrer');
-        }
+      document.querySelectorAll('[data-i18n-html]').forEach(function (el) {
+        var k = el.getAttribute('data-i18n-html'); if (STR[lang][k]) el.innerHTML = STR[lang][k];
       });
-
-      /* trackpad / mouse wheel */
-      var wheelLock = 0;
-      gallery.addEventListener('wheel', function (e) {
-        var d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-        if (Math.abs(d) < 2) return;
-        e.preventDefault();
-        var now = performance.now();
-        if (now - wheelLock < 90) return;
-        wheelLock = now;
-        go(d > 0 ? 1 : -1);
-      },
-      { passive: false });
-
-      gallery.addEventListener('pointerdown', function (e) {
-        if (e.target.closest('a')) return;
-        dragging = true; moved = false;
-        pointerStart = e.clientX; lastPointer = e.clientX; lastTime = performance.now();
-        positionStart = position; velocity = 0;
-        gallery.classList.add('is-dragging');
-        gallery.setPointerCapture(e.pointerId);
-      });
-      gallery.addEventListener('pointermove', function (e) {
-        if (!dragging) return;
-        var dx = e.clientX - pointerStart;
-        if (Math.abs(dx) > 4) moved = true;
-        var sens = gallery.clientWidth < 700 ? 150 : 260;
-        position = positionStart - dx / sens;
-        target = position;
-        var now = performance.now();
-        var elapsed = Math.max(8, now - lastTime);
-        velocity = -((e.clientX - lastPointer) / sens) * (16 / elapsed);
-        lastPointer = e.clientX; lastTime = now;
-        if (moved) e.preventDefault();
-      }, { passive: false });
-      function release(e) {
-        if (!dragging) return;
-        dragging = false;
-        gallery.classList.remove('is-dragging');
-        if (e && gallery.hasPointerCapture(e.pointerId)) gallery.releasePointerCapture(e.pointerId);
-        target = Math.round(position + velocity * 4.2);
-        velocity *= .5;
-      }
-      gallery.addEventListener('pointerup', release);
-      gallery.addEventListener('pointercancel', release);
-
-      cards.forEach(function (item, index) {
-        item.addEventListener('click', function (e) {
-          if (moved) { e.preventDefault(); moved = false; return; }
-          if (e.target.closest('a')) return;
-          var delta = wrap(index - nearestIndex(), N);
-          if (Math.abs(delta) > .1) { target = Math.round(position + delta); }
-        });
-      });
-
-      window.addEventListener('resize', render, { passive: true });
-      applyLang();
+      langToggle.textContent = lang === 'zh' ? '中' : 'EN';
       render();
-      requestAnimationFrame(animate);
-    }());
+    })();
   </script>
 </body>
 </html>
