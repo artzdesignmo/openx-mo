@@ -13,8 +13,8 @@
 <style>
 :root{
   color-scheme:light;
-  --bg:#FBFBF9; --ink:#111110; --muted:#8a867e; --line:rgba(17,17,16,.12);
-  --card:#ffffff; --pill:#111110; --pill-ink:#FBFBF9;
+  --bg:#FFFFFF; --ink:#111110; --muted:#8a867e; --line:rgba(17,17,16,.12);
+  --card:#ffffff; --pill:#111110; --pill-ink:#FFFFFF;
   --shadow:0 24px 60px -24px rgba(17,17,16,.25);
 }
 html[data-theme="dark"]{
@@ -43,13 +43,13 @@ html[data-theme="dark"] .tbtn .moon{display:block}
 .pill-btn:hover{opacity:.85}
 /* hero */
 .hero{text-align:center;padding:130px 20px 10px;max-width:900px;margin:0 auto}
-.hero h1{font-family:"Dela Gothic One",sans-serif;font-size:clamp(44px,8.5vw,104px);line-height:1.08;margin:0;letter-spacing:.01em}
+.hero h1{font-family:"Dela Gothic One",sans-serif;font-size:clamp(64px,13vw,160px);line-height:1.02;margin:0;letter-spacing:.01em}
 .hero .tag{margin:18px 0 0;color:var(--muted);font-size:clamp(14px,1.8vw,17px)}
 /* arc carousel */
-.stage{position:relative;padding:34px 0 10px;perspective:1400px;-webkit-perspective:1400px}
-.track{display:flex;gap:clamp(14px,2.5vw,28px);align-items:center;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;will-change:transform;padding:14px 0;cursor:grab;touch-action:pan-y;-webkit-touch-callout:none}
+.stage{position:relative;padding:30px 0 6px;overflow:hidden}
+.track{display:flex;gap:clamp(10px,2vw,22px);align-items:flex-start;will-change:transform;padding:20px 0 26px;cursor:grab;touch-action:pan-y;-webkit-touch-callout:none}
 .track.grabbing{cursor:grabbing}
-.pcard{flex:0 0 clamp(240px,64vw,340px);aspect-ratio:4/4.4;border-radius:14px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);position:relative;transition:transform .45s cubic-bezier(.22,.8,.3,1),opacity .45s;user-select:none;-webkit-user-select:none;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.pcard{flex:0 0 clamp(230px,62vw,330px);aspect-ratio:4/4.3;border-radius:14px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);position:relative;transition:transform .45s cubic-bezier(.22,.8,.3,1),opacity .45s;user-select:none;-webkit-user-select:none;transform-origin:center top}
 .pcard .artwrap{position:absolute;inset:0}.pcard .artwrap .cover-art,.pcard .artwrap img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
 .pcard .plabel{position:absolute;left:0;right:0;bottom:0;padding:26px 16px 14px;background:linear-gradient(transparent,rgba(0,0,0,.62));color:#fff;font-family:"Dela Gothic One",sans-serif;font-size:15px;text-align:left}
 /* nav arrows */
@@ -93,7 +93,7 @@ footer .f-l{display:flex;gap:18px;font-size:14px;font-weight:600}
 </header>
 
 <section class="hero" id="top">
-  <h1 class="display" data-i18n="heroTitle">Open Source<br>Lab</h1>
+  <h1 class="display" data-i18n="heroTitle">Open<br>Source<br>Lab</h1>
   <p class="tag" data-i18n="tagline">Eleven works and counting — tools, toys and instruments, written in the open.</p>
 </section>
 
@@ -232,8 +232,8 @@ var PROJECTS = [
       ];
 
 var STR={
-  en:{heroTitle:'Open Source<br>Lab',tagline:'Eleven works and counting — tools, toys and instruments, written in the open.',hint:'Drag or swipe to browse',star:'Star on GitHub',visit:'Visit',foot:'MIT-licensed, free forever.<br>Curated by X · a new piece every 3 days.'},
-  zh:{heroTitle:'開放源碼<br>實驗室',tagline:'十一件作品，仲會繼續加——工具、玩具同樂器，全部公開寫成。',hint:'左右撥動瀏覽',star:'去 GitHub 俾星',visit:'去玩',foot:'MIT 授權，永久免費。<br>X 策展 · 每 3 日一件新作。'}
+  en:{heroTitle:'Open<br>Source<br>Lab',tagline:'Eleven works and counting — tools, toys and instruments, written in the open.',hint:'Drag or swipe to browse',star:'Star on GitHub',visit:'Visit',foot:'MIT-licensed, free forever.<br>Curated by X · a new piece every 3 days.'},
+  zh:{heroTitle:'開放<br>源碼<br>實驗室',tagline:'十一件作品，仲會繼續加——工具、玩具同樂器，全部公開寫成。',hint:'左右撥動瀏覽',star:'去 GitHub 俾星',visit:'去玩',foot:'MIT 授權，永久免費。<br>X 策展 · 每 3 日一件新作。'}
 };
 function t(k){return STR[lang][k]||k;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
@@ -259,21 +259,15 @@ PROJECTS.forEach(function(_,i){
 function layout(){
   var cw=cards[0].offsetWidth,gap=parseFloat(getComputedStyle(track).gap)||20;
   var stageW=document.getElementById('stage').offsetWidth;
-  var isMobile=stageW<700;
   cards.forEach(function(c,i){
     var d=i-idx;
     var ad=Math.abs(d);
-    var s,s2,z,r,o;
-    if(isMobile){
-      // 手機：淨係 show 前後一張，唔做 3D
-      s=ad===0?1:0.86;z=0;r=0;o=ad>1?0:1;
-    }else{
-      s=1-Math.min(ad*0.13,0.5);
-      z=-Math.min(ad*160,480);
-      r=d*-9;
-      o=ad>2?0:1;
-    }
-    c.style.transform='translateZ('+z+'px) rotateY('+r+'deg) scale('+s+')';
+    // 2D 弧形：中間大，兩邊細、向下沉、向內轉
+    var s=1-Math.min(ad*0.14,0.42);
+    var y=Math.min(ad*26,78);
+    var r=d*-7;
+    var o=ad>2?0:1;
+    c.style.transform='translateY('+y+'px) rotate('+r+'deg) scale('+s+')';
     c.style.opacity=o;
     c.style.zIndex=String(100-ad);
     c.style.pointerEvents=ad>2?'none':'auto';
