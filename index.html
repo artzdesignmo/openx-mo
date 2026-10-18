@@ -46,10 +46,10 @@ html[data-theme="dark"] .tbtn .moon{display:block}
 .hero h1{font-family:"Dela Gothic One",sans-serif;font-size:clamp(44px,8.5vw,104px);line-height:1.08;margin:0;letter-spacing:.01em}
 .hero .tag{margin:18px 0 0;color:var(--muted);font-size:clamp(14px,1.8vw,17px)}
 /* arc carousel */
-.stage{position:relative;padding:34px 0 10px;perspective:1400px;overflow:hidden}
-.track{display:flex;gap:clamp(10px,2vw,26px);justify-content:center;align-items:center;transform-style:preserve-3d;will-change:transform;padding:10px 0;cursor:grab}
+.stage{position:relative;padding:34px 0 10px;perspective:1400px;-webkit-perspective:1400px}
+.track{display:flex;gap:clamp(10px,2vw,26px);justify-content:center;align-items:center;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;will-change:transform;padding:10px 60px;cursor:grab}
 .track.grabbing{cursor:grabbing}
-.pcard{flex:0 0 clamp(220px,30vw,340px);aspect-ratio:4/4.6;border-radius:14px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);position:relative;transition:transform .45s cubic-bezier(.22,.8,.3,1),opacity .45s;user-select:none;-webkit-user-select:none}
+.pcard{flex:0 0 clamp(220px,30vw,340px);aspect-ratio:4/4.6;border-radius:14px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);position:relative;transition:transform .45s cubic-bezier(.22,.8,.3,1),opacity .45s;user-select:none;-webkit-user-select:none;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .pcard .cover-art,.pcard img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
 .pcard .plabel{position:absolute;left:0;right:0;bottom:0;padding:26px 16px 14px;background:linear-gradient(transparent,rgba(0,0,0,.62));color:#fff;font-family:"Dela Gothic One",sans-serif;font-size:15px;text-align:left}
 /* nav arrows */
