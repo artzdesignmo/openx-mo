@@ -9,19 +9,17 @@
 <meta name="description" content="OpenX: an open-source lab. Eleven works and counting.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Geist:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Geist:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   color-scheme:light;
   --bg:#FFFFFF; --ink:#111110; --muted:#8a867e; --line:rgba(17,17,16,.14);
-  --pill:#111110; --pill-ink:#FFFFFF; --card:#F6F6F4;
-  --shadow:0 20px 50px -20px rgba(17,17,16,.22);
+  --pill:#111110; --pill-ink:#FFFFFF;
 }
 html[data-theme="dark"]{
   color-scheme:dark;
   --bg:#111110; --ink:#FFFFFF; --muted:#8a867e; --line:rgba(255,255,255,.16);
-  --pill:#FFFFFF; --pill-ink:#111110; --card:#1c1c1b;
-  --shadow:0 20px 50px -18px rgba(0,0,0,.6);
+  --pill:#FFFFFF; --pill-ink:#111110;
 }
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
@@ -29,9 +27,8 @@ body{background:var(--bg);color:var(--ink);font-family:"Geist","Noto Sans TC",sy
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .display{font-family:"Dela Gothic One","Noto Sans TC",sans-serif}
-.wrap{max-width:1180px;margin:0 auto;padding-left:clamp(20px,5vw,56px);padding-right:clamp(20px,5vw,56px)}
-/* topbar */
-.topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;padding:14px clamp(18px,4vw,44px);background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+/* topbar: logo left, menu center, pill right */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;padding:14px clamp(18px,4vw,44px);background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .tb-logo{font-family:"Dela Gothic One",sans-serif;font-size:17px}
 .tb-mid{flex:1;display:flex;justify-content:center;gap:6px}
 .tbtn{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;font-size:13px;font-weight:700;border:1px solid transparent}
@@ -42,82 +39,36 @@ html[data-theme="dark"] .tbtn .sun{display:none}
 html[data-theme="dark"] .tbtn .moon{display:block}
 .pill-btn{background:var(--pill);color:var(--pill-ink);font-size:13px;font-weight:600;padding:11px 22px;border-radius:999px;white-space:nowrap}
 .pill-btn:hover{opacity:.85}
-/* hero — big name + inline badge */
-.hero{padding:clamp(104px,14vh,140px) 0 8px}
-.hero .name{font-family:"Dela Gothic One",sans-serif;font-size:clamp(64px,14vw,180px);line-height:1;margin:0;letter-spacing:.01em}
-.hero .name .badge{display:inline-block;vertical-align:baseline;font-size:.32em;background:var(--pill);color:var(--pill-ink);border-radius:999px;padding:.35em .8em;transform:translateY(-.55em) rotate(-4deg);margin-left:.3em;letter-spacing:.02em}
-.hero .role{margin-top:14px;font-size:clamp(15px,2vw,20px);font-weight:600}
-.hero .role span{color:var(--muted);font-weight:500}
-/* services */
-.svc{padding:44px 0 6px}
-.svc h2{font-family:"Dela Gothic One",sans-serif;font-size:clamp(24px,4vw,44px);line-height:1.2;margin:0 0 26px;max-width:16em}
-.svc ul{list-style:none;margin:0;padding:0}
-.svc li{margin-bottom:34px}
-.svc .s-t{font-size:clamp(16px,2.2vw,22px);font-weight:600;display:flex;gap:12px;align-items:flex-start;line-height:1.5}
-.svc .s-t .dot{flex:0 0 auto;width:10px;height:10px;border-radius:50%;background:var(--pill);margin-top:.55em}
-.svc .trio{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
-.svc .trio .im{border-radius:12px;overflow:hidden;aspect-ratio:4/3;border:1px solid var(--line);background:var(--card)}
-.svc .trio .im .cover-art,.svc .trio .im img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
-.svc .trio .im:hover .cover-art,.svc .trio .im:hover img{transform:scale(1.05)}
-@media(max-width:640px){.svc .trio{grid-template-columns:1fr 1fr}.svc .trio .im:last-child{display:none}}
-/* curious */
-.curious{text-align:center;padding:34px 0 18px}
-.curious .big{font-family:"Dela Gothic One",sans-serif;font-size:clamp(24px,4vw,44px);margin:0}
-.curious .big a{border-bottom:3px solid var(--pill)}
-.curious .scroll{margin-top:8px;color:var(--muted);font-size:13px;letter-spacing:.2em;text-transform:uppercase}
-/* work grid */
-.work{padding:26px 0 10px}
-.work h2{font-family:"Dela Gothic One",sans-serif;font-size:clamp(34px,6vw,84px);margin:0 0 18px;line-height:1}
-.cstage{position:relative;height:clamp(340px,42vw,470px);overflow:hidden;touch-action:pan-y;cursor:grab}
-.cstage.grabbing{cursor:grabbing}
-.ccard{position:absolute;left:50%;top:20px;width:clamp(230px,26vw,360px);aspect-ratio:4/4.4;margin-left:calc(clamp(230px,26vw,360px)/-2);border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);will-change:transform,opacity;user-select:none;-webkit-user-select:none}
-.ccard.snap{transition:transform .55s cubic-bezier(.22,.9,.28,1),opacity .55s}
-.ccard .cov{position:absolute;inset:0}
-.ccard .cov .cover-art,.ccard .cov img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
-.ccard .num{position:absolute;top:10px;left:12px;font-family:"Dela Gothic One",sans-serif;font-size:11px;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(6px);padding:5px 11px;border-radius:999px;border:1px solid var(--line);z-index:2}
-.ccard .plabel{position:absolute;left:0;right:0;bottom:0;padding:30px 16px 14px;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff;font-family:"Dela Gothic One",sans-serif;font-size:16px;z-index:2}
-.cnav{position:absolute;top:44%;width:46px;height:46px;border-radius:50%;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);display:grid;place-items:center;z-index:60}
-.cnav:hover{background:var(--pill);color:var(--pill-ink)}
-.cnav svg{width:18px;height:18px}
-.cnav.prev{left:clamp(6px,3vw,28px)}
-.cnav.next{right:clamp(6px,3vw,28px)}
-.cplac{text-align:center;max-width:620px;margin:2px auto 0;padding:0 24px;min-height:150px}
-.cplac .idx{font-size:12px;letter-spacing:.3em;color:var(--muted);font-weight:600}
-.cplac h3{font-family:"Dela Gothic One",sans-serif;font-size:clamp(24px,4vw,40px);margin:8px 0 4px}
-.cplac .sb{color:var(--muted);font-size:14px;font-weight:500}
-.cplac .ds{margin:10px 0 0;font-size:14px;line-height:1.7;color:var(--muted)}
-.cplac .lk{display:flex;gap:10px;justify-content:center;margin-top:12px}
-.btn{min-width:140px;text-align:center;padding:11px 22px;border-radius:999px;font-size:13.5px;font-weight:600;border:1px solid var(--line)}
-.btn.primary{background:var(--pill);color:var(--pill-ink);border-color:var(--pill)}
-.btn:hover{opacity:.82}
-.cdots{display:flex;gap:8px;justify-content:center;margin:14px 0 4px;flex-wrap:wrap}
-.cdots button{width:8px;height:8px;border-radius:50%;background:var(--line);padding:0;transition:background .2s,transform .2s}
-.cdots button.on{background:var(--ink);transform:scale(1.35)}
-.hintline{text-align:center;color:var(--muted);font-size:12px;margin-top:6px;letter-spacing:.08em}
-/* statement */
-.statement{padding:52px 0 12px;text-align:center}
-.statement h2{font-family:"Dela Gothic One",sans-serif;font-size:clamp(34px,6.5vw,84px);line-height:1.25;margin:0}
-.statement h2 .dim{color:var(--muted)}
-/* checklist */
-.why{padding:34px 0 6px;max-width:860px}
-.why h2{font-family:"Dela Gothic One",sans-serif;font-size:clamp(22px,3.6vw,38px);line-height:1.3;margin:0 0 22px}
-.why ul{list-style:none;margin:0;padding:0;display:grid;gap:18px}
-.why li{display:grid;grid-template-columns:44px 1fr;gap:16px;align-items:start}
-.why .ck{width:44px;height:44px;border-radius:50%;background:var(--pill);color:var(--pill-ink);display:grid;place-items:center;flex:0 0 auto}
-.why .ck svg{width:20px;height:20px}
-.why h3{font-size:clamp(16px,2.2vw,21px);margin:2px 0 6px}
-.why p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.7}
-/* cta */
-.cta{text-align:center;padding:52px 0 26px}
-.cta h2{font-family:"Dela Gothic One",sans-serif;font-size:clamp(32px,6vw,72px);line-height:1.2;margin:0 0 14px}
-.cta p{color:var(--muted);margin:0 0 20px;font-size:15px}
-.cta .pill-btn{font-size:16px;padding:16px 38px}
-footer{border-top:1px solid var(--line);margin-top:34px;padding:26px 0;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
-footer .f-t{font-family:"Dela Gothic One",sans-serif;font-size:16px}
-footer .f-s{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.7}
-footer .f-l{display:flex;gap:18px;font-size:14px;font-weight:600}
-.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s}
-.reveal.in{opacity:1;transform:none}
+/* hero */
+.hero{text-align:center;padding:clamp(110px,15vh,150px) 20px 8px;max-width:900px;margin:0 auto}
+.hero h1{font-family:"Dela Gothic One",sans-serif;font-size:clamp(52px,9vw,120px);line-height:1.08;margin:0}
+.hero .tag{margin:16px 0 0;color:var(--muted);font-size:clamp(13px,1.6vw,16px)}
+/* curved strip — arch: center high, sides droop */
+.strip{position:relative;height:clamp(360px,46vw,500px);margin-top:26px;overflow:hidden;touch-action:pan-y;cursor:grab}
+.strip.grabbing{cursor:grabbing}
+.scard{position:absolute;left:50%;top:10px;width:clamp(200px,24vw,300px);aspect-ratio:4/5;margin-left:calc(clamp(200px,24vw,300px)/-2);overflow:hidden;background:#eee;will-change:transform;user-select:none;-webkit-user-select:none}
+.scard.snap{transition:transform .55s cubic-bezier(.22,.9,.28,1)}
+.scard .cover-art,.scard img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.snav{position:absolute;top:42%;width:44px;height:44px;border-radius:50%;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border:1px solid var(--line);display:grid;place-items:center;z-index:60}
+.snav:hover{background:var(--pill);color:var(--pill-ink)}
+.snav svg{width:17px;height:17px}
+.snav.prev{left:clamp(8px,3vw,28px)}
+.snav.next{right:clamp(8px,3vw,28px)}
+/* below strip */
+.below{text-align:center;max-width:640px;margin:0 auto;padding:26px 24px 10px}
+.below .pname{font-family:"Dela Gothic One",sans-serif;font-size:clamp(22px,3.6vw,36px);margin:0}
+.below .psub{color:var(--muted);font-size:14px;margin-top:6px}
+.below .pdesc{color:var(--muted);font-size:14px;line-height:1.7;margin:12px 0 0}
+.below .links{margin-top:20px;display:flex;gap:26px;justify-content:center;font-size:14px;font-weight:600}
+.below .links a{border-bottom:1.5px solid var(--ink);padding-bottom:2px}
+.below .links a:hover{opacity:.65}
+.dots{display:flex;gap:7px;justify-content:center;margin:22px 0 4px;flex-wrap:wrap}
+.dots button{width:7px;height:7px;border-radius:50%;background:var(--line);padding:0;transition:background .2s,transform .2s}
+.dots button.on{background:var(--ink);transform:scale(1.4)}
+footer{border-top:1px solid var(--line);margin-top:44px;padding:28px clamp(20px,5vw,56px);display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;max-width:1180px;margin-left:auto;margin-right:auto}
+footer .f-t{font-family:"Dela Gothic One",sans-serif;font-size:15px}
+footer .f-s{font-size:12px;color:var(--muted);margin-top:5px}
+footer .f-l{display:flex;gap:18px;font-size:13.5px;font-weight:600}
 </style>
 </head>
 <body>
@@ -133,81 +84,31 @@ footer .f-l{display:flex;gap:18px;font-size:14px;font-weight:600}
   <a class="pill-btn" href="https://github.com/artzdesignmo" target="_blank" rel="noopener" data-i18n="star">Star on GitHub</a>
 </header>
 
-<div class="wrap">
 <section class="hero" id="top">
-  <h1 class="name display">Open, X<span class="badge display" data-i18n="badge">open lab</span></h1>
-  <p class="role"><span data-i18n="role1">Experimental open-source studio</span> · <span data-i18n="role2">tools, toys &amp; instruments</span></p>
+  <h1 class="display" data-i18n-html="heroTitle">Open<br>Source<br>Lab</h1>
+  <p class="tag" data-i18n="tagline">Eleven works and counting — tools, toys and instruments, written in the open.</p>
 </section>
 
-<section class="svc">
-  <h2 class="display" data-i18n="svcH">The lab cooks up things like:</h2>
-  <ul>
-    <li class="reveal">
-      <div class="s-t"><span class="dot"></span><span data-i18n="svc1">Playful instruments — generative music, blooming flowers and liquid physics you can touch.</span></div>
-      <div class="trio" data-trio="echo-mo,bloom-mo,flow-mo"></div>
-    </li>
-    <li class="reveal">
-      <div class="s-t"><span class="dot"></span><span data-i18n="svc2">Design tools — posters, logos and fonts, generated in your browser, free for commercial use.</span></div>
-      <div class="trio" data-trio="halftone-mo,logo-mo,typo-mo"></div>
-    </li>
-    <li class="reveal">
-      <div class="s-t"><span class="dot"></span><span data-i18n="svc3">Everyday utilities — quotations, timers and trainers that respect your time.</span></div>
-      <div class="trio" data-trio="quo-mo,time-mo,5line-mo"></div>
-    </li>
-  </ul>
+<section class="strip" id="strip"><div id="sctrack"></div>
+  <button class="snav prev" id="sprev" aria-label="previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="snav next" id="snext" aria-label="next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
 </section>
 
-<div class="curious reveal">
-  <p class="big display"><span data-i18n="curious">Curious? Check out the</span> <a href="#work" data-i18n="collection">collection ↓</a></p>
-  <p class="scroll" data-i18n="scroll">or keep scrolling</p>
-</div>
-
-<section class="work" id="work">
-  <h2 class="display">Work</h2>
-  <div class="cstage" id="cstage">
-    <div id="ctrack"></div>
-    <button class="cnav prev" id="cprev" aria-label="previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-    <button class="cnav next" id="cnext" aria-label="next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+<section class="below">
+  <h2 class="pname display" id="pName"></h2>
+  <div class="psub" id="pSub"></div>
+  <p class="pdesc" id="pDesc"></p>
+  <div class="links">
+    <a id="pVisit" href="#" target="_blank" rel="noopener" data-i18n="visit">Visit</a>
+    <a href="https://github.com/artzdesignmo" target="_blank" rel="noopener">GitHub</a>
   </div>
-  <p class="hintline" data-i18n="hint">Drag to travel along the curve</p>
-  <div class="cplac">
-    <div class="idx"><b id="cpNum">01</b> / <span id="cpTotal">11</span></div>
-    <h3 class="display" id="cpTitle"></h3>
-    <div class="sb" id="cpSub"></div>
-    <p class="ds" id="cpDesc"></p>
-    <div class="lk">
-      <a class="btn primary" id="cpVisit" href="#" target="_blank" rel="noopener"><span data-i18n="visit">Visit</span> →</a>
-      <a class="btn" id="cpGh" href="#" target="_blank" rel="noopener">GitHub</a>
-    </div>
-    <div class="cdots" id="cdots"></div>
-  </div>
-</section>
-
-<section class="statement reveal">
-  <h2 class="display" data-i18n-html="stmt">Good tools<br><span class="dim">take time —</span><br>and open source<br><span class="dim">saves it.</span></h2>
-</section>
-
-<section class="why wrap">
-  <h2 class="display reveal" data-i18n="whyH">Why follow the lab</h2>
-  <ul>
-    <li class="reveal"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><div><h3 data-i18n="why1t">MIT, free forever</h3><p data-i18n="why1p">Every work is open source. Take it, fork it, ship it — no strings attached.</p></div></li>
-    <li class="reveal"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><div><h3 data-i18n="why2t">Single file, zero dependencies</h3><p data-i18n="why2p">Each project is one HTML file that runs anywhere. No build step, no backend.</p></div></li>
-    <li class="reveal"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><div><h3 data-i18n="why3t">A new piece every 3 days</h3><p data-i18n="why3p">The lab ships on rhythm. Eleven works so far — the shelf keeps growing.</p></div></li>
-    <li class="reveal"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span><div><h3 data-i18n="why4t">Crafted, not generated</h3><p data-i18n="why4p">Hand-written code and design. Every pixel earns its place.</p></div></li>
-  </ul>
-</section>
-
-<section class="cta reveal">
-  <h2 class="display" data-i18n-html="ctaH">Let’s build something<br>people remember.</h2>
-  <p data-i18n="ctaP">Star the lab — or just take everything. It’s all MIT.</p>
-  <a class="pill-btn" href="https://github.com/artzdesignmo" target="_blank" rel="noopener" data-i18n="ctaB">★ Star on GitHub</a>
+  <div class="dots" id="dots"></div>
 </section>
 
 <footer>
-  <div><div class="f-t display">OPENX</div><div class="f-s" data-i18n-html="foot">MIT-licensed, free forever.<br>Curated by X.</div></div>
+  <div><div class="f-t display">OPENX</div><div class="f-s" data-i18n-html="foot">MIT-licensed, free forever.<br>Curated by X · a new piece every 3 days.</div></div>
   <div class="f-l"><a href="https://github.com/artzdesignmo" target="_blank" rel="noopener">GitHub</a><a href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener">☕ Coffee</a></div>
 </footer>
-</div>
 
 <script>
 (function(){
@@ -320,129 +221,101 @@ var PROJECTS = [
       ];
 
 var STR={
-en:{badge:'open lab',role1:'Experimental open-source studio',role2:'tools, toys & instruments',svcH:'The lab cooks up things like:',svc1:'Playful instruments — generative music, blooming flowers and liquid physics you can touch.',svc2:'Design tools — posters, logos and fonts, generated in your browser, free for commercial use.',svc3:'Everyday utilities — quotations, timers and trainers that respect your time.',curious:'Curious? Check out the',collection:'collection ↓',scroll:'or keep scrolling',star:'Star on GitHub',visit:'Visit',hint:'Drag to travel along the curve',stmt:'Good tools<br><span class="dim">take time —</span><br>and open source<br><span class="dim">saves it.</span>',whyH:'Why follow the lab',why1t:'MIT, free forever',why1p:'Every work is open source. Take it, fork it, ship it — no strings attached.',why2t:'Single file, zero dependencies',why2p:'Each project is one HTML file that runs anywhere. No build step, no backend.',why3t:'A new piece every 3 days',why3p:'The lab ships on rhythm. Eleven works so far — the shelf keeps growing.',why4t:'Crafted, not generated',why4p:'Hand-written code and design. Every pixel earns its place.',ctaH:'Let’s build something<br>people remember.',ctaP:'Star the lab — or just take everything. It’s all MIT.',ctaB:'★ Star on GitHub',foot:'MIT-licensed, free forever.<br>Curated by X.'},
-zh:{badge:'開放實驗室',role1:'實驗性開放源碼工作室',role2:'工具、玩具同樂器',svcH:'實驗室整緊呢啲：',svc1:'好玩樂器——生成音樂、開花、流體物理，掂得。',svc2:'設計工具——海報、logo、字體，喺瀏覽器生成，商用免費。',svc3:'日常實用——報價單、計時、訓練器，慳你時間。',curious:'心郁？睇下',collection:'作品集 ↓',scroll:'或者繼續碌',star:'去 GitHub 俾星',visit:'去玩',hint:'拖曳沿住條弧線行',stmt:'好工具<br><span class="dim">要時間——</span><br>開放源碼<br><span class="dim">幫你慳返。</span>',whyH:'點解要 follow',why1t:'MIT，永久免費',why1p:'每件作品都係開放源碼。攞去、fork、推出——冇附帶條件。',why2t:'單一檔案，零依賴',why2p:'每個項目一個 HTML 檔，邊度都跑得。唔使 build，唔使後端。',why3t:'每三日一件新作',why3p:'實驗室有節奏咁出品。而家十一件——架仲會繼續加。',why4t:'手工打造',why4p:'手寫代碼同設計。隻隻像素都有佢位。',ctaH:'一齊整啲<br>令人記得嘅嘢。',ctaP:'去 GitHub 俾粒星——或者直接攞走晒，全部 MIT。',ctaB:'★ 去 GitHub 俾星',foot:'MIT 授權，永久免費。<br>X 策展。'}
+en:{heroTitle:'Open<br>Source<br>Lab',tagline:'Eleven works and counting — tools, toys and instruments, written in the open.',star:'Star on GitHub',visit:'Visit',foot:'MIT-licensed, free forever.<br>Curated by X · a new piece every 3 days.'},
+zh:{heroTitle:'開放<br>源碼<br>實驗室',tagline:'十一件作品，仲會繼續加——工具、玩具同樂器，全部公開寫成。',star:'去 GitHub 俾星',visit:'去玩',foot:'MIT 授權，永久免費。<br>X 策展 · 每 3 日一件新作。'}
 };
 function t(k){return STR[lang][k]||k;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
-function byId(id){for(var i=0;i<PROJECTS.length;i++)if(PROJECTS[i].id===id)return PROJECTS[i];return null;}
 
-function buildTrios(){
-  document.querySelectorAll('[data-trio]').forEach(function(el){
-    var ids=el.getAttribute('data-trio').split(',');
-    var html='';
-    ids.forEach(function(id){
-      var p=byId(id);if(!p)return;
-      html+='<a class="im" href="'+p.demo+'" target="_blank" rel="noopener" title="'+esc(p.title.en)+'">'+p.art+'</a>';
-    });
-    el.innerHTML=html;
-  });
+var strip=document.getElementById('strip'),track=document.getElementById('sctrack');
+var cards=[],pos=0,N=PROJECTS.length,RAD=57.2958;
+function params(){
+  var w=strip.offsetWidth;
+  if(w>1000)return {gap:0.94,arch:64,tilt:0.55,vis:5.5};
+  if(w>640)return {gap:0.96,arch:52,tilt:0.6,vis:4.2};
+  return {gap:1.0,arch:44,tilt:0.65,vis:3.2};
 }
-var cstage=document.getElementById('cstage'),ctrack=document.getElementById('ctrack');
-var ccards=[],pos=0,N=PROJECTS.length;
-var RAD=57.2958;
-function arcParams(){
-  var w=document.getElementById('cstage').offsetWidth;
-  if(w>900)return {step:0.34,ydip:170,rot:0.7,vis:4.2};   /* desktop：闊、平、睇得多 */
-  if(w>600)return {step:0.42,ydip:240,rot:0.82,vis:3.6};
-  return {step:0.5,ydip:300,rot:0.9,vis:3.2};              /* mobile：窄、彎 */
-}
-function buildCarousel(){
-  ctrack.innerHTML='';ccards=[];
+var P=params();
+function build(){
+  track.innerHTML='';cards=[];
   PROJECTS.forEach(function(p,i){
-    var d=document.createElement('div');d.className='ccard snap';
-    var n=String(i+1).padStart(2,'0');
-    d.innerHTML='<span class="num">'+n+'</span><div class="cov">'+p.art+'</div><div class="plabel">'+esc(p.title.en)+'</div>';
-    d.addEventListener('click',function(){go(i);});
-    ctrack.appendChild(d);ccards.push(d);
+    var d=document.createElement('div');d.className='scard snap';
+    d.innerHTML=p.art;
+    d.addEventListener('click',function(){
+      if(Math.abs(i-Math.round(pos))<0.5)window.open(p.demo,'_blank','noopener');
+      else go(i);
+    });
+    track.appendChild(d);cards.push(d);
   });
-  var cd=document.getElementById('cdots');cd.innerHTML='';
+  var dt=document.getElementById('dots');dt.innerHTML='';
   PROJECTS.forEach(function(_,i){
     var b=document.createElement('button');b.setAttribute('aria-label','Go to '+(i+1));
-    b.addEventListener('click',function(){go(i);});cd.appendChild(b);
+    b.addEventListener('click',function(){go(i);});dt.appendChild(b);
   });
-  document.getElementById('cpTotal').textContent=N;
   layout(true);
-}
-var AP=arcParams();
-function arc(d){
-  var a=d*AP.step;
-  return {
-    x:Math.sin(a)*620,
-    y:(1-Math.cos(a))*AP.ydip,
-    r:a*RAD*AP.rot,
-    s:1-Math.min(Math.abs(d)*0.12,0.45),
-    o:Math.abs(d)>AP.vis?0:1
-  };
 }
 function layout(snap){
-  ccards.forEach(function(c,i){
-    var p=arc(i-pos);
+  var cw=cards[0].offsetWidth;
+  cards.forEach(function(c,i){
+    var d=i-pos,ad=Math.abs(d);
+    var a=d*0.42;
+    var x=d*cw*P.gap;
+    var y=(1-Math.cos(a))*P.arch;          /* arch: sides droop */
+    var r=a*RAD*P.tilt;
+    var s=1-Math.min(ad*0.07,0.28);
     c.classList.toggle('snap',!!snap);
-    c.style.transform='translateX('+p.x.toFixed(1)+'px) translateY('+p.y.toFixed(1)+'px) rotate('+p.r.toFixed(2)+'deg) scale('+p.s.toFixed(3)+')';
-    c.style.opacity=p.o;
-    c.style.zIndex=String(100-Math.round(Math.abs(i-pos)*10));
-    c.style.pointerEvents=Math.abs(i-pos)>AP.vis?'none':'auto';
+    c.style.transform='translateX('+x.toFixed(1)+'px) translateY('+y.toFixed(1)+'px) rotate('+r.toFixed(2)+'deg) scale('+s.toFixed(3)+')';
+    c.style.opacity=ad>P.vis?0:1;
+    c.style.zIndex=String(100-Math.round(ad*10));
   });
-  var ri=Math.round(pos);
-  if(ri<0)ri=0;if(ri>=N)ri=N-1;
-  var pr=PROJECTS[ri];
-  document.getElementById('cpNum').textContent=String(ri+1).padStart(2,'0');
-  document.getElementById('cpTitle').textContent=pr.title[lang];
-  document.getElementById('cpSub').textContent=pr.sub[lang];
-  document.getElementById('cpDesc').textContent=pr.desc[lang];
-  document.getElementById('cpVisit').href=pr.demo;
-  document.getElementById('cpGh').href=pr.github;
-  Array.prototype.forEach.call(document.getElementById('cdots').children,function(b,i){b.classList.toggle('on',i===ri);});
+  var ri=Math.max(0,Math.min(N-1,Math.round(pos)));
+  var p=PROJECTS[ri];
+  document.getElementById('pName').textContent=p.title[lang];
+  document.getElementById('pSub').textContent=p.sub[lang];
+  document.getElementById('pDesc').textContent=p.desc[lang];
+  document.getElementById('pVisit').href=p.demo;
+  Array.prototype.forEach.call(document.getElementById('dots').children,function(b,i){b.classList.toggle('on',i===ri);});
 }
-function go(i){
-  pos=Math.max(0,Math.min(N-1,i));
-  layout(true);
-}
-document.getElementById('cprev').addEventListener('click',function(){go(Math.round(pos)-1);});
-document.getElementById('cnext').addEventListener('click',function(){go(Math.round(pos)+1);});
+function go(i){pos=Math.max(0,Math.min(N-1,i));layout(true);}
+document.getElementById('sprev').addEventListener('click',function(e){e.stopPropagation();go(Math.round(pos)-1);});
+document.getElementById('snext').addEventListener('click',function(e){e.stopPropagation();go(Math.round(pos)+1);});
 document.addEventListener('keydown',function(e){
-  var r=cstage.getBoundingClientRect();
+  var r=strip.getBoundingClientRect();
   if(r.bottom<0||r.top>innerHeight)return;
   if(e.key==='ArrowLeft')go(Math.round(pos)-1);
   if(e.key==='ArrowRight')go(Math.round(pos)+1);
 });
-var sx=null,dragging=false;
-cstage.addEventListener('pointerdown',function(e){
-  if(e.target.closest('.cnav'))return;
-  sx=e.clientX;dragging=true;cstage.classList.add('grabbing');
-  try{cstage.setPointerCapture(e.pointerId);}catch(_){}
+var sx=null,dragging=false,moved=0;
+strip.addEventListener('pointerdown',function(e){
+  if(e.target.closest('.snav'))return;
+  sx=e.clientX;dragging=true;moved=0;strip.classList.add('grabbing');
+  try{strip.setPointerCapture(e.pointerId);}catch(_){}
 });
-cstage.addEventListener('pointermove',function(e){
+strip.addEventListener('pointermove',function(e){
   if(!dragging||sx===null)return;
-  var dx=e.clientX-sx;
-  pos=Math.max(-0.6,Math.min(N-1+0.6,Math.round(pos)-dx/160));
+  var dx=e.clientX-sx;moved=Math.max(moved,Math.abs(dx));
+  var cw=cards[0].offsetWidth;
+  pos=Math.max(-0.5,Math.min(N-1+0.5,Math.round(pos)-dx/(cw*0.9)));
   layout(false);
 });
 function endDrag(e){
-  if(!dragging)return;dragging=false;cstage.classList.remove('grabbing');
+  if(!dragging)return;dragging=false;strip.classList.remove('grabbing');
   var dx=e?e.clientX-sx:0;sx=null;
+  if(moved<8){layout(true);return;}   /* tap:由 click 處理 */
   var target=Math.round(pos);
   if(Math.abs(dx)>40)target=Math.round(pos)+(dx<0?1:-1);
   go(target);
 }
-cstage.addEventListener('pointerup',endDrag);
-cstage.addEventListener('pointercancel',function(){dragging=false;cstage.classList.remove('grabbing');sx=null;go(Math.round(pos));});
-addEventListener('resize',function(){AP=arcParams();layout(true);});
-var io=null;
-function observe(){
-  var els=document.querySelectorAll('.reveal:not(.in)');
-  if(!('IntersectionObserver' in window)){els.forEach(function(x){x.classList.add('in');});return;}
-  if(io)io.disconnect();
-  io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});},{threshold:.08});
-  els.forEach(function(x){io.observe(x);});
-}
+strip.addEventListener('pointerup',endDrag);
+strip.addEventListener('pointercancel',function(){dragging=false;strip.classList.remove('grabbing');sx=null;go(Math.round(pos));});
+addEventListener('resize',function(){P=params();layout(true);});
+
 function applyLang(){
   root.setAttribute('data-lang',lang);root.setAttribute('lang',lang==='zh'?'zh-Hant':'en');
   document.querySelectorAll('[data-i18n]').forEach(function(el){var k=el.getAttribute('data-i18n');if(STR[lang][k])el.textContent=STR[lang][k];});
   document.querySelectorAll('[data-i18n-html]').forEach(function(el){var k=el.getAttribute('data-i18n-html');if(STR[lang][k])el.innerHTML=STR[lang][k];});
   document.getElementById('langToggle').textContent=lang==='zh'?'中':'EN';
-  buildTrios();buildCarousel();
+  build();
   try{localStorage.setItem('openx-lang',lang);}catch(e){}
 }
 document.getElementById('langToggle').addEventListener('click',function(){lang=lang==='en'?'zh':'en';applyLang();});
