@@ -58,7 +58,7 @@ html[data-theme="dark"] .tbtn .moon{display:block}
 .mp-foot .lbl{font-size:12px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-right:4px}
 /* hero */
 .hero{text-align:center;padding:clamp(110px,15vh,150px) 20px 8px;max-width:900px;margin:0 auto}
-.hero h1{font-family:"Dela Gothic One",sans-serif;font-size:clamp(57px,9vw,125px);line-height:1.08;margin:0}
+.hero h1{font-family:"Dela Gothic One",sans-serif;font-size:clamp(67px,9vw,135px);line-height:1.08;margin:0}
 .hero .tag{margin:16px 0 0;color:var(--muted);font-size:clamp(13px,1.6vw,16px)}
 /* curved strip — arch: center high, sides droop */
 .strip{position:relative;height:clamp(360px,46vw,500px);margin-top:26px;overflow:hidden;touch-action:pan-y;cursor:grab}
@@ -358,7 +358,7 @@ function buildMenu(){
   var html='';
   PROJECTS.forEach(function(p,i){
     var n=String(i+1).padStart(2,'0');
-    html+='<div class="mp-item" data-i="'+i+'">'
+    html+='<div class="mp-item" data-i="'+i+'"><span class="n">'+n+'</span>'
       +'<span class="t">'+esc(p.title[lang])+'</span></div>';
   });
   document.getElementById('mpList').innerHTML=html;
