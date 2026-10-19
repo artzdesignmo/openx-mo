@@ -68,9 +68,9 @@ html[data-theme="dark"] .tbtn .moon{display:block}
 /* work grid */
 .work{padding:26px 0 10px}
 .work h2{font-family:"Dela Gothic One",sans-serif;font-size:clamp(34px,6vw,84px);margin:0 0 18px;line-height:1}
-.cstage{position:relative;height:clamp(330px,44vw,440px);overflow:hidden;touch-action:pan-y;cursor:grab}
+.cstage{position:relative;height:clamp(340px,42vw,470px);overflow:hidden;touch-action:pan-y;cursor:grab}
 .cstage.grabbing{cursor:grabbing}
-.ccard{position:absolute;left:50%;top:26px;width:clamp(230px,30vw,330px);aspect-ratio:4/4.5;margin-left:calc(clamp(230px,30vw,330px)/-2);border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);will-change:transform,opacity;user-select:none;-webkit-user-select:none}
+.ccard{position:absolute;left:50%;top:20px;width:clamp(230px,26vw,360px);aspect-ratio:4/4.4;margin-left:calc(clamp(230px,26vw,360px)/-2);border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);will-change:transform,opacity;user-select:none;-webkit-user-select:none}
 .ccard.snap{transition:transform .55s cubic-bezier(.22,.9,.28,1),opacity .55s}
 .ccard .cov{position:absolute;inset:0}
 .ccard .cov .cover-art,.ccard .cov img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
@@ -340,7 +340,13 @@ function buildTrios(){
 }
 var cstage=document.getElementById('cstage'),ctrack=document.getElementById('ctrack');
 var ccards=[],pos=0,N=PROJECTS.length;
-var STEP=0.46,RAD=57.2958;
+var RAD=57.2958;
+function arcParams(){
+  var w=document.getElementById('cstage').offsetWidth;
+  if(w>900)return {step:0.34,ydip:170,rot:0.7,vis:4.2};   /* desktop：闊、平、睇得多 */
+  if(w>600)return {step:0.42,ydip:240,rot:0.82,vis:3.6};
+  return {step:0.5,ydip:300,rot:0.9,vis:3.2};              /* mobile：窄、彎 */
+}
 function buildCarousel(){
   ctrack.innerHTML='';ccards=[];
   PROJECTS.forEach(function(p,i){
@@ -358,14 +364,15 @@ function buildCarousel(){
   document.getElementById('cpTotal').textContent=N;
   layout(true);
 }
+var AP=arcParams();
 function arc(d){
-  var a=d*STEP;
+  var a=d*AP.step;
   return {
-    x:Math.sin(a)*560,
-    y:(1-Math.cos(a))*300,
-    r:a*RAD*0.82,
-    s:1-Math.min(Math.abs(d)*0.14,0.5),
-    o:Math.abs(d)>3.2?0:1
+    x:Math.sin(a)*620,
+    y:(1-Math.cos(a))*AP.ydip,
+    r:a*RAD*AP.rot,
+    s:1-Math.min(Math.abs(d)*0.12,0.45),
+    o:Math.abs(d)>AP.vis?0:1
   };
 }
 function layout(snap){
@@ -375,7 +382,7 @@ function layout(snap){
     c.style.transform='translateX('+p.x.toFixed(1)+'px) translateY('+p.y.toFixed(1)+'px) rotate('+p.r.toFixed(2)+'deg) scale('+p.s.toFixed(3)+')';
     c.style.opacity=p.o;
     c.style.zIndex=String(100-Math.round(Math.abs(i-pos)*10));
-    c.style.pointerEvents=Math.abs(i-pos)>3.2?'none':'auto';
+    c.style.pointerEvents=Math.abs(i-pos)>AP.vis?'none':'auto';
   });
   var ri=Math.round(pos);
   if(ri<0)ri=0;if(ri>=N)ri=N-1;
@@ -421,7 +428,7 @@ function endDrag(e){
 }
 cstage.addEventListener('pointerup',endDrag);
 cstage.addEventListener('pointercancel',function(){dragging=false;cstage.classList.remove('grabbing');sx=null;go(Math.round(pos));});
-addEventListener('resize',function(){layout(true);});
+addEventListener('resize',function(){AP=arcParams();layout(true);});
 var io=null;
 function observe(){
   var els=document.querySelectorAll('.reveal:not(.in)');
