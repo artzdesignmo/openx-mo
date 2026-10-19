@@ -13,23 +13,20 @@
 <style>
 :root{
   color-scheme:light;
-  --bg:#FFFFFF; --ink:#111110; --muted:#8a867e; --line:rgba(17,17,16,.12);
-  --card:#ffffff; --pill:#111110; --pill-ink:#FFFFFF;
-  --shadow:0 24px 60px -24px rgba(17,17,16,.25);
+  --bg:#FFFFFF; --ink:#111110; --muted:#8a867e; --line:rgba(17,17,16,.14);
+  --pill:#111110; --pill-ink:#FFFFFF;
 }
 html[data-theme="dark"]{
   color-scheme:dark;
-  --bg:#111110; --ink:#FBFBF9; --muted:#8a867e; --line:rgba(251,251,249,.14);
-  --card:#1b1b1a; --pill:#FBFBF9; --pill-ink:#111110;
-  --shadow:0 24px 60px -18px rgba(0,0,0,.7);
+  --bg:#111110; --ink:#FFFFFF; --muted:#8a867e; --line:rgba(255,255,255,.16);
+  --pill:#FFFFFF; --pill-ink:#111110;
 }
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
-body{background:var(--bg);color:var(--ink);font-family:"Geist","Noto Sans TC",system-ui,sans-serif;-webkit-font-smoothing:antialiased;transition:background .4s,color .4s;overflow-x:hidden}
+body{background:var(--bg);color:var(--ink);font-family:"Geist","Noto Sans TC",system-ui,sans-serif;-webkit-font-smoothing:antialiased;transition:background .4s,color .4s}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .display{font-family:"Dela Gothic One","Noto Sans TC",sans-serif}
-/* topbar — logo left, menu center, pill right */
 .topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;padding:14px clamp(18px,4vw,44px);background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .tb-logo{font-family:"Dela Gothic One",sans-serif;font-size:17px}
 .tb-mid{flex:1;display:flex;justify-content:center;gap:6px}
@@ -41,42 +38,44 @@ html[data-theme="dark"] .tbtn .sun{display:none}
 html[data-theme="dark"] .tbtn .moon{display:block}
 .pill-btn{background:var(--pill);color:var(--pill-ink);font-size:13px;font-weight:600;padding:11px 22px;border-radius:999px;white-space:nowrap}
 .pill-btn:hover{opacity:.85}
-/* hero */
-.hero{text-align:center;padding:130px 20px 10px;max-width:900px;margin:0 auto}
-.hero h1{font-family:"Dela Gothic One",sans-serif;font-size:clamp(64px,13vw,160px);line-height:1.02;margin:0;letter-spacing:.01em}
-.hero .tag{margin:18px 0 0;color:var(--muted);font-size:clamp(14px,1.8vw,17px)}
-/* arc carousel */
-.stage{position:relative;padding:30px 0 6px;overflow:hidden}
-.track{display:flex;gap:clamp(10px,2vw,22px);align-items:flex-start;will-change:transform;padding:20px 0 26px;cursor:grab;touch-action:pan-y;-webkit-touch-callout:none}
-.track.grabbing{cursor:grabbing}
-.pcard{flex:0 0 clamp(230px,62vw,330px);aspect-ratio:4/4.3;border-radius:14px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);position:relative;transition:transform .45s cubic-bezier(.22,.8,.3,1),opacity .45s;user-select:none;-webkit-user-select:none;transform-origin:center top}
-.pcard .artwrap{position:absolute;inset:0}.pcard .artwrap .cover-art,.pcard .artwrap img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
-.pcard .plabel{position:absolute;left:0;right:0;bottom:0;padding:26px 16px 14px;background:linear-gradient(transparent,rgba(0,0,0,.62));color:#fff;font-family:"Dela Gothic One",sans-serif;font-size:15px;text-align:left}
-/* nav arrows */
-.nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);display:grid;place-items:center;z-index:5}
-.nav:hover{background:var(--pill);color:var(--pill-ink)}
-.nav svg{width:18px;height:18px}
-.nav.prev{left:clamp(8px,3vw,30px)}
-.nav.next{right:clamp(8px,3vw,30px)}
-/* placard */
-.placard{text-align:center;max-width:640px;margin:26px auto 0;padding:0 24px}
-.placard .idx{font-size:12px;letter-spacing:.3em;color:var(--muted);font-weight:600}
-.placard h2{font-family:"Dela Gothic One",sans-serif;font-size:clamp(26px,4.5vw,44px);margin:10px 0 6px}
-.placard .sub{color:var(--muted);font-size:15px;font-weight:500}
-.placard .desc{margin:14px 0 0;font-size:15px;line-height:1.75;color:var(--muted)}
-.placard .links{margin-top:22px;display:flex;gap:12px;justify-content:center}
-.btn{min-width:150px;text-align:center;padding:13px 26px;border-radius:999px;font-size:14px;font-weight:600;border:1px solid var(--line)}
-.btn.primary{background:var(--pill);color:var(--pill-ink);border-color:var(--pill)}
-.btn:hover{opacity:.82}
-.dots{display:flex;gap:8px;justify-content:center;margin:26px 0 10px;flex-wrap:wrap;max-width:520px;margin-left:auto;margin-right:auto}
-.dots button{width:8px;height:8px;border-radius:50%;background:var(--line);padding:0;transition:background .2s,transform .2s}
-.dots button.on{background:var(--ink);transform:scale(1.35)}
-/* footer */
-footer{margin-top:70px;border-top:1px solid var(--line);padding:36px clamp(20px,5vw,48px);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;max-width:1200px;margin-left:auto;margin-right:auto}
+.hero{padding:clamp(130px,18vh,190px) clamp(20px,5vw,60px) 30px;max-width:1200px;margin:0 auto}
+.hero .kick{font-size:12px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);margin-bottom:22px}
+.hero h1{font-family:"Dela Gothic One",sans-serif;font-size:clamp(40px,7.5vw,96px);line-height:1.12;margin:0;max-width:14em}
+.hero h1 .dim{color:var(--muted)}
+.hero .sub{margin-top:24px;color:var(--muted);font-size:clamp(14px,1.7vw,17px);max-width:560px;line-height:1.7}
+.works{max-width:1200px;margin:0 auto;padding:60px clamp(20px,5vw,60px) 40px}
+.w-head{font-size:13px;font-weight:600;letter-spacing:.55em;color:var(--muted);margin-bottom:8px;text-transform:lowercase}
+.w-rule{border:0;border-top:1px solid var(--line);margin:0}
+.wrow{display:grid;grid-template-columns:52px 1fr auto;gap:18px;align-items:baseline;padding:30px 0;border-bottom:1px solid var(--line);position:relative;cursor:pointer}
+.wrow .n{font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.1em}
+.wrow .tt{font-family:"Dela Gothic One",sans-serif;font-size:clamp(30px,5.2vw,64px);line-height:1.05;margin:0;transition:transform .3s cubic-bezier(.2,.7,.3,1)}
+.wrow .tg{margin-top:8px;color:var(--muted);font-size:clamp(13px,1.5vw,15px)}
+.wrow .go{display:flex;gap:10px;align-items:center}
+.wrow .go a{font-size:13px;font-weight:600;border:1px solid var(--line);border-radius:999px;padding:9px 18px;white-space:nowrap;transition:background .2s,color .2s}
+.wrow .go a:hover{background:var(--pill);color:var(--pill-ink);border-color:var(--pill)}
+.wrow .go a.primary{background:var(--pill);color:var(--pill-ink);border-color:var(--pill)}
+@media(hover:hover){.wrow:hover .tt{transform:translateX(14px)}}
+#preview{position:fixed;z-index:90;width:300px;aspect-ratio:4/3;border-radius:12px;overflow:hidden;pointer-events:none;opacity:0;transform:translate(-50%,-58%) scale(.92) rotate(-3deg);transition:opacity .25s,transform .25s;box-shadow:0 30px 70px -20px rgba(0,0,0,.4);background:var(--pill)}
+#preview.on{opacity:1;transform:translate(-50%,-58%) scale(1) rotate(-3deg)}
+#preview .cover-art,#preview img{width:100%;height:100%;object-fit:cover;display:block}
+@media(hover:none){#preview{display:none}}
+.wthumb{display:none}
+@media(max-width:720px){
+  .wrow{grid-template-columns:1fr;gap:10px;padding:24px 0}
+  .wrow .n{display:none}
+  .wrow .go{margin-top:6px}
+  .wthumb{display:block;width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;margin-bottom:6px;border:1px solid var(--line)}
+  .wthumb .cover-art,.wthumb img{width:100%;height:100%;object-fit:cover;display:block}
+}
+.outro{max-width:1200px;margin:0 auto;padding:70px clamp(20px,5vw,60px) 30px}
+.outro h2{font-family:"Dela Gothic One",sans-serif;font-size:clamp(30px,5vw,60px);line-height:1.15;margin:0 0 16px}
+.outro p{color:var(--muted);font-size:15px;line-height:1.75;max-width:560px;margin:0}
+footer{margin-top:50px;border-top:1px solid var(--line);padding:34px clamp(20px,5vw,60px);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;max-width:1200px;margin-left:auto;margin-right:auto}
 footer .f-t{font-family:"Dela Gothic One",sans-serif;font-size:16px}
-footer .f-s{font-size:12.5px;color:var(--muted);margin-top:6px}
+footer .f-s{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.7}
 footer .f-l{display:flex;gap:18px;font-size:14px;font-weight:600}
-.hintline{text-align:center;color:var(--muted);font-size:12px;margin-top:8px;letter-spacing:.06em}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s}
+.reveal.in{opacity:1;transform:none}
 </style>
 </head>
 <body>
@@ -93,31 +92,26 @@ footer .f-l{display:flex;gap:18px;font-size:14px;font-weight:600}
 </header>
 
 <section class="hero" id="top">
-  <h1 class="display" data-i18n="heroTitle">Open<br>Source<br>Lab</h1>
-  <p class="tag" data-i18n="tagline">Eleven works and counting — tools, toys and instruments, written in the open.</p>
+  <p class="kick" data-i18n="kick">An open-source lab</p>
+  <h1 class="display" data-i18n-html="statement">Not a style,<br><span class="dim">a laboratory.</span></h1>
+  <p class="sub" data-i18n="heroSub">Eleven works and counting — tools, toys and instruments, written in the open. Every project a single file, zero dependencies, MIT forever.</p>
 </section>
 
-<section class="stage" id="stage">
-  <div class="track" id="track"></div>
-  <button class="nav prev" id="prevBtn" aria-label="previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-  <button class="nav next" id="nextBtn" aria-label="next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
-</section>
-<p class="hintline" data-i18n="hint">Drag or swipe to browse</p>
+<main class="works" id="works">
+  <div class="w-head">w, o, r, k, s</div>
+  <hr class="w-rule">
+  <div id="rows"></div>
+</main>
 
-<section class="placard" id="placard">
-  <div class="idx"><b id="plNum">01</b> / <span id="plTotal">11</span></div>
-  <h2 class="display" id="plTitle"></h2>
-  <div class="sub" id="plSub"></div>
-  <p class="desc" id="plDesc"></p>
-  <div class="links">
-    <a class="btn primary" id="plVisit" href="#" target="_blank" rel="noopener"><span data-i18n="visit">Visit</span> →</a>
-    <a class="btn" id="plGh" href="#" target="_blank" rel="noopener">GitHub</a>
-  </div>
-  <div class="dots" id="dots"></div>
+<div id="preview" aria-hidden="true"></div>
+
+<section class="outro">
+  <h2 class="display" data-i18n-html="outroH">Every work free,<br>forever.</h2>
+  <p data-i18n="outroP">A new piece lands every three days. Star the lab on GitHub to follow along — or just take everything. It's all MIT.</p>
 </section>
 
 <footer>
-  <div><div class="f-t display">OPENX</div><div class="f-s" data-i18n-html="foot">MIT-licensed, free forever.<br>Curated by X · a new piece every 3 days.</div></div>
+  <div><div class="f-t display">OPENX</div><div class="f-s" data-i18n-html="foot">MIT-licensed, free forever.<br>Curated by X.</div></div>
   <div class="f-l"><a href="https://github.com/artzdesignmo" target="_blank" rel="noopener">GitHub</a><a href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener">☕ Coffee</a></div>
 </footer>
 
@@ -232,102 +226,57 @@ var PROJECTS = [
       ];
 
 var STR={
-  en:{heroTitle:'Open<br>Source<br>Lab',tagline:'Eleven works and counting — tools, toys and instruments, written in the open.',hint:'Drag or swipe to browse',star:'Star on GitHub',visit:'Visit',foot:'MIT-licensed, free forever.<br>Curated by X · a new piece every 3 days.'},
-  zh:{heroTitle:'開放<br>源碼<br>實驗室',tagline:'十一件作品，仲會繼續加——工具、玩具同樂器，全部公開寫成。',hint:'左右撥動瀏覽',star:'去 GitHub 俾星',visit:'去玩',foot:'MIT 授權，永久免費。<br>X 策展 · 每 3 日一件新作。'}
+  en:{kick:'An open-source lab',statement:'Not a style,<br><span class="dim">a laboratory.</span>',heroSub:'Eleven works and counting — tools, toys and instruments, written in the open. Every project a single file, zero dependencies, MIT forever.',star:'Star on GitHub',visit:'Visit',outroH:'Every work free,<br>forever.',outroP:"A new piece lands every three days. Star the lab on GitHub to follow along — or just take everything. It's all MIT.",foot:'MIT-licensed, free forever.<br>Curated by X.'},
+  zh:{kick:'開放源碼實驗室',statement:'唔係風格，<br><span class="dim">係實驗室。</span>',heroSub:'十一件作品，仲會繼續加——工具、玩具同樂器，全部公開寫成。每個項目單一檔案、零依賴、MIT 永久免費。',star:'去 GitHub 俾星',visit:'去玩',outroH:'每件作品，<br>永久免費。',outroP:'每三日一件新作。去 GitHub 俾星追住睇——或者直接攞走晒，全部 MIT。',foot:'MIT 授權，永久免費。<br>X 策展。'}
 };
 function t(k){return STR[lang][k]||k;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
-
-var track=document.getElementById('track');
-var idx=0,N=PROJECTS.length;
-var cards=[];
-
-// build cards
-PROJECTS.forEach(function(p,i){
-  var d=document.createElement('div');d.className='pcard';
-  d.innerHTML='<div class="artwrap">'+p.art+'</div><div class="plabel">'+esc(p.title.en)+'</div>';
-  d.addEventListener('click',function(){go(i);});
-  track.appendChild(d);cards.push(d);
-});
-// dots
-var dotsEl=document.getElementById('dots');
-PROJECTS.forEach(function(_,i){
-  var b=document.createElement('button');b.setAttribute('aria-label','Go to '+(i+1));
-  b.addEventListener('click',function(){go(i);});dotsEl.appendChild(b);
-});
-
-function layout(){
-  var cw=cards[0].offsetWidth,gap=parseFloat(getComputedStyle(track).gap)||20;
-  var stageW=document.getElementById('stage').offsetWidth;
-  cards.forEach(function(c,i){
-    var d=i-idx;
-    var ad=Math.abs(d);
-    // 2D 弧形：中間大，兩邊細、向下沉、向內轉
-    var s=1-Math.min(ad*0.14,0.42);
-    var y=Math.min(ad*26,78);
-    var r=d*-7;
-    var o=ad>2?0:1;
-    c.style.transform='translateY('+y+'px) rotate('+r+'deg) scale('+s+')';
-    c.style.opacity=o;
-    c.style.zIndex=String(100-ad);
-    c.style.pointerEvents=ad>2?'none':'auto';
+var rows=document.getElementById('rows');
+var preview=document.getElementById('preview');
+function build(){
+  var html='';
+  PROJECTS.forEach(function(p,i){
+    var n=String(i+1).padStart(2,'0');
+    html+='<div class="wrow reveal" data-i="'+i+'">'
+      +'<div class="n">'+n+'</div>'
+      +'<div><div class="wthumb">'+p.art+'</div>'
+      +'<h3 class="tt">'+esc(p.title[lang])+'</h3>'
+      +'<div class="tg">'+esc(p.sub[lang])+'</div></div>'
+      +'<div class="go"><a class="primary" href="'+p.demo+'" target="_blank" rel="noopener">'+t('visit')+' →</a>'
+      +'<a href="'+p.github+'" target="_blank" rel="noopener">GitHub</a></div>'
+      +'</div>';
   });
-  // 將 active 卡置中
-  var activeCenter=idx*(cw+gap)+cw/2;
-  var off=stageW/2-activeCenter;
-  track.style.transform='translateX('+off+'px)';
-  // placard
-  var p=PROJECTS[idx];
-  document.getElementById('plNum').textContent=String(idx+1).padStart(2,'0');
-  document.getElementById('plTotal').textContent=N;
-  document.getElementById('plTitle').textContent=p.title[lang];
-  document.getElementById('plSub').textContent=p.sub[lang];
-  document.getElementById('plDesc').textContent=p.desc[lang];
-  document.getElementById('plVisit').href=p.demo;
-  document.getElementById('plGh').href=p.github;
-  Array.prototype.forEach.call(dotsEl.children,function(b,i){b.classList.toggle('on',i===idx);});
+  rows.innerHTML=html;
+  var rws=rows.querySelectorAll('.wrow');
+  rws.forEach(function(r){
+    r.addEventListener('mouseenter',function(e){
+      var p=PROJECTS[+r.getAttribute('data-i')];
+      preview.innerHTML=p.art;preview.classList.add('on');move(e);
+    });
+    r.addEventListener('mousemove',move);
+    r.addEventListener('mouseleave',function(){preview.classList.remove('on');});
+    r.addEventListener('click',function(e){
+      if(e.target.closest('a'))return;
+      window.open(PROJECTS[+r.getAttribute('data-i')].demo,'_blank','noopener');
+    });
+  });
+  observe();
 }
-function go(i){
-  idx=Math.max(0,Math.min(N-1,i));
-  layout();
+function move(e){preview.style.left=e.clientX+'px';preview.style.top=e.clientY+'px';}
+var io=null;
+function observe(){
+  var els=document.querySelectorAll('.reveal:not(.in)');
+  if(!('IntersectionObserver' in window)){els.forEach(function(x){x.classList.add('in');});return;}
+  if(io)io.disconnect();
+  io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});},{threshold:.06});
+  els.forEach(function(x){io.observe(x);});
 }
-// arrows
-document.getElementById('prevBtn').addEventListener('click',function(){go(idx-1);});
-document.getElementById('nextBtn').addEventListener('click',function(){go(idx+1);});
-// drag / swipe
-var sx=null,dx0=0,dragging=false;
-track.addEventListener('pointerdown',function(e){sx=e.clientX;dragging=true;track.classList.add('grabbing');try{track.setPointerCapture(e.pointerId);}catch(_){}});
-track.addEventListener('pointermove',function(e){
-  if(!dragging||sx===null)return;
-  dx0=e.clientX-sx;
-  var cw=cards[0].offsetWidth,gap=parseFloat(getComputedStyle(track).gap)||20;
-  var stageW=document.getElementById('stage').offsetWidth;
-  var activeCenter=idx*(cw+gap)+cw/2;
-  var off=stageW/2-activeCenter+dx0;
-  track.style.transform='translateX('+off+'px)';
-});
-function endDrag(){
-  if(!dragging)return;dragging=false;track.classList.remove('grabbing');
-  var cw=cards[0].offsetWidth,gap=parseFloat(getComputedStyle(track).gap)||20;
-  var step=Math.round(dx0/(cw+gap));
-  sx=null;dx0=0;go(idx-step);
-}
-track.addEventListener('pointerup',endDrag);
-track.addEventListener('pointercancel',endDrag);
-// keyboard
-document.addEventListener('keydown',function(e){
-  if(e.key==='ArrowLeft')go(idx-1);
-  if(e.key==='ArrowRight')go(idx+1);
-});
-addEventListener('resize',layout);
-
 function applyLang(){
   root.setAttribute('data-lang',lang);root.setAttribute('lang',lang==='zh'?'zh-Hant':'en');
   document.querySelectorAll('[data-i18n]').forEach(function(el){var k=el.getAttribute('data-i18n');if(STR[lang][k])el.textContent=STR[lang][k];});
   document.querySelectorAll('[data-i18n-html]').forEach(function(el){var k=el.getAttribute('data-i18n-html');if(STR[lang][k])el.innerHTML=STR[lang][k];});
-  var ht=STR[lang].heroTitle;document.querySelector('.hero h1').innerHTML=ht;
   document.getElementById('langToggle').textContent=lang==='zh'?'中':'EN';
-  layout();
+  build();
   try{localStorage.setItem('openx-lang',lang);}catch(e){}
 }
 document.getElementById('langToggle').addEventListener('click',function(){lang=lang==='en'?'zh':'en';applyLang();});
