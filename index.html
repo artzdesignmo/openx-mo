@@ -258,12 +258,21 @@ var PROJECTS = [
           demo: 'https://artzdesignmo.github.io/quantum-mo/',
           github: 'https://github.com/artzdesignmo/quantum-mo',
           art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="400" height="310" fill="#17171c"/><circle cx="200" cy="150" r="86" fill="none" stroke="#f3eee3" stroke-width="2.5"/><ellipse cx="200" cy="150" rx="86" ry="30" fill="none" stroke="#f3eee3" stroke-width="1" opacity=".4"/><ellipse cx="200" cy="150" rx="30" ry="86" fill="none" stroke="#f3eee3" stroke-width="1" opacity=".4"/><line x1="200" y1="150" x2="252" y2="98" stroke="#8f8fff" stroke-width="5" stroke-linecap="round"/><circle cx="252" cy="98" r="7" fill="#8f8fff"/><path d="M40 262h320" stroke="#f3eee3" stroke-width="2" opacity=".5"/><rect x="120" y="240" width="44" height="44" rx="8" fill="#f3eee3"/><text x="142" y="270" font-family="sans-serif" font-size="24" font-weight="700" text-anchor="middle" fill="#17171c">H</text><circle cx="250" cy="262" r="6" fill="#c8401f"/><circle cx="290" cy="262" r="12" fill="none" stroke="#f3eee3" stroke-width="3"/><line x1="290" y1="250" x2="290" y2="274" stroke="#f3eee3" stroke-width="3"/><line x1="278" y1="262" x2="302" y2="262" stroke="#f3eee3" stroke-width="3"/></svg>'
+        },
+        {
+          id: 'dragon-mo', state: 'live', cover: 'cover-proj',
+          title: { en: 'Dragon Mo', zh: 'Dragon Mo' },
+          sub: { en: 'Pure math-formula animation', zh: '純數學公式動畫' },
+          desc: { en: 'Dragon, fish, flower and letters — all drawn purely from sin and cos. Code so small it fits on a napkin. Single HTML file, fully offline.', zh: '龍、魚、花、字母——全部只用 sin 同 cos 畫出嚟。Code 細到寫得落一張餐巾紙。單一 HTML，完全離線。' },
+          demo: 'https://artzdesignmo.github.io/dragon-mo/',
+          github: 'https://github.com/artzdesignmo/dragon-mo',
+          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="400" height="310" fill="#0a0a0a"/><g fill="#fff" opacity=".8"><circle cx="200" cy="120" r="3"/><circle cx="230" cy="140" r="2.5"/><circle cx="170" cy="140" r="2.5"/><circle cx="250" cy="170" r="2"/><circle cx="150" cy="170" r="2"/><circle cx="200" cy="155" r="2.2"/><circle cx="220" cy="110" r="1.8"/><circle cx="180" cy="110" r="1.8"/><circle cx="240" cy="200" r="2.5"/><circle cx="160" cy="200" r="2.5"/><circle cx="200" cy="190" r="2"/><circle cx="210" cy="90" r="2"/><circle cx="190" cy="90" r="2"/><circle cx="260" cy="150" r="1.5"/><circle cx="140" cy="150" r="1.5"/><circle cx="200" cy="230" r="2.5"/><circle cx="185" cy="215" r="2"/><circle cx="215" cy="215" r="2"/></g><text x="200" y="280" font-family="monospace" font-size="20" text-anchor="middle" fill="#8a867e">sin·cos</text></svg>'
         }
       ];
 
 var STR={
-en:{heroTitle:'Open<br>Source<br>Lab',tagline:'Twelve works and counting — tools, toys and instruments, written in the open.',star:'mo',visit:'Visit',foot:'MIT-licensed, free forever.<br>Curated by X · a new piece every 3 days.'},
-zh:{heroTitle:'開放<br>源碼<br>實驗室',tagline:'十二件作品，仲會繼續加——工具、玩具同樂器，全部公開寫成。',star:'mo',visit:'去玩',foot:'MIT 授權，永久免費。<br>X 策展 · 每 3 日一件新作。'}
+en:{heroTitle:'Open<br>Source<br>Lab',tagline:'Thirteen works and counting — tools, toys and instruments, written in the open.',star:'mo',visit:'Visit',foot:'MIT-licensed, free forever.<br>Curated by X · a new piece every 3 days.'},
+zh:{heroTitle:'開放<br>源碼<br>實驗室',tagline:'十三件作品，仲會繼續加——工具、玩具同樂器，全部公開寫成。',star:'mo',visit:'去玩',foot:'MIT 授權，永久免費。<br>X 策展 · 每 3 日一件新作。'}
 };
 function t(k){return STR[lang][k]||k;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
