@@ -326,17 +326,17 @@ document.addEventListener('keydown',function(e){
   if(e.key==='ArrowLeft')go(Math.round(pos)-1);
   if(e.key==='ArrowRight')go(Math.round(pos)+1);
 });
-var sx=null,dragging=false,moved=0;
+var sx=null,dragging=false,moved=0,startPos=0;
 strip.addEventListener('pointerdown',function(e){
   if(e.target.closest('.snav'))return;
-  sx=e.clientX;dragging=true;moved=0;strip.classList.add('grabbing');
+  sx=e.clientX;dragging=true;moved=0;startPos=pos;strip.classList.add('grabbing');
   try{strip.setPointerCapture(e.pointerId);}catch(_){}
 });
 strip.addEventListener('pointermove',function(e){
   if(!dragging||sx===null)return;
   var dx=e.clientX-sx;moved=Math.max(moved,Math.abs(dx));
   var cw=cards[0].offsetWidth;
-  pos=Math.max(-0.5,Math.min(N-1+0.5,Math.round(pos)-dx/(cw*0.9)));
+  pos=Math.max(-0.5,Math.min(N-1+0.5,startPos-dx/(cw*1.8)));
   layout(false);
 });
 function endDrag(e){
