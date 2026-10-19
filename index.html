@@ -68,23 +68,32 @@ html[data-theme="dark"] .tbtn .moon{display:block}
 /* work grid */
 .work{padding:40px 0 20px}
 .work h2{font-family:"Dela Gothic One",sans-serif;font-size:clamp(40px,8vw,110px);margin:0 0 34px;line-height:1}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-@media(max-width:960px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.grid{grid-template-columns:1fr}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:transform .25s,box-shadow .25s;display:flex;flex-direction:column}
-.card:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
-.card .cov{aspect-ratio:16/10;overflow:hidden;position:relative}
-.card .cov .cover-art,.card .cov img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
-.card:hover .cov .cover-art,.card:hover .cov img{transform:scale(1.05)}
-.card .num{position:absolute;top:10px;left:12px;font-family:"Dela Gothic One",sans-serif;font-size:11px;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(6px);padding:5px 11px;border-radius:999px;border:1px solid var(--line)}
-.card .bd{padding:18px 20px 20px;display:flex;flex-direction:column;gap:6px;flex:1}
-.card h3{font-family:"Dela Gothic One",sans-serif;font-size:19px;margin:0}
-.card .sb{font-size:13px;color:var(--muted);font-weight:500}
-.card .ds{font-size:13.5px;line-height:1.65;color:var(--muted);flex:1}
-.card .lk{display:flex;gap:8px;margin-top:10px}
-.btn{flex:1;text-align:center;padding:10px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid var(--line)}
+.cstage{position:relative;height:clamp(380px,52vw,520px);overflow:hidden;touch-action:pan-y;cursor:grab}
+.cstage.grabbing{cursor:grabbing}
+.ccard{position:absolute;left:50%;top:26px;width:clamp(230px,30vw,330px);aspect-ratio:4/4.5;margin-left:calc(clamp(230px,30vw,330px)/-2);border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);will-change:transform,opacity;user-select:none;-webkit-user-select:none}
+.ccard.snap{transition:transform .55s cubic-bezier(.22,.9,.28,1),opacity .55s}
+.ccard .cov{position:absolute;inset:0}
+.ccard .cov .cover-art,.ccard .cov img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.ccard .num{position:absolute;top:10px;left:12px;font-family:"Dela Gothic One",sans-serif;font-size:11px;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(6px);padding:5px 11px;border-radius:999px;border:1px solid var(--line);z-index:2}
+.ccard .plabel{position:absolute;left:0;right:0;bottom:0;padding:30px 16px 14px;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff;font-family:"Dela Gothic One",sans-serif;font-size:16px;z-index:2}
+.cnav{position:absolute;top:44%;width:46px;height:46px;border-radius:50%;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);display:grid;place-items:center;z-index:60}
+.cnav:hover{background:var(--pill);color:var(--pill-ink)}
+.cnav svg{width:18px;height:18px}
+.cnav.prev{left:clamp(6px,3vw,28px)}
+.cnav.next{right:clamp(6px,3vw,28px)}
+.cplac{text-align:center;max-width:620px;margin:6px auto 0;padding:0 24px;min-height:170px}
+.cplac .idx{font-size:12px;letter-spacing:.3em;color:var(--muted);font-weight:600}
+.cplac h3{font-family:"Dela Gothic One",sans-serif;font-size:clamp(24px,4vw,40px);margin:8px 0 4px}
+.cplac .sb{color:var(--muted);font-size:14px;font-weight:500}
+.cplac .ds{margin:10px 0 0;font-size:14px;line-height:1.7;color:var(--muted)}
+.cplac .lk{display:flex;gap:10px;justify-content:center;margin-top:16px}
+.btn{min-width:140px;text-align:center;padding:11px 22px;border-radius:999px;font-size:13.5px;font-weight:600;border:1px solid var(--line)}
 .btn.primary{background:var(--pill);color:var(--pill-ink);border-color:var(--pill)}
 .btn:hover{opacity:.82}
+.cdots{display:flex;gap:8px;justify-content:center;margin:20px 0 6px;flex-wrap:wrap}
+.cdots button{width:8px;height:8px;border-radius:50%;background:var(--line);padding:0;transition:background .2s,transform .2s}
+.cdots button.on{background:var(--ink);transform:scale(1.35)}
+.hintline{text-align:center;color:var(--muted);font-size:12px;margin-top:10px;letter-spacing:.08em}
 /* statement */
 .statement{padding:90px 0 20px;text-align:center}
 .statement h2{font-family:"Dela Gothic One",sans-serif;font-size:clamp(34px,6.5vw,84px);line-height:1.25;margin:0}
@@ -155,7 +164,23 @@ footer .f-l{display:flex;gap:18px;font-size:14px;font-weight:600}
 
 <section class="work" id="work">
   <h2 class="display">Work</h2>
-  <div class="grid" id="grid"></div>
+  <div class="cstage" id="cstage">
+    <div id="ctrack"></div>
+    <button class="cnav prev" id="cprev" aria-label="previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="cnav next" id="cnext" aria-label="next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+  <p class="hintline" data-i18n="hint">Drag to travel along the curve</p>
+  <div class="cplac">
+    <div class="idx"><b id="cpNum">01</b> / <span id="cpTotal">11</span></div>
+    <h3 class="display" id="cpTitle"></h3>
+    <div class="sb" id="cpSub"></div>
+    <p class="ds" id="cpDesc"></p>
+    <div class="lk">
+      <a class="btn primary" id="cpVisit" href="#" target="_blank" rel="noopener"><span data-i18n="visit">Visit</span> →</a>
+      <a class="btn" id="cpGh" href="#" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <div class="cdots" id="cdots"></div>
+  </div>
 </section>
 
 <section class="statement reveal">
@@ -295,8 +320,8 @@ var PROJECTS = [
       ];
 
 var STR={
-en:{badge:'open lab',role1:'Experimental open-source studio',role2:'tools, toys & instruments',svcH:'The lab cooks up things like:',svc1:'Playful instruments — generative music, blooming flowers and liquid physics you can touch.',svc2:'Design tools — posters, logos and fonts, generated in your browser, free for commercial use.',svc3:'Everyday utilities — quotations, timers and trainers that respect your time.',curious:'Curious? Check out the',collection:'collection ↓',scroll:'or keep scrolling',star:'Star on GitHub',visit:'Visit',stmt:'Good tools<br><span class="dim">take time —</span><br>and open source<br><span class="dim">saves it.</span>',whyH:'Why follow the lab',why1t:'MIT, free forever',why1p:'Every work is open source. Take it, fork it, ship it — no strings attached.',why2t:'Single file, zero dependencies',why2p:'Each project is one HTML file that runs anywhere. No build step, no backend.',why3t:'A new piece every 3 days',why3p:'The lab ships on rhythm. Eleven works so far — the shelf keeps growing.',why4t:'Crafted, not generated',why4p:'Hand-written code and design. Every pixel earns its place.',ctaH:'Let’s build something<br>people remember.',ctaP:'Star the lab — or just take everything. It’s all MIT.',ctaB:'★ Star on GitHub',foot:'MIT-licensed, free forever.<br>Curated by X.'},
-zh:{badge:'開放實驗室',role1:'實驗性開放源碼工作室',role2:'工具、玩具同樂器',svcH:'實驗室整緊呢啲：',svc1:'好玩樂器——生成音樂、開花、流體物理，掂得。',svc2:'設計工具——海報、logo、字體，喺瀏覽器生成，商用免費。',svc3:'日常實用——報價單、計時、訓練器，慳你時間。',curious:'心郁？睇下',collection:'作品集 ↓',scroll:'或者繼續碌',star:'去 GitHub 俾星',visit:'去玩',stmt:'好工具<br><span class="dim">要時間——</span><br>開放源碼<br><span class="dim">幫你慳返。</span>',whyH:'點解要 follow',why1t:'MIT，永久免費',why1p:'每件作品都係開放源碼。攞去、fork、推出——冇附帶條件。',why2t:'單一檔案，零依賴',why2p:'每個項目一個 HTML 檔，邊度都跑得。唔使 build，唔使後端。',why3t:'每三日一件新作',why3p:'實驗室有節奏咁出品。而家十一件——架仲會繼續加。',why4t:'手工打造',why4p:'手寫代碼同設計。隻隻像素都有佢位。',ctaH:'一齊整啲<br>令人記得嘅嘢。',ctaP:'去 GitHub 俾粒星——或者直接攞走晒，全部 MIT。',ctaB:'★ 去 GitHub 俾星',foot:'MIT 授權，永久免費。<br>X 策展。'}
+en:{badge:'open lab',role1:'Experimental open-source studio',role2:'tools, toys & instruments',svcH:'The lab cooks up things like:',svc1:'Playful instruments — generative music, blooming flowers and liquid physics you can touch.',svc2:'Design tools — posters, logos and fonts, generated in your browser, free for commercial use.',svc3:'Everyday utilities — quotations, timers and trainers that respect your time.',curious:'Curious? Check out the',collection:'collection ↓',scroll:'or keep scrolling',star:'Star on GitHub',visit:'Visit',hint:'Drag to travel along the curve',stmt:'Good tools<br><span class="dim">take time —</span><br>and open source<br><span class="dim">saves it.</span>',whyH:'Why follow the lab',why1t:'MIT, free forever',why1p:'Every work is open source. Take it, fork it, ship it — no strings attached.',why2t:'Single file, zero dependencies',why2p:'Each project is one HTML file that runs anywhere. No build step, no backend.',why3t:'A new piece every 3 days',why3p:'The lab ships on rhythm. Eleven works so far — the shelf keeps growing.',why4t:'Crafted, not generated',why4p:'Hand-written code and design. Every pixel earns its place.',ctaH:'Let’s build something<br>people remember.',ctaP:'Star the lab — or just take everything. It’s all MIT.',ctaB:'★ Star on GitHub',foot:'MIT-licensed, free forever.<br>Curated by X.'},
+zh:{badge:'開放實驗室',role1:'實驗性開放源碼工作室',role2:'工具、玩具同樂器',svcH:'實驗室整緊呢啲：',svc1:'好玩樂器——生成音樂、開花、流體物理，掂得。',svc2:'設計工具——海報、logo、字體，喺瀏覽器生成，商用免費。',svc3:'日常實用——報價單、計時、訓練器，慳你時間。',curious:'心郁？睇下',collection:'作品集 ↓',scroll:'或者繼續碌',star:'去 GitHub 俾星',visit:'去玩',hint:'拖曳沿住條弧線行',stmt:'好工具<br><span class="dim">要時間——</span><br>開放源碼<br><span class="dim">幫你慳返。</span>',whyH:'點解要 follow',why1t:'MIT，永久免費',why1p:'每件作品都係開放源碼。攞去、fork、推出——冇附帶條件。',why2t:'單一檔案，零依賴',why2p:'每個項目一個 HTML 檔，邊度都跑得。唔使 build，唔使後端。',why3t:'每三日一件新作',why3p:'實驗室有節奏咁出品。而家十一件——架仲會繼續加。',why4t:'手工打造',why4p:'手寫代碼同設計。隻隻像素都有佢位。',ctaH:'一齊整啲<br>令人記得嘅嘢。',ctaP:'去 GitHub 俾粒星——或者直接攞走晒，全部 MIT。',ctaB:'★ 去 GitHub 俾星',foot:'MIT 授權，永久免費。<br>X 策展。'}
 };
 function t(k){return STR[lang][k]||k;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
@@ -313,20 +338,90 @@ function buildTrios(){
     el.innerHTML=html;
   });
 }
-function buildGrid(){
-  var html='';
+var cstage=document.getElementById('cstage'),ctrack=document.getElementById('ctrack');
+var ccards=[],pos=0,N=PROJECTS.length;
+var STEP=0.46,RAD=57.2958;
+function buildCarousel(){
+  ctrack.innerHTML='';ccards=[];
   PROJECTS.forEach(function(p,i){
+    var d=document.createElement('div');d.className='ccard snap';
     var n=String(i+1).padStart(2,'0');
-    html+='<article class="card reveal"><div class="cov"><span class="num">'+n+'</span>'+p.art+'</div>'
-      +'<div class="bd"><h3 class="display">'+esc(p.title[lang])+'</h3>'
-      +'<div class="sb">'+esc(p.sub[lang])+'</div>'
-      +'<div class="ds">'+esc(p.desc[lang])+'</div>'
-      +'<div class="lk"><a class="btn primary" href="'+p.demo+'" target="_blank" rel="noopener">'+t('visit')+' →</a>'
-      +'<a class="btn" href="'+p.github+'" target="_blank" rel="noopener">GitHub</a></div></div></article>';
+    d.innerHTML='<span class="num">'+n+'</span><div class="cov">'+p.art+'</div><div class="plabel">'+esc(p.title.en)+'</div>';
+    d.addEventListener('click',function(){go(i);});
+    ctrack.appendChild(d);ccards.push(d);
   });
-  document.getElementById('grid').innerHTML=html;
-  observe();
+  var cd=document.getElementById('cdots');cd.innerHTML='';
+  PROJECTS.forEach(function(_,i){
+    var b=document.createElement('button');b.setAttribute('aria-label','Go to '+(i+1));
+    b.addEventListener('click',function(){go(i);});cd.appendChild(b);
+  });
+  document.getElementById('cpTotal').textContent=N;
+  layout(true);
 }
+function arc(d){
+  var a=d*STEP;
+  return {
+    x:Math.sin(a)*560,
+    y:(1-Math.cos(a))*300,
+    r:a*RAD*0.82,
+    s:1-Math.min(Math.abs(d)*0.14,0.5),
+    o:Math.abs(d)>3.2?0:1
+  };
+}
+function layout(snap){
+  ccards.forEach(function(c,i){
+    var p=arc(i-pos);
+    c.classList.toggle('snap',!!snap);
+    c.style.transform='translateX('+p.x.toFixed(1)+'px) translateY('+p.y.toFixed(1)+'px) rotate('+p.r.toFixed(2)+'deg) scale('+p.s.toFixed(3)+')';
+    c.style.opacity=p.o;
+    c.style.zIndex=String(100-Math.round(Math.abs(i-pos)*10));
+    c.style.pointerEvents=Math.abs(i-pos)>3.2?'none':'auto';
+  });
+  var ri=Math.round(pos);
+  if(ri<0)ri=0;if(ri>=N)ri=N-1;
+  var pr=PROJECTS[ri];
+  document.getElementById('cpNum').textContent=String(ri+1).padStart(2,'0');
+  document.getElementById('cpTitle').textContent=pr.title[lang];
+  document.getElementById('cpSub').textContent=pr.sub[lang];
+  document.getElementById('cpDesc').textContent=pr.desc[lang];
+  document.getElementById('cpVisit').href=pr.demo;
+  document.getElementById('cpGh').href=pr.github;
+  Array.prototype.forEach.call(document.getElementById('cdots').children,function(b,i){b.classList.toggle('on',i===ri);});
+}
+function go(i){
+  pos=Math.max(0,Math.min(N-1,i));
+  layout(true);
+}
+document.getElementById('cprev').addEventListener('click',function(){go(Math.round(pos)-1);});
+document.getElementById('cnext').addEventListener('click',function(){go(Math.round(pos)+1);});
+document.addEventListener('keydown',function(e){
+  var r=cstage.getBoundingClientRect();
+  if(r.bottom<0||r.top>innerHeight)return;
+  if(e.key==='ArrowLeft')go(Math.round(pos)-1);
+  if(e.key==='ArrowRight')go(Math.round(pos)+1);
+});
+var sx=null,dragging=false;
+cstage.addEventListener('pointerdown',function(e){
+  if(e.target.closest('.cnav'))return;
+  sx=e.clientX;dragging=true;cstage.classList.add('grabbing');
+  try{cstage.setPointerCapture(e.pointerId);}catch(_){}
+});
+cstage.addEventListener('pointermove',function(e){
+  if(!dragging||sx===null)return;
+  var dx=e.clientX-sx;
+  pos=Math.max(-0.6,Math.min(N-1+0.6,Math.round(pos)-dx/160));
+  layout(false);
+});
+function endDrag(e){
+  if(!dragging)return;dragging=false;cstage.classList.remove('grabbing');
+  var dx=e?e.clientX-sx:0;sx=null;
+  var target=Math.round(pos);
+  if(Math.abs(dx)>40)target=Math.round(pos)+(dx<0?1:-1);
+  go(target);
+}
+cstage.addEventListener('pointerup',endDrag);
+cstage.addEventListener('pointercancel',function(){dragging=false;cstage.classList.remove('grabbing');sx=null;go(Math.round(pos));});
+addEventListener('resize',function(){layout(true);});
 var io=null;
 function observe(){
   var els=document.querySelectorAll('.reveal:not(.in)');
@@ -340,7 +435,7 @@ function applyLang(){
   document.querySelectorAll('[data-i18n]').forEach(function(el){var k=el.getAttribute('data-i18n');if(STR[lang][k])el.textContent=STR[lang][k];});
   document.querySelectorAll('[data-i18n-html]').forEach(function(el){var k=el.getAttribute('data-i18n-html');if(STR[lang][k])el.innerHTML=STR[lang][k];});
   document.getElementById('langToggle').textContent=lang==='zh'?'中':'EN';
-  buildTrios();buildGrid();
+  buildTrios();buildCarousel();
   try{localStorage.setItem('openx-lang',lang);}catch(e){}
 }
 document.getElementById('langToggle').addEventListener('click',function(){lang=lang==='en'?'zh':'en';applyLang();});
