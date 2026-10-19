@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="data:,">
 <title>OpenX — Open Source Lab</title>
-<meta name="description" content="OpenX: an open-source lab. Eleven works and counting.">
+<meta name="description" content="OpenX: an open-source lab. Twelve works and counting.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Geist:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -118,7 +118,7 @@ footer .f-l{display:flex;gap:18px;font-size:13.5px;font-weight:600}
 
 <section class="hero" id="top">
   <h1 class="display" data-i18n-html="heroTitle">Open<br>Source<br>Lab</h1>
-  <p class="tag" data-i18n="tagline">Eleven works and counting — tools, toys and instruments, written in the open.</p>
+  <p class="tag" data-i18n="tagline">Twelve works and counting — tools, toys and instruments, written in the open.</p>
 </section>
 
 <section class="strip" id="strip"><div id="sctrack"></div>
@@ -249,12 +249,21 @@ var PROJECTS = [
           demo: 'https://artzdesignmo.github.io/flow-mo/',
           github: 'https://github.com/artzdesignmo/flow-mo',
           art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><radialGradient id="flw" cx="0.4" cy="0.4" r="0.8"><stop offset="0" stop-color="#ff2d78"/><stop offset=".5" stop-color="#7b2ff7"/><stop offset="1" stop-color="#0a0a20"/></radialGradient></defs><rect width="400" height="310" fill="url(#flw)"/><g fill="none" stroke="#fff" stroke-width="2.5" opacity=".55"><path d="M-20,220 C80,180 120,260 200,210 S340,150 430,190"/><path d="M-20,250 C90,210 140,290 220,240 S350,180 430,220" opacity=".7"/><path d="M-20,190 C70,150 130,230 210,180 S340,120 430,160" opacity=".4"/></g><circle cx="200" cy="155" r="46" fill="none" stroke="#fff" stroke-width="2" opacity=".5"/><circle cx="200" cy="155" r="28" fill="none" stroke="#fff" stroke-width="1.5" opacity=".35"/></svg>'
+        },
+        {
+          id: 'quantum-mo', state: 'live', cover: 'cover-proj',
+          title: { en: 'Quantum Mo', zh: 'Quantum Mo' },
+          sub: { en: 'Pocket quantum circuit lab', zh: '口袋量子電路實驗室' },
+          desc: { en: 'Drag gates onto a 2-qubit circuit and watch superposition, phase and entanglement happen live — real state-vector math, Bloch spheres you can spin, a 1000-shot sampler. Single HTML file, fully offline.', zh: '將量子閘拖入 2 位元電路，即時睇住疊加、相位同糾纏——真正嘅狀態向量數學、可旋轉嘅布洛赫球、1000 次測量採樣。單一 HTML，完全離線。' },
+          demo: 'https://artzdesignmo.github.io/quantum-mo/',
+          github: 'https://github.com/artzdesignmo/quantum-mo',
+          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="400" height="310" fill="#17171c"/><circle cx="200" cy="150" r="86" fill="none" stroke="#f3eee3" stroke-width="2.5"/><ellipse cx="200" cy="150" rx="86" ry="30" fill="none" stroke="#f3eee3" stroke-width="1" opacity=".4"/><ellipse cx="200" cy="150" rx="30" ry="86" fill="none" stroke="#f3eee3" stroke-width="1" opacity=".4"/><line x1="200" y1="150" x2="252" y2="98" stroke="#8f8fff" stroke-width="5" stroke-linecap="round"/><circle cx="252" cy="98" r="7" fill="#8f8fff"/><path d="M40 262h320" stroke="#f3eee3" stroke-width="2" opacity=".5"/><rect x="120" y="240" width="44" height="44" rx="8" fill="#f3eee3"/><text x="142" y="270" font-family="sans-serif" font-size="24" font-weight="700" text-anchor="middle" fill="#17171c">H</text><circle cx="250" cy="262" r="6" fill="#c8401f"/><circle cx="290" cy="262" r="12" fill="none" stroke="#f3eee3" stroke-width="3"/><line x1="290" y1="250" x2="290" y2="274" stroke="#f3eee3" stroke-width="3"/><line x1="278" y1="262" x2="302" y2="262" stroke="#f3eee3" stroke-width="3"/></svg>'
         }
       ];
 
 var STR={
-en:{heroTitle:'Open<br>Source<br>Lab',tagline:'Eleven works and counting — tools, toys and instruments, written in the open.',star:'Star on GitHub',visit:'Visit',foot:'MIT-licensed, free forever.<br>Curated by X · a new piece every 3 days.'},
-zh:{heroTitle:'開放<br>源碼<br>實驗室',tagline:'十一件作品，仲會繼續加——工具、玩具同樂器，全部公開寫成。',star:'去 GitHub 俾星',visit:'去玩',foot:'MIT 授權，永久免費。<br>X 策展 · 每 3 日一件新作。'}
+en:{heroTitle:'Open<br>Source<br>Lab',tagline:'Twelve works and counting — tools, toys and instruments, written in the open.',star:'Star on GitHub',visit:'Visit',foot:'MIT-licensed, free forever.<br>Curated by X · a new piece every 3 days.'},
+zh:{heroTitle:'開放<br>源碼<br>實驗室',tagline:'十二件作品，仲會繼續加——工具、玩具同樂器，全部公開寫成。',star:'去 GitHub 俾星',visit:'去玩',foot:'MIT 授權，永久免費。<br>X 策展 · 每 3 日一件新作。'}
 };
 function t(k){return STR[lang][k]||k;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
