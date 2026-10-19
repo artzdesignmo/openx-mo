@@ -39,6 +39,23 @@ html[data-theme="dark"] .tbtn .sun{display:none}
 html[data-theme="dark"] .tbtn .moon{display:block}
 .pill-btn{background:var(--pill);color:var(--pill-ink);font-size:13px;font-weight:600;padding:11px 22px;border-radius:999px;white-space:nowrap}
 .pill-btn:hover{opacity:.85}
+/* hamburger menu */
+#menuBtn{width:44px;height:44px;display:grid;place-items:center;border-radius:50%}
+#menuBtn:hover{border:1px solid var(--line)}
+#menuBtn svg{width:22px;height:22px}
+#menuPanel{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;padding:90px clamp(24px,7vw,90px) 40px;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .3s}
+#menuPanel.open{opacity:1;pointer-events:auto}
+#menuPanel .mp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px}
+#menuPanel .mp-title{font-family:"Dela Gothic One",sans-serif;font-size:15px;letter-spacing:.06em}
+#menuClose{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line)}
+#menuClose svg{width:18px;height:18px}
+.mp-item{display:flex;align-items:baseline;gap:18px;padding:16px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.mp-item .n{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.1em;flex:0 0 34px}
+.mp-item .t{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-size:clamp(24px,4.6vw,46px);line-height:1.1;transition:transform .25s}
+.mp-item:hover .t{transform:translateX(10px)}
+.mp-item .s{margin-left:auto;font-size:12.5px;color:var(--muted);white-space:nowrap}
+.mp-foot{margin-top:30px;display:flex;gap:12px;align-items:center}
+.mp-foot .lbl{font-size:12px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-right:4px}
 /* hero */
 .hero{text-align:center;padding:clamp(110px,15vh,150px) 20px 8px;max-width:900px;margin:0 auto}
 .hero h1{font-family:"Dela Gothic One",sans-serif;font-size:clamp(52px,9vw,120px);line-height:1.08;margin:0}
@@ -75,14 +92,29 @@ footer .f-l{display:flex;gap:18px;font-size:13.5px;font-weight:600}
 <header class="topbar">
   <a class="tb-logo display" href="#top">↗ OPENX</a>
   <div class="tb-mid">
-    <button class="tbtn" id="langToggle" aria-label="language">EN</button>
-    <button class="tbtn" id="themeToggle" aria-label="theme">
-      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
-      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 13.5A8 8 0 1 1 10.5 4a6.5 6.5 0 0 0 9.5 9.5z"/></svg>
+    <button id="menuBtn" aria-label="menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
   </div>
   <a class="pill-btn" href="https://github.com/artzdesignmo" target="_blank" rel="noopener" data-i18n="star">Star on GitHub</a>
 </header>
+
+<div id="menuPanel" aria-hidden="true">
+  <div class="mp-head">
+    <span class="mp-title display">OPENX</span>
+    <button id="menuClose" aria-label="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div id="mpList"></div>
+  <div class="mp-foot">
+    <span class="lbl">Lang</span>
+    <button class="tbtn" id="langToggle" aria-label="language" style="border:1px solid var(--line)">EN</button>
+    <span class="lbl" style="margin-left:12px">Theme</span>
+    <button class="tbtn" id="themeToggle" aria-label="theme" style="border:1px solid var(--line)">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 13.5A8 8 0 1 1 10.5 4a6.5 6.5 0 0 0 9.5 9.5z"/></svg>
+    </button>
+  </div>
+</div>
 
 <section class="hero" id="top">
   <h1 class="display" data-i18n-html="heroTitle">Open<br>Source<br>Lab</h1>
@@ -310,12 +342,35 @@ strip.addEventListener('pointerup',endDrag);
 strip.addEventListener('pointercancel',function(){dragging=false;strip.classList.remove('grabbing');sx=null;go(Math.round(pos));});
 addEventListener('resize',function(){P=params();layout(true);});
 
+var menuPanel=document.getElementById('menuPanel'),menuBtn=document.getElementById('menuBtn');
+function buildMenu(){
+  var html='';
+  PROJECTS.forEach(function(p,i){
+    var n=String(i+1).padStart(2,'0');
+    html+='<div class="mp-item" data-i="'+i+'"><span class="n">'+n+'</span>'
+      +'<span class="t">'+esc(p.title[lang])+'</span>'
+      +'<span class="s">'+esc(p.sub[lang])+'</span></div>';
+  });
+  document.getElementById('mpList').innerHTML=html;
+  document.getElementById('mpList').querySelectorAll('.mp-item').forEach(function(el){
+    el.addEventListener('click',function(){
+      closeMenu();go(+el.getAttribute('data-i'));
+      document.getElementById('strip').scrollIntoView({behavior:'smooth',block:'center'});
+    });
+  });
+}
+function openMenu(){buildMenu();menuPanel.classList.add('open');menuPanel.setAttribute('aria-hidden','false');menuBtn.setAttribute('aria-expanded','true');document.body.style.overflow='hidden';}
+function closeMenu(){menuPanel.classList.remove('open');menuPanel.setAttribute('aria-hidden','true');menuBtn.setAttribute('aria-expanded','false');document.body.style.overflow='';}
+menuBtn.addEventListener('click',function(){menuPanel.classList.contains('open')?closeMenu():openMenu();});
+document.getElementById('menuClose').addEventListener('click',closeMenu);
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&menuPanel.classList.contains('open'))closeMenu();});
 function applyLang(){
   root.setAttribute('data-lang',lang);root.setAttribute('lang',lang==='zh'?'zh-Hant':'en');
   document.querySelectorAll('[data-i18n]').forEach(function(el){var k=el.getAttribute('data-i18n');if(STR[lang][k])el.textContent=STR[lang][k];});
   document.querySelectorAll('[data-i18n-html]').forEach(function(el){var k=el.getAttribute('data-i18n-html');if(STR[lang][k])el.innerHTML=STR[lang][k];});
   document.getElementById('langToggle').textContent=lang==='zh'?'中':'EN';
   build();
+  if(menuPanel.classList.contains('open'))buildMenu();
   try{localStorage.setItem('openx-lang',lang);}catch(e){}
 }
 document.getElementById('langToggle').addEventListener('click',function(){lang=lang==='en'?'zh':'en';applyLang();});
