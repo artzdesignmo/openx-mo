@@ -276,12 +276,21 @@ var PROJECTS = [
           demo: 'https://artzdesignmo.github.io/sfx-mo/',
           github: 'https://github.com/artzdesignmo/sfx-mo',
           art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="400" height="310" fill="#0e0e12"/><g stroke="#f5f5f5" stroke-width="2" fill="none" opacity=".85"><path d="M20,155 L60,155 L75,110 L90,200 L105,130 L120,180 L135,155 L180,155 L195,90 L210,220 L225,140 L240,170 L255,155 L300,155 L315,120 L330,190 L345,155 L380,155"/></g><circle cx="200" cy="155" r="100" fill="none" stroke="#f5f5f5" stroke-width="1" opacity=".2"/><text x="200" y="280" font-family="monospace" font-size="18" text-anchor="middle" fill="#8a867e">Web Audio</text></svg>'
+        },
+        {
+          id: 'poster-mo', state: 'live', cover: 'cover-proj',
+          title: { en: 'Poster Mo', zh: 'Poster Mo' },
+          sub: { en: 'Poster design studio', zh: '海報設計工作室' },
+          desc: { en: 'A clean Canva-like poster tool in one HTML file. Text, shapes, images, layers, align tools, filters, templates — export PNG/JPG. All controls in the hamburger menu.', zh: '單一 HTML 嘅乾淨海報工具。文字、形狀、圖片、圖層、對齊、濾鏡、範本 — 匯出 PNG/JPG。所有功能收喺漢堡選單。' },
+          demo: 'https://artzdesignmo.github.io/poster-mo/',
+          github: 'https://github.com/artzdesignmo/poster-mo',
+          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="400" height="310" fill="#e9e7e2"/><rect x="110" y="40" width="180" height="230" fill="#fff" stroke="#1a1a1a" stroke-width="2"/><rect x="130" y="70" width="140" height="26" fill="#1a1a1a"/><rect x="130" y="110" width="90" height="12" fill="#8a867e"/><rect x="130" y="132" width="110" height="12" fill="#8a867e"/><circle cx="155" cy="200" r="22" fill="#d94f3d"/><rect x="190" y="188" width="80" height="24" fill="#1a1a1a"/><text x="200" y="292" font-family="monospace" font-size="16" text-anchor="middle" fill="#8a867e">canvas</text></svg>'
         }
       ];
 
 var STR={
-en:{heroTitle:'Open<br>Source<br>Lab',tagline:'Fourteen works and counting — tools, toys and instruments, written in the open.',star:'mo',visit:'Visit',foot:'MIT-licensed, free forever.<br>Curated by X · a new piece every 3 days.'},
-zh:{heroTitle:'開放<br>源碼<br>實驗室',tagline:'十四件作品，仲會繼續加——工具、玩具同樂器，全部公開寫成。',star:'mo',visit:'去玩',foot:'MIT 授權，永久免費。<br>X 策展 · 每 3 日一件新作。'}
+en:{heroTitle:'Open<br>Source<br>Lab',tagline:'Fifteen works and counting — tools, toys and instruments, written in the open.',star:'mo',visit:'Visit',foot:'MIT-licensed, free forever.<br>Curated by X · a new piece every 3 days.'},
+zh:{heroTitle:'開放<br>源碼<br>實驗室',tagline:'十五件作品，仲會繼續加——工具、玩具同樂器，全部公開寫成。',star:'mo',visit:'去玩',foot:'MIT 授權，永久免費。<br>X 策展 · 每 3 日一件新作。'}
 };
 function t(k){return STR[lang][k]||k;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
