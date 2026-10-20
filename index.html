@@ -401,6 +401,19 @@ function endDrag(e){
 }
 strip.addEventListener('pointerup',endDrag);
 strip.addEventListener('pointercancel',function(){dragging=false;strip.classList.remove('grabbing');sx=null;go(Math.round(pos));});
+/* Magic Mouse / trackpad horizontal swipe -> wheel deltaX */
+var wheelT=null;
+strip.addEventListener('wheel',function(e){
+  var ax=Math.abs(e.deltaX),ay=Math.abs(e.deltaY);
+  if(ax>ay&&ax>2&&!dragging){
+    e.preventDefault();
+    var cw=cards[0].offsetWidth;
+    pos+=e.deltaX/(cw*1.8);
+    layout(false);
+    clearTimeout(wheelT);
+    wheelT=setTimeout(function(){go(Math.round(pos));},140);
+  }
+},{passive:false});
 addEventListener('resize',function(){P=params();layout(true);});
 
 var menuPanel=document.getElementById('menuPanel'),menuBtn=document.getElementById('menuBtn');
