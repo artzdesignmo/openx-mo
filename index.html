@@ -331,10 +331,6 @@ function build(){
   list.forEach(function(p,i){
     var d=document.createElement('div');d.className='scard snap';
     d.innerHTML=p.art;
-    d.addEventListener('click',function(){
-      if(Math.abs(i-Math.round(pos))<0.5)window.open(p.demo,'_blank','noopener');
-      else go(i);
-    });
     track.appendChild(d);cards.push(d);
   });
   var dt=document.getElementById('dots');dt.innerHTML='';
@@ -394,7 +390,20 @@ strip.addEventListener('pointermove',function(e){
 function endDrag(e){
   if(!dragging)return;dragging=false;strip.classList.remove('grabbing');
   var dx=e?e.clientX-sx:0;sx=null;
-  if(moved<8){layout(true);return;}   /* tap:由 click 處理 */
+  if(moved<8){   /* tap: centered card opens demo, others navigate */
+    if(e){
+      var el=document.elementFromPoint(e.clientX,e.clientY);
+      var cel=el&&el.closest?el.closest('.scard'):null;
+      if(cel){
+        var ci=cards.indexOf(cel);
+        if(ci>=0){
+          if(Math.abs(ci-Math.round(pos))<0.5)window.open(VP()[ci].demo,'_blank','noopener');
+          else go(ci);
+        }
+      }
+    }
+    layout(true);return;
+  }
   var target=Math.round(pos);
   if(Math.abs(dx)>40)target=Math.round(pos)+(dx<0?1:-1);
   go(target);
