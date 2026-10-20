@@ -82,6 +82,11 @@ html[data-theme="dark"] .tbtn .moon{display:block}
 .dots{display:flex;gap:7px;justify-content:center;margin:22px 0 4px;flex-wrap:wrap}
 .dots button{width:7px;height:7px;border-radius:50%;background:var(--line);padding:0;transition:background .2s,transform .2s}
 .dots button.on{background:var(--ink);transform:scale(1.4)}
+.parts{display:flex;gap:10px;justify-content:center;margin:18px 0 6px;flex-wrap:wrap}
+.parts button{padding:9px 22px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);font-family:"Dela Gothic One",sans-serif;font-size:13px;letter-spacing:.04em;cursor:pointer;transition:all .2s}
+.parts button.on{background:var(--ink);color:var(--bg,#fff);border-color:var(--ink)}
+.parts button:hover{border-color:var(--ink)}
+.mp-ph{font-family:"Dela Gothic One",sans-serif;font-size:13px;letter-spacing:.1em;color:var(--muted);padding:18px 0 6px;text-transform:uppercase}
 footer{border-top:1px solid var(--line);margin-top:44px;padding:28px clamp(20px,5vw,56px);display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;max-width:1180px;margin-left:auto;margin-right:auto}
 footer .f-t{font-family:"Dela Gothic One",sans-serif;font-size:15px}
 footer .f-s{font-size:12px;color:var(--muted);margin-top:5px}
@@ -135,6 +140,7 @@ footer .f-l{display:flex;gap:18px;font-size:13.5px;font-weight:600}
     <a href="https://github.com/artzdesignmo" target="_blank" rel="noopener">GitHub</a>
   </div>
   <div class="dots" id="dots"></div>
+  <div class="parts" id="parts"></div>
 </section>
 
 <footer>
@@ -297,6 +303,21 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
 
 var strip=document.getElementById('strip'),track=document.getElementById('sctrack');
 var cards=[],pos=0,N=PROJECTS.length,RAD=57.2958;
+var PER=10,part=0;
+function partsCount(){return Math.ceil(PROJECTS.length/PER);}
+function VP(){return PROJECTS.slice(part*PER,part*PER+PER);}
+function renderParts(){
+  var el=document.getElementById('parts');el.innerHTML='';
+  if(partsCount()<=1)return;
+  for(var i=0;i<partsCount();i++){
+    var b=document.createElement('button');
+    b.textContent='Part '+(i+1);
+    b.className=i===part?'on':'';
+    (function(idx){b.addEventListener('click',function(){setPart(idx);});})(i);
+    el.appendChild(b);
+  }
+}
+function setPart(p){if(p===part)return;part=p;pos=0;build();}
 function params(){
   var w=strip.offsetWidth;
   if(w>1000)return {gap:0.94,arch:64,tilt:0.55,vis:5.5};
@@ -306,7 +327,8 @@ function params(){
 var P=params();
 function build(){
   track.innerHTML='';cards=[];
-  PROJECTS.forEach(function(p,i){
+  var list=VP();N=list.length;
+  list.forEach(function(p,i){
     var d=document.createElement('div');d.className='scard snap';
     d.innerHTML=p.art;
     d.addEventListener('click',function(){
@@ -316,10 +338,11 @@ function build(){
     track.appendChild(d);cards.push(d);
   });
   var dt=document.getElementById('dots');dt.innerHTML='';
-  PROJECTS.forEach(function(_,i){
+  list.forEach(function(_,i){
     var b=document.createElement('button');b.setAttribute('aria-label','Go to '+(i+1));
     b.addEventListener('click',function(){go(i);});dt.appendChild(b);
   });
+  renderParts();
   layout(true);
 }
 function layout(snap){
@@ -339,7 +362,7 @@ function layout(snap){
     c.style.zIndex=String(100-Math.round(ad*10));
   });
   var ri=((Math.round(pos)%N)+N)%N;
-  var p=PROJECTS[ri];
+  var p=VP()[ri];
   document.getElementById('pName').textContent=p.title[lang];
   document.getElementById('pSub').textContent=p.sub[lang];
   document.getElementById('pDesc').textContent=p.desc[lang];
@@ -384,6 +407,7 @@ var menuPanel=document.getElementById('menuPanel'),menuBtn=document.getElementBy
 function buildMenu(){
   var html='';
   PROJECTS.forEach(function(p,i){
+    if(i%PER===0&&partsCount()>1)html+='<div class="mp-ph">Part '+(Math.floor(i/PER)+1)+'</div>';
     var n=String(i+1).padStart(2,'0');
     html+='<div class="mp-item" data-i="'+i+'"><span class="n">'+n+'</span>'
       +'<span class="t">'+esc(p.title[lang])+'</span></div>';
@@ -391,7 +415,8 @@ function buildMenu(){
   document.getElementById('mpList').innerHTML=html;
   document.getElementById('mpList').querySelectorAll('.mp-item').forEach(function(el){
     el.addEventListener('click',function(){
-      closeMenu();go(+el.getAttribute('data-i'));
+      var gi=+el.getAttribute('data-i');
+      closeMenu();setPart(Math.floor(gi/PER));go(gi%PER);
       document.getElementById('strip').scrollIntoView({behavior:'smooth',block:'center'});
     });
   });
