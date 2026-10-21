@@ -292,12 +292,21 @@ var PROJECTS = [
           demo: 'https://artzdesignmo.github.io/poster-mo/',
           github: 'https://github.com/artzdesignmo/poster-mo',
           art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="400" height="310" fill="#e9e7e2"/><rect x="110" y="40" width="180" height="230" fill="#fff" stroke="#1a1a1a" stroke-width="2"/><rect x="130" y="70" width="140" height="26" fill="#1a1a1a"/><rect x="130" y="110" width="90" height="12" fill="#8a867e"/><rect x="130" y="132" width="110" height="12" fill="#8a867e"/><circle cx="155" cy="200" r="22" fill="#d94f3d"/><rect x="190" y="188" width="80" height="24" fill="#1a1a1a"/><text x="200" y="292" font-family="monospace" font-size="16" text-anchor="middle" fill="#8a867e">canvas</text></svg>'
+        },
+        {
+          id: 'pdf-mo', state: 'live', cover: 'cover-proj',
+          title: { en: 'PDF Mo', zh: 'PDF Mo' },
+          sub: { en: 'PDF compressor', zh: 'PDF 壓縮工具' },
+          desc: { en: 'Compress PDFs entirely in your browser — nothing is uploaded. Smart mode keeps text selectable; Image mode squeezes image-heavy files to the max. Batch is Pro.', zh: '喺瀏覽器入面壓縮 PDF，檔案唔會上傳。智能模式保留可選文字；圖像模式將圖片多嘅 PDF 壓到最盡。批量處理係 Pro 功能。' },
+          demo: 'https://artzdesignmo.github.io/pdf-mo/',
+          github: 'https://github.com/artzdesignmo/pdf-mo',
+          art: '<svg class="cover-art" viewBox="0 0 400 310" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="400" height="310" fill="#e9e7e2"/><rect x="130" y="35" width="140" height="180" fill="#fff" stroke="#1a1a1a" stroke-width="2"/><rect x="150" y="60" width="100" height="10" fill="#8a867e"/><rect x="150" y="80" width="100" height="10" fill="#8a867e"/><rect x="150" y="100" width="60" height="10" fill="#8a867e"/><path d="M200 120v50m0 0l-20-20m20 20l20-20" stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M140 230h120" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round"/><text x="200" y="292" font-family="monospace" font-size="16" text-anchor="middle" fill="#8a867e">pdf · compress</text></svg>'
         }
       ];
 
 var STR={
-en:{heroTitle:'Open<br>Source<br>Lab',tagline:'Fifteen works and counting — tools, toys and instruments, written in the open.',star:'mo',visit:'Visit',foot:'MIT-licensed, free forever.<br>Curated by X · a new piece every 3 days.'},
-zh:{heroTitle:'開放<br>源碼<br>實驗室',tagline:'十五件作品，仲會繼續加——工具、玩具同樂器，全部公開寫成。',star:'mo',visit:'去玩',foot:'MIT 授權，永久免費。<br>X 策展 · 每 3 日一件新作。'}
+en:{heroTitle:'Open<br>Source<br>Lab',tagline:'Sixteen works and counting — tools, toys and instruments, written in the open.',star:'mo',visit:'Visit',foot:'MIT-licensed, free forever.<br>Curated by X · a new piece every 3 days.'},
+zh:{heroTitle:'開放<br>源碼<br>實驗室',tagline:'十六件作品，仲會繼續加——工具、玩具同樂器，全部公開寫成。',star:'mo',visit:'去玩',foot:'MIT 授權，永久免費。<br>X 策展 · 每 3 日一件新作。'}
 };
 function t(k){return STR[lang][k]||k;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
