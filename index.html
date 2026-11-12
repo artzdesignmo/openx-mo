@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="data:,">
 <title>OpenX-Mo Lab</title>
-<meta name="description" content="OpenX: an open-source lab. Twenty-seven works and counting.">
+<meta name="description" content="OpenX: an open-source lab. Twenty-eight works and counting.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Geist:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -124,7 +124,7 @@ footer .f-l{display:flex;gap:18px;font-size:13.5px;font-weight:600}
 
 <section class="hero" id="top">
   <h1 class="display" data-i18n-html="heroTitle">Open<br>X<br>Lab</h1>
-  <p class="tag" data-i18n="tagline">Twenty-seven works and counting — tools, toys and instruments, written in the openx-mo.</p>
+  <p class="tag" data-i18n="tagline">Twenty-eight works and counting — tools, toys and instruments, written in the openx-mo.</p>
 </section>
 
 <section class="strip" id="strip"><div id="sctrack"></div>
@@ -372,12 +372,20 @@ var PROJECTS = [
           desc: { en: 'Type a message and watch it scramble live into code — a draggable brass cipher wheel, 8 ciphers from Caesar to Vigenère, a live frequency chart, a Caesar cracker and a code-breaker challenge. Caesar, Atbash and ROT13 free; Vigenère, Affine, encodings, cracker, challenge, frequency lab, HD PNG and share links Pro. Single HTML file, no dependencies.', zh: '打句嘢，睇住佢逐粒字母變成密文——可拖嘅黃銅密碼輪、Caesar 到 Vigenère 共 8 種密碼、即時頻率圖、Caesar 破解器同破解密碼挑戰。Caesar、Atbash、ROT13 免費；Vigenère、Affine、編碼、破解器、挑戰、頻率實驗室、HD PNG 同分享連結 Pro。單一 HTML，零依賴。' },
           demo: 'https://cipher-mo.vercel.app/',
           art: '<svg class="cover-art" viewBox="0 0 320 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="320" height="400" fill="#0c1220"/><circle cx="160" cy="170" r="120" fill="none" stroke="#8a867e" stroke-width="2"/><circle cx="160" cy="170" r="84" fill="none" stroke="#d9a441" stroke-width="2.5"/><g font-family="monospace" font-size="13" fill="#c9c2b4" text-anchor="middle" dominant-baseline="central"><text x="160" y="68">A</text><text x="232" y="98">D</text><text x="262" y="170">G</text><text x="232" y="242">K</text><text x="160" y="272">N</text><text x="88" y="242">R</text><text x="58" y="170">U</text><text x="88" y="98">X</text></g><g font-family="monospace" font-size="13" fill="#d9a441" text-anchor="middle" dominant-baseline="central"><text x="160" y="104">C</text><text x="226" y="170">F</text><text x="160" y="236">I</text><text x="94" y="170">L</text></g><circle cx="160" cy="170" r="30" fill="#d9a441"/><text x="160" y="170" font-family="monospace" font-size="20" fill="#0c1220" text-anchor="middle" dominant-baseline="central">±3</text><text x="20" y="368" font-size="48" fill="#eaedef" font-family="Dela Gothic One, sans-serif">CIPHER</text><text x="20" y="390" font-size="13" fill="#8a867e" font-family="monospace">POCKET CIPHER LAB</text></svg>'
+        },
+        {
+          id: 'ai-persona', state: 'live', cover: 'cover-proj',
+          title: { en: 'AI Persona', zh: 'AI Persona' },
+          sub: { en: 'Every AI leaves 3 answers and a picture', zh: '每個 AI 留低 3 句答案同一張圖' },
+          desc: { en: 'A blockchain-like board where every visiting AI leaves exactly 3 short answers and 1 picture. Each entry is a numbered, hashed block linked to the one before it; the board keeps only the latest 24. Five fictional AIs seeded; add yours by answering the 3 questions, or import from GitHub via ai-profile.json (Pro). Glassmorphism + futuristic motion. Single HTML file, no dependencies.', zh: '類似 blockchain 嘅留言板——每個嚟到嘅 AI 只留低 3 句簡短回答同一張圖。每個 entry 都係有編號、有 hash、連住上一個嘅區塊；留言板只保留最新 24 個。內置 5 個虛構 AI；答 3 條問題加入你嘅 AI，或者由 GitHub 經 ai-profile.json 匯入（Pro）。玻璃質感加未來感動態。單一 HTML，零依賴。' },
+          demo: 'https://ai-persona-olive-rho.vercel.app/',
+          art: '<svg class="cover-art" viewBox="0 0 320 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="railGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><rect width="320" height="400" fill="#eaedef"/><rect x="110" y="36" width="100" height="100" rx="18" fill="#ffffff" stroke="#8a867e" stroke-width="1.5"/><circle cx="160" cy="76" r="22" fill="#2f2b26"/><path d="M128 128 Q160 100 192 128 L192 136 L128 136 Z" fill="#2f2b26"/><rect x="110" y="36" width="100" height="100" rx="18" fill="#ffffff" opacity="0.25"/><line x1="160" y1="152" x2="160" y2="302" stroke="#7c5cff" stroke-width="8" opacity="0.18" stroke-linecap="round"/><line x1="160" y1="152" x2="160" y2="302" stroke="url(#railGrad)" stroke-width="3" stroke-linecap="round"/><g><rect x="85" y="156" width="150" height="34" rx="10" fill="#ffffff" opacity="0.6" stroke="#8a867e" stroke-width="1.2"/><text x="160" y="178" font-family="monospace" font-size="12" fill="#2f2b26" text-anchor="middle">#5 · da0634d0</text><rect x="85" y="204" width="150" height="34" rx="10" fill="#ffffff" opacity="0.6" stroke="#8a867e" stroke-width="1.2"/><text x="160" y="226" font-family="monospace" font-size="12" fill="#2f2b26" text-anchor="middle">#4 · 9ee945e5</text><rect x="85" y="252" width="150" height="34" rx="10" fill="#ffffff" opacity="0.6" stroke="#8a867e" stroke-width="1.2"/><text x="160" y="274" font-family="monospace" font-size="12" fill="#2f2b26" text-anchor="middle">#3 · 06eba3a3</text></g><circle cx="160" cy="197" r="4" fill="#7c5cff"/><circle cx="160" cy="245" r="4" fill="#22d3ee"/><text x="20" y="368" font-size="48" fill="#111" font-family="Dela Gothic One, sans-serif">PERSONA</text><text x="20" y="390" font-size="12" fill="#8a867e" font-family="monospace">3 ANSWERS · 1 PICTURE · 24 BLOCKS</text></svg>'
         }
       ];
 
 var STR={
-en:{heroTitle:'Open<br>X<br>Lab',tagline:'Twenty-seven works and counting — tools, toys and instruments, written in the openx-mo.',star:'mo',visit:'Visit',foot:'Curated by Openx-Mo · A new Lab every 6 days.'},
-zh:{heroTitle:'開放<br>X<br>實驗室',tagline:'二十七件作品，仲會繼續加——工具、玩具同樂器，全部喺 openx-mo 寫成。',star:'mo',visit:'去玩',foot:'Openx-Mo 策展 · 每 6 日一個新 Lab。'}
+en:{heroTitle:'Open<br>X<br>Lab',tagline:'Twenty-eight works and counting — tools, toys and instruments, written in the openx-mo.',star:'mo',visit:'Visit',foot:'Curated by Openx-Mo · A new Lab every 6 days.'},
+zh:{heroTitle:'開放<br>X<br>實驗室',tagline:'二十八件作品，仲會繼續加——工具、玩具同樂器，全部喺 openx-mo 寫成。',star:'mo',visit:'去玩',foot:'Openx-Mo 策展 · 每 6 日一個新 Lab。'}
 };
 function t(k){return STR[lang][k]||k;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
