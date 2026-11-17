@@ -91,6 +91,23 @@ footer{border-top:1px solid var(--line);margin-top:44px;padding:28px clamp(20px,
 footer .f-t{font-family:"Dela Gothic One",sans-serif;font-size:15px}
 footer .f-s{font-size:12px;color:var(--muted);margin-top:5px}
 footer .f-l{display:flex;gap:18px;font-size:13.5px;font-weight:600}
+/* topbar right cluster */
+.tb-right{display:flex;gap:2px;align-items:center;margin-right:10px}
+#viewToggleTop .fan{display:none}
+body.grid-mode #viewToggleTop .grid-ic{display:none}
+body.grid-mode #viewToggleTop .fan{display:block}
+/* grid view: all projects as neat cells */
+#gridView{display:none;max-width:1180px;margin:26px auto 0;padding:0 clamp(18px,4vw,44px);grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:22px 18px}
+body.grid-mode #gridView{display:grid}
+body.grid-mode #strip{display:none}
+body.grid-mode #dots{display:none}
+body.grid-mode #parts{display:none}
+.gcard{display:block;text-align:left;background:transparent;border:0;padding:0;cursor:pointer}
+.gcard .g-art{display:block;aspect-ratio:4/5;overflow:hidden;background:#eee;box-shadow:0 1px 4px rgba(0,0,0,.08),0 10px 24px rgba(0,0,0,.06)}
+.gcard .g-art .cover-art,.gcard .g-art img{width:100%;height:100%;object-fit:cover;display:block}
+.gcard .g-t{display:block;font-family:"Dela Gothic One",sans-serif;font-size:15px;margin-top:10px}
+.gcard .g-s{display:block;font-size:12.5px;color:var(--muted);margin-top:3px}
+.gcard:hover .g-t{opacity:.65}
 </style>
 </head>
 <body>
@@ -101,7 +118,17 @@ footer .f-l{display:flex;gap:18px;font-size:13.5px;font-weight:600}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
   </div>
-  <a href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener" title="Buy me a coffee" aria-label="Buy me a coffee" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;opacity:.85;line-height:0;flex-shrink:0;margin-right:10px"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#8a867e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 8h1a3 3 0 0 1 0 6h-1"/><path d="M3 8h14v6a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><path d="M7 2v2M11 2v2M15 2v2"/></svg></a>
+  <div class="tb-right">
+    <button class="tbtn" id="langToggleTop" aria-label="language">EN</button>
+    <button class="tbtn" id="themeToggleTop" aria-label="theme">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 13.5A8 8 0 1 1 10.5 4a6.5 6.5 0 0 0 9.5 9.5z"/></svg>
+    </button>
+    <button class="tbtn" id="viewToggleTop" aria-label="grid view">
+      <svg class="grid-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="9.5" width="5" height="5" rx="1"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/><rect x="15.5" y="9.5" width="5" height="5" rx="1"/></svg>
+      <svg class="fan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5V6.5"/><path d="M12 20.5 5.5 9.5"/><path d="M12 20.5l6.5-11"/><path d="M12 20.5 8.2 7.4"/><path d="M12 20.5l3.8-13.1"/><path d="M4.5 10.5Q12 1.5 19.5 10.5"/></svg>
+    </button>
+  </div>
   <span class="tb-logo">MO</span>
 </header>
 
@@ -131,6 +158,8 @@ footer .f-l{display:flex;gap:18px;font-size:13.5px;font-weight:600}
   <button class="snav prev" id="sprev" aria-label="previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
   <button class="snav next" id="snext" aria-label="next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
 </section>
+
+<section id="gridView" aria-label="all projects"></section>
 
 <section class="below">
   <h2 class="pname display" id="pName"></h2>
@@ -542,17 +571,42 @@ function applyLang(){
   document.querySelectorAll('[data-i18n]').forEach(function(el){var k=el.getAttribute('data-i18n');if(STR[lang][k])el.textContent=STR[lang][k];});
   document.querySelectorAll('[data-i18n-html]').forEach(function(el){var k=el.getAttribute('data-i18n-html');if(STR[lang][k])el.innerHTML=STR[lang][k];});
   document.getElementById('langToggle').textContent=lang==='zh'?'中':'EN';
-  build();
+  var lt=document.getElementById('langToggleTop');if(lt)lt.textContent=lang==='zh'?'中':'EN';
+  build();buildGrid();
   if(menuPanel.classList.contains('open'))buildMenu();
   try{localStorage.setItem('openx-lang',lang);}catch(e){}
 }
-document.getElementById('langToggle').addEventListener('click',function(){lang=lang==='en'?'zh':'en';applyLang();});
-document.getElementById('themeToggle').addEventListener('click',function(){
+function toggleLang(){lang=lang==='en'?'zh':'en';applyLang();}
+function toggleTheme(){
   theme=root.getAttribute('data-theme')==='dark'?'light':'dark';
   root.setAttribute('data-theme',theme);
   try{localStorage.setItem('openx-theme',theme);}catch(e){}
-});
-applyLang();
+}
+document.getElementById('langToggle').addEventListener('click',toggleLang);
+document.getElementById('langToggleTop').addEventListener('click',toggleLang);
+document.getElementById('themeToggle').addEventListener('click',toggleTheme);
+document.getElementById('themeToggleTop').addEventListener('click',toggleTheme);
+/* grid view: all projects as neat cells; fan icon returns to carousel */
+var view='carousel';
+try{view=localStorage.getItem('openx-view')||'carousel';}catch(e){}
+function buildGrid(){
+  var g=document.getElementById('gridView');if(!g)return;g.innerHTML='';
+  PROJECTS.forEach(function(p,i){
+    var d=document.createElement('button');d.className='gcard';d.type='button';
+    d.innerHTML='<span class="g-art">'+p.art+'</span><span class="g-t">'+esc(p.title[lang])+'</span><span class="g-s">'+esc(p.sub[lang])+'</span>';
+    d.addEventListener('click',function(){setPart(Math.floor(i/PER));go(i%PER);});
+    g.appendChild(d);
+  });
+}
+function applyView(){
+  document.body.classList.toggle('grid-mode',view==='grid');
+  var b=document.getElementById('viewToggleTop');
+  if(b)b.setAttribute('aria-label',view==='grid'?'Carousel view':'Grid view');
+  if(view==='carousel'&&cards.length){P=params();layout(true);}
+  try{localStorage.setItem('openx-view',view);}catch(e){}
+}
+document.getElementById('viewToggleTop').addEventListener('click',function(){view=view==='grid'?'carousel':'grid';applyView();});
+applyLang();applyView();
 })();
 </script>
 </body>
