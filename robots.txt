@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://openx-mo.vercel.app/sitemap.xml
