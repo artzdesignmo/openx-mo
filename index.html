@@ -67,7 +67,7 @@ html[data-theme="dark"] .tbtn .moon{display:block}
 .scard{position:absolute;left:50%;top:10px;width:clamp(200px,24vw,300px);aspect-ratio:4/5;margin-left:calc(clamp(200px,24vw,300px)/-2);overflow:hidden;background:#eee;will-change:transform;user-select:none;-webkit-user-select:none;box-shadow:0 1px 4px rgba(0,0,0,.08),0 10px 24px rgba(0,0,0,.06)}
 .scard.snap{transition:transform .55s cubic-bezier(.22,.9,.28,1)}
 .scard .cover-art,.scard img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
-.snav{position:absolute;top:42%;width:44px;height:44px;border-radius:50%;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border:1px solid var(--line);display:grid;place-items:center;z-index:60}
+.snav{position:absolute;top:42%;width:44px;height:44px;border-radius:50%;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border:1px solid var(--line);display:grid;place-items:center;z-index:120}
 .snav:hover{background:var(--pill);color:var(--pill-ink)}
 .snav svg{width:17px;height:17px}
 .snav.prev{left:clamp(8px,3vw,28px)}
@@ -75,6 +75,7 @@ html[data-theme="dark"] .tbtn .moon{display:block}
 /* below strip */
 .below{text-align:center;max-width:640px;margin:0 auto;padding:26px 24px 10px}
 .below .pname{font-family:"Dela Gothic One",sans-serif;font-size:clamp(22px,3.6vw,36px);margin:0}
+.below .pname a:hover{opacity:.65}
 .below .psub{color:var(--muted);font-size:14px;margin-top:6px}
 .below .pdesc{color:var(--muted);font-size:14px;line-height:1.7;margin:12px 0 0}
 .below .links{margin-top:20px;display:flex;gap:26px;justify-content:center;font-size:14px;font-weight:600}
@@ -83,10 +84,12 @@ html[data-theme="dark"] .tbtn .moon{display:block}
 .dots{display:flex;gap:7px;justify-content:center;margin:22px 0 4px;flex-wrap:wrap}
 .dots button{width:7px;height:7px;border-radius:50%;background:var(--line);padding:0;transition:background .2s,transform .2s}
 .dots button.on{background:var(--ink);transform:scale(1.4)}
-.parts{display:flex;gap:10px;justify-content:center;margin:18px 0 6px;flex-wrap:wrap}
-.parts button{padding:9px 22px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);font-family:"Dela Gothic One",sans-serif;font-size:13px;letter-spacing:.04em;cursor:pointer;transition:all .2s}
-.parts button.on{background:var(--ink);color:var(--bg,#fff);border-color:var(--ink)}
-.parts button:hover{border-color:var(--ink)}
+.pager{display:flex;gap:10px;justify-content:center;align-items:center;margin:26px auto 6px;padding:0 clamp(18px,4vw,44px);max-width:1180px;flex-wrap:wrap}
+.pager button{padding:9px 20px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);font-family:"Dela Gothic One",sans-serif;font-size:13px;letter-spacing:.04em;cursor:pointer;transition:all .2s}
+.pager button.on{background:var(--ink);color:var(--bg,#fff);border-color:var(--ink)}
+.pager button:hover:not(:disabled){border-color:var(--ink)}
+.pager button:disabled{opacity:.35;cursor:default}
+.pager .pg-nav{font-family:"Geist","Noto Sans TC",sans-serif;font-weight:600}
 .mp-ph{font-family:"Dela Gothic One",sans-serif;font-size:13px;letter-spacing:.1em;color:var(--muted);padding:18px 0 6px;text-transform:uppercase}
 footer{border-top:1px solid var(--line);margin-top:44px;padding:28px clamp(20px,5vw,56px);display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;max-width:1180px;margin-left:auto;margin-right:auto}
 footer .f-t{font-family:"Dela Gothic One",sans-serif;font-size:15px}
@@ -102,7 +105,6 @@ body.grid-mode #viewToggleTop .fan{display:block}
 body.grid-mode #gridView{display:grid}
 body.grid-mode #strip{display:none}
 body.grid-mode #dots{display:none}
-body.grid-mode #parts{display:none}
 .gcard{display:block;text-align:left;background:transparent;border:0;padding:0;cursor:pointer}
 .gcard .g-art{display:block;aspect-ratio:4/5;overflow:hidden;background:#eee;box-shadow:0 1px 4px rgba(0,0,0,.08),0 10px 24px rgba(0,0,0,.06)}
 .gcard .g-art .cover-art,.gcard .g-art img{width:100%;height:100%;object-fit:cover;display:block}
@@ -167,15 +169,16 @@ body.grid-mode #parts{display:none}
 
 <section id="gridView" aria-label="all projects"></section>
 
+<nav class="pager" id="pager" aria-label="Pages"></nav>
+
 <section class="below">
-  <h2 class="pname display" id="pName"></h2>
+  <h2 class="pname display"><a id="pNameLink" href="#" target="_blank" rel="noopener"><span id="pName"></span></a></h2>
   <div class="psub" id="pSub"></div>
   <p class="pdesc" id="pDesc"></p>
   <div class="links">
     <a id="pVisit" href="#" target="_blank" rel="noopener" data-i18n="visit">Visit</a>
   </div>
   <div class="dots" id="dots"></div>
-  <div class="parts" id="parts"></div>
 </section>
 
 <footer>
@@ -420,36 +423,49 @@ var PROJECTS = [
           id: 'fit-mo', state: 'live', cover: 'cover-proj',
           title: { en: 'Fit Mo', zh: 'Fit Mo' },
           sub: { en: 'Pocket 30-day fitness trainer', zh: '口袋 30 日健身教練' },
-          desc: { en: 'A pocket 30-day fitness trainer — 12 exercises drawn live as a flat line-art woman with bold black outlines, an orange top and blue leggings, a seeded 30-day plan, a guided workout player with a real timer, streaks and stats, plus PNG progress cards. Beginner level and 6 exercises free; intermediate and advanced plans, all 12 exercises, HD PNG, CSV/JSON export and share links Pro. Single HTML file, no dependencies.', zh: '口袋 30 日健身教練——12 個動作即時以扁平線條畫女人畫出嚟，粗黑描邊、橙色上衣、藍色 Leggings，內置 30 日計劃、帶練播放器加計時、連續日數同統計，仲有 PNG 進度卡。初級同 6 個動作免費；中級高級計劃、全部 12 個動作、HD PNG、CSV／JSON 匯出同分享連結 Pro。單一 HTML，零依賴。' },
+          desc: { en: 'A pocket 30-day fitness trainer — 21 exercises drawn live as a flat line-art woman with bold black outlines, an orange top and blue leggings, a seeded 30-day plan, a guided workout player with a real timer, streaks and stats, plus PNG progress cards. Beginner level and 6 exercises free; intermediate and advanced plans, all 21 exercises, HD PNG, CSV/JSON export and share links Pro. Single HTML file, no dependencies.', zh: '口袋 30 日健身教練——21 個動作即時以扁平線條畫女人畫出嚟，粗黑描邊、橙色上衣、藍色 Leggings，內置 30 日計劃、帶練播放器加計時、連續日數同統計，仲有 PNG 進度卡。初級同 6 個動作免費；中級高級計劃、全部 21 個動作、HD PNG、CSV／JSON 匯出同分享連結 Pro。單一 HTML，零依賴。' },
           demo: 'https://fit-mo-r6lf.vercel.app/',
           art: '<svg class="cover-art" viewBox="0 0 320 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="320" height="400" fill="#FDF6E9"/><g opacity="0.55"><line x1="148" y1="218" x2="118" y2="268" stroke="#1A1A1A" stroke-width="17" stroke-linecap="round"/><line x1="148" y1="218" x2="118" y2="268" stroke="#4A90D9" stroke-width="12" stroke-linecap="round"/><line x1="118" y1="268" x2="124" y2="318" stroke="#1A1A1A" stroke-width="15" stroke-linecap="round"/><line x1="118" y1="268" x2="124" y2="318" stroke="#4A90D9" stroke-width="10" stroke-linecap="round"/><ellipse cx="128" cy="320" rx="16" ry="8" fill="#FFF8F0" stroke="#1A1A1A" stroke-width="2.5"/></g><path d="M140 72 Q118 104 122 146 Q130 146 132 110 Q136 88 144 76 Z" fill="#1A1A1A"/><rect x="138" y="112" width="54" height="104" rx="24" fill="#F2994A" stroke="#1A1A1A" stroke-width="3" transform="rotate(14 165 164)"/><line x1="170" y1="212" x2="206" y2="262" stroke="#1A1A1A" stroke-width="18" stroke-linecap="round"/><line x1="170" y1="212" x2="206" y2="262" stroke="#4A90D9" stroke-width="13" stroke-linecap="round"/><line x1="206" y1="262" x2="198" y2="316" stroke="#1A1A1A" stroke-width="16" stroke-linecap="round"/><line x1="206" y1="262" x2="198" y2="316" stroke="#4A90D9" stroke-width="11" stroke-linecap="round"/><ellipse cx="200" cy="318" rx="17" ry="8" fill="#FFF8F0" stroke="#1A1A1A" stroke-width="2.5"/><line x1="180" y1="138" x2="248" y2="156" stroke="#1A1A1A" stroke-width="16" stroke-linecap="round"/><line x1="180" y1="138" x2="248" y2="156" stroke="#F2994A" stroke-width="11" stroke-linecap="round"/><circle cx="252" cy="157" r="7" fill="#FFF8F0" stroke="#1A1A1A" stroke-width="2.5"/><circle cx="158" cy="78" r="25" fill="#1A1A1A"/><circle cx="162" cy="90" r="22" fill="#FFF8F0" stroke="#1A1A1A" stroke-width="3"/><circle cx="170" cy="90" r="2" fill="#1A1A1A"/><path d="M166 102 q5 4 10 0" stroke="#1A1A1A" stroke-width="2" fill="none" stroke-linecap="round"/><text x="20" y="368" font-size="48" fill="#111" font-family="Dela Gothic One, sans-serif">FIT</text><text x="20" y="390" font-size="13" fill="#8a867e" font-family="monospace">POCKET 30-DAY FITNESS TRAINER</text></svg>'
         }
       ];
 
 var STR={
-en:{heroTitle:'OpenX<br>Lab',tagline:'Twenty-nine works and counting — tools, toys and instruments, written in the openx-mo.',star:'mo',visit:'Visit',foot:'Curated by Mountain Grey Design · New Lab every month.'},
-zh:{heroTitle:'OpenX<br>實驗室',tagline:'二十九件作品，仲會繼續加——工具、玩具同樂器，全部喺 openx-mo 寫成。',star:'mo',visit:'去玩',foot:'Mountain Grey Design 策展 · 每月一個新 Lab。'}
+en:{heroTitle:'OpenX<br>Lab',tagline:'Twenty-nine works and counting — tools, toys and instruments, written in the openx-mo.',star:'mo',visit:'Visit',foot:'Curated by Mountain Grey Design · New Lab every month.',prev:'‹ Prev',next:'Next ›'},
+zh:{heroTitle:'OpenX<br>實驗室',tagline:'二十九件作品，仲會繼續加——工具、玩具同樂器，全部喺 openx-mo 寫成。',star:'mo',visit:'去玩',foot:'Mountain Grey Design 策展 · 每月一個新 Lab。',prev:'‹ 上一頁',next:'下一頁 ›'}
 };
 function t(k){return STR[lang][k]||k;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
 
 var strip=document.getElementById('strip'),track=document.getElementById('sctrack');
 var cards=[],pos=0,N=PROJECTS.length,RAD=57.2958;
-var PER=10,part=0;
+var PER=30,part=0;
 function partsCount(){return Math.ceil(PROJECTS.length/PER);}
 function VP(){return PROJECTS.slice(part*PER,part*PER+PER);}
-function renderParts(){
-  var el=document.getElementById('parts');el.innerHTML='';
-  if(partsCount()<=1)return;
-  for(var i=0;i<partsCount();i++){
-    var b=document.createElement('button');
-    b.textContent='Part '+(i+1);
+function pageName(n){return lang==='zh'?('第 '+n+' 頁'):('Page '+n);}
+function renderPager(){
+  var el=document.getElementById('pager');el.innerHTML='';
+  if(partsCount()<=1){el.hidden=true;return;}
+  el.hidden=false;
+  var n=partsCount(),i,b;
+  var prev=document.createElement('button');prev.className='pg-nav';prev.textContent=t('prev');
+  prev.disabled=part===0;prev.setAttribute('aria-label',t('prev'));
+  prev.addEventListener('click',function(){if(part>0){setPart(part-1);gridTop();}});
+  el.appendChild(prev);
+  for(i=0;i<n;i++){
+    b=document.createElement('button');
+    b.textContent=String(i+1);
     b.className=i===part?'on':'';
-    (function(idx){b.addEventListener('click',function(){setPart(idx);});})(i);
+    b.setAttribute('aria-label',pageName(i+1));
+    (function(idx){b.addEventListener('click',function(){setPart(idx);gridTop();});})(i);
     el.appendChild(b);
   }
+  var next=document.createElement('button');next.className='pg-nav';next.textContent=t('next');
+  next.disabled=part===n-1;next.setAttribute('aria-label',t('next'));
+  next.addEventListener('click',function(){if(part<n-1){setPart(part+1);gridTop();}});
+  el.appendChild(next);
 }
-function setPart(p){if(p===part)return;part=p;pos=0;build();}
+function gridTop(){if(view==='grid'){var g=document.getElementById('gridView');if(g)g.scrollIntoView();}}
+function setPart(p){if(p===part)return;part=p;pos=0;build();buildGrid();}
 function params(){
   var w=strip.offsetWidth;
   if(w>1000)return {gap:0.94,arch:64,tilt:0.55,vis:5.5};
@@ -470,7 +486,7 @@ function build(){
     var b=document.createElement('button');b.setAttribute('aria-label','Go to '+(i+1));
     b.addEventListener('click',function(){go(i);});dt.appendChild(b);
   });
-  renderParts();
+  renderPager();
   layout(true);
 }
 function layout(snap){
@@ -495,6 +511,7 @@ function layout(snap){
   document.getElementById('pSub').textContent=p.sub[lang];
   document.getElementById('pDesc').textContent=p.desc[lang];
   document.getElementById('pVisit').href=p.demo;
+  document.getElementById('pNameLink').href=p.demo;
   Array.prototype.forEach.call(document.getElementById('dots').children,function(b,i){b.classList.toggle('on',i===ri);});
 }
 function go(i){pos=((Math.round(i)%N)+N)%N;layout(true);}
@@ -561,7 +578,7 @@ var menuPanel=document.getElementById('menuPanel'),menuBtn=document.getElementBy
 function buildMenu(){
   var html='';
   PROJECTS.forEach(function(p,i){
-    if(i%PER===0&&partsCount()>1)html+='<div class="mp-ph">Part '+(Math.floor(i/PER)+1)+'</div>';
+    if(i%PER===0&&partsCount()>1)html+='<div class="mp-ph">'+esc(pageName(Math.floor(i/PER)+1))+'</div>';
     var n=String(i+1).padStart(2,'0');
     html+='<div class="mp-item" data-i="'+i+'"><span class="n">'+n+'</span>'
       +'<span class="t">'+esc(p.title[lang])+'</span></div>';
@@ -605,10 +622,10 @@ var view='grid';
 try{view=localStorage.getItem('openx-view')||'grid';}catch(e){}
 function buildGrid(){
   var g=document.getElementById('gridView');if(!g)return;g.innerHTML='';
-  PROJECTS.forEach(function(p,i){
-    var d=document.createElement('button');d.className='gcard';d.type='button';
+  VP().forEach(function(p){
+    var d=document.createElement('a');d.className='gcard';
+    d.href=p.demo;d.target='_blank';d.rel='noopener';
     d.innerHTML='<span class="g-art">'+p.art+'</span><span class="g-t">'+esc(p.title[lang])+'</span><span class="g-s">'+esc(p.sub[lang])+'</span>';
-    d.addEventListener('click',function(){setPart(Math.floor(i/PER));go(i%PER);});
     g.appendChild(d);
   });
 }
