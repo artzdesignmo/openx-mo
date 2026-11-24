@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Critique Mo — Pocket Design Critic</title>
+<meta name="description" content="Upload any design and get an instant, honest design-health score: contrast, colour harmony, balance, whitespace and focus — computed from pixels, in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============ themes (OpenX spec: default silver #EAEDEF) ============ */
+:root{ --accent:#8a867e; }
+[data-theme="silver"]{ --bg:#EAEDEF; --panel:#F6F8F9; --panel2:#ffffff; --ink:#1d2126; --muted:#6b7280; --line:#D5D9DC; --shadow:0 8px 28px rgba(20,24,30,.14); --chip:#eceff1; }
+[data-theme="white"]{ --bg:#ffffff; --panel:#f7f7f7; --panel2:#ffffff; --ink:#1d2126; --muted:#6b7280; --line:#e2e2e0; --shadow:0 8px 28px rgba(20,24,30,.12); --chip:#efefed; }
+[data-theme="black"]{ --bg:#14161a; --panel:#1d2026; --panel2:#23262d; --ink:#e8eaed; --muted:#9aa0a8; --line:#33373f; --shadow:0 8px 28px rgba(0,0,0,.45); --chip:#2a2e35; }
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+h1,h2,h3,.dela{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-weight:400;letter-spacing:.01em}
+button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,select{font-family:inherit;color:inherit}
+a{color:inherit}
+
+/* ============ top bar ============ */
+.topbar{height:56px;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--line);background:var(--panel)}
+.iconbtn{width:38px;height:38px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:19px;color:var(--accent);border:1px solid var(--line);background:var(--panel2);flex:0 0 auto}
+.iconbtn:hover{border-color:var(--accent)}
+.brand{font-size:20px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{font-size:11px;color:var(--muted);font-family:"Noto Sans TC",sans-serif;letter-spacing:.06em;display:block;margin-top:3px}
+.spacer{flex:1}
+.pillbtn{height:36px;padding:0 12px;border-radius:18px;border:1px solid var(--line);background:var(--panel2);font-size:13px;white-space:nowrap}
+.pillbtn:hover{border-color:var(--accent)}
+.bmc{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--accent);flex:0 0 auto}
+.bmc svg{display:block}
+
+/* ============ stage ============ */
+.stage{height:calc(100% - 56px);display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:0}
+.artwrap{position:relative;display:flex;align-items:center;justify-content:center;padding:18px;min-width:0;min-height:0;overflow:auto}
+.artwrap.drag{outline:3px dashed var(--accent);outline-offset:-12px}
+#art{max-width:100%;max-height:100%;box-shadow:var(--shadow);border-radius:6px;background:#fff;display:block}
+.artmeta{position:absolute;left:18px;bottom:14px;font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 9px;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scorecol{border-left:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:16px 16px 24px;min-height:0}
+.scorehead{display:flex;align-items:flex-end;gap:14px}
+.bignum{font-family:"Dela Gothic One",sans-serif;font-size:64px;line-height:.9}
+.grade{font-family:"Dela Gothic One",sans-serif;font-size:30px;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;background:#8a867e;flex:0 0 auto;margin-bottom:2px}
+.verdict{margin:10px 0 4px;font-size:14px;line-height:1.5}
+.verdict b{font-weight:700}
+#radar{width:100%;height:auto;display:block;margin:6px 0 2px}
+.dimrow{display:grid;grid-template-columns:104px 1fr 40px;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.dimrow:last-of-type{border-bottom:none}
+.dimname{font-weight:700}
+.bar{height:8px;border-radius:4px;background:var(--chip);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:4px;background:var(--ink);transition:width .45s ease}
+.dimscore{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.btn{height:40px;padding:0 16px;border-radius:10px;background:var(--ink);color:var(--bg);font-size:14px;font-weight:700}
+.btn.ghost{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:default}
+.hint{font-size:12px;color:var(--muted);line-height:1.55;margin-top:12px}
+
+/* ============ drawer ============ */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(430px,94vw);background:var(--panel);border-left:1px solid var(--line);box-shadow:var(--shadow);transform:translateX(105%);transition:transform .28s ease;z-index:40;display:flex;flex-direction:column}
+.drawer.open{transform:translateX(0)}
+.drawerhead{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.drawerhead h2{font-size:17px;margin:0;flex:1}
+.drawerbody{overflow-y:auto;padding:16px;flex:1}
+.sec{margin-bottom:22px}
+.sec h3{font-size:14px;margin:0 0 10px}
+.sec p{font-size:13px;line-height:1.6;color:var(--muted);margin:0 0 10px}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:22px 14px;text-align:center;font-size:13px;color:var(--muted);cursor:pointer;background:var(--panel2)}
+.drop:hover{border-color:var(--accent)}
+.drop b{color:var(--ink)}
+.samples{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sample{border:2px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer;background:var(--panel2);padding:0;text-align:left}
+.sample.sel{border-color:var(--ink)}
+.sample canvas{width:100%;height:auto;display:block}
+.sample span{display:block;font-size:11px;padding:5px 7px;font-weight:700}
+.palette{display:flex;gap:8px;flex-wrap:wrap}
+.swatch{flex:1;min-width:56px;border-radius:10px;overflow:hidden;border:1px solid var(--line);cursor:pointer;background:var(--panel2)}
+.swatch i{display:block;height:44px}
+.swatch span{display:block;font-size:11px;padding:4px 6px;font-weight:700;text-align:center}
+.tipline{font-size:13px;line-height:1.55;padding:9px 0;border-bottom:1px solid var(--line)}
+.tipline:last-child{border-bottom:none}
+.tipline b{font-weight:700}
+.tipline .n{color:var(--muted);font-variant-numeric:tabular-nums}
+.hist{display:flex;flex-direction:column;gap:8px}
+.histrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:7px 9px;background:var(--panel2);font-size:13px;cursor:pointer}
+.histrow img{width:34px;height:42px;object-fit:cover;border-radius:4px;background:#fff}
+.histrow .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.histrow .sc{font-weight:700;font-variant-numeric:tabular-nums}
+.wrow{display:grid;grid-template-columns:110px 1fr 36px;gap:10px;align-items:center;font-size:13px;padding:6px 0}
+.wrow input[type=range]{width:100%;accent-color:var(--ink)}
+.wrow output{text-align:right;font-weight:700}
+.keyrow{display:flex;gap:8px}
+.keyrow input{flex:1;min-width:0;height:40px;border:1px solid var(--line);border-radius:10px;padding:0 12px;background:var(--panel2);font-size:14px}
+.msg{font-size:12px;margin-top:8px;min-height:16px;color:var(--muted)}
+.msg.ok{color:#2e7d32}.msg.err{color:#c62828}
+.compare{width:100%;border-collapse:collapse;font-size:12px}
+.compare th,.compare td{border-bottom:1px solid var(--line);padding:6px 4px;text-align:center}
+.compare th:first-child,.compare td:first-child{text-align:left}
+.foot{font-size:12px;color:var(--muted);line-height:1.6}
+.foot a{text-decoration:underline}
+
+/* ============ modal + toast ============ */
+.modal{position:fixed;inset:0;background:rgba(10,12,16,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+.modal.open{display:flex}
+.mbox{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:440px;width:100%;padding:22px;box-shadow:var(--shadow)}
+.mbox h2{font-size:19px;margin:0 0 8px}
+.mbox p{font-size:13px;line-height:1.6;color:var(--muted);margin:0 0 12px}
+.mbox .x{float:right;font-size:20px;color:var(--accent);line-height:1}
+.prolist{font-size:13px;line-height:1.7;margin:0 0 14px;padding-left:18px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:all .25s ease;z-index:80;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (max-width:900px){
+  .stage{display:block;overflow-y:auto}
+  .artwrap{padding:12px;height:min(68vh,560px);min-height:340px}
+  .scorecol{border-left:none;border-top:1px solid var(--line)}
+  .bignum{font-size:52px}
+  .brand{font-size:17px}
+  .pillbtn{padding:0 9px}
+}
+</style>
+</head>
+<body data-theme="silver">
+<header class="topbar">
+  <button class="iconbtn" id="drawerBtn" aria-label="Menu">☰</button>
+  <div class="brand"><span class="dela">Critique Mo</span><small data-i18n="tagline">POCKET DESIGN CRITIC</small></div>
+  <div class="spacer"></div>
+  <button class="pillbtn" id="langBtn" aria-label="Language">EN</button>
+  <button class="pillbtn" id="themeBtn" aria-label="Theme">◐ Silver</button>
+  <a class="bmc" href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener" aria-label="Buy Me a Coffee" title="Buy Me a Coffee"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg></a>
+</header>
+
+<main class="stage">
+  <section class="artwrap" id="artwrap">
+    <canvas id="art" width="800" height="1000"></canvas>
+    <div class="artmeta" id="artMeta">Bold Type — sample poster</div>
+  </section>
+  <aside class="scorecol">
+    <div class="scorehead">
+      <div class="bignum" id="bigScore">–</div>
+      <div class="grade" id="gradeBadge">–</div>
+      <div style="flex:1"></div>
+      <div style="text-align:right;font-size:12px;color:var(--muted)"><span data-i18n="overall">Overall score</span><br><b id="gradeWord" style="color:var(--ink);font-size:14px">—</b></div>
+    </div>
+    <p class="verdict" id="verdict">—</p>
+    <canvas id="radar" width="720" height="460"></canvas>
+    <div id="dimList"></div>
+    <div class="actions">
+      <button class="btn" id="uploadBtn" data-i18n="upload">Upload a design</button>
+      <button class="btn ghost" id="randomBtn" data-i18n="random">Random sample</button>
+      <button class="btn ghost" id="pngBtn" data-i18n="exportPng">Export report PNG</button>
+      <button class="btn ghost" id="heatBtn" data-i18n="heatmap">Contrast map 🔒</button>
+    </div>
+    <p class="hint" data-i18n="stageHint">Drop any image here — a poster, flyer, UI screenshot or logo. Everything is analysed in your browser; nothing is uploaded anywhere.</p>
+    <input type="file" id="fileIn" accept="image/*" hidden>
+  </aside>
+</main>
+
+<aside class="drawer" id="drawer" aria-label="Controls">
+  <div class="drawerhead"><h2 data-i18n="drawerTitle">Critique desk</h2><button class="iconbtn" id="drawerClose" aria-label="Close">✕</button></div>
+  <div class="drawerbody">
+    <section class="sec">
+      <h3 data-i18n="secUpload">Your design</h3>
+      <div class="drop" id="dropZone"><b data-i18n="dropHere">Drop an image here</b><br><span data-i18n="dropSub">or click to choose a file — JPG / PNG / WebP</span></div>
+    </section>
+    <section class="sec">
+      <h3 data-i18n="secSamples">Sample posters — try the critic</h3>
+      <div class="samples" id="samples"></div>
+      <p data-i18n="samplesNote">Six posters drawn by code, from a near-perfect bold type poster to a deliberately chaotic collage. The critic should love the first and scold the last.</p>
+    </section>
+    <section class="sec">
+      <h3 data-i18n="secPalette">Extracted palette</h3>
+      <div class="palette" id="palette"></div>
+      <p data-i18n="paletteNote">Tap a swatch to copy its hex code.</p>
+    </section>
+    <section class="sec">
+      <h3 data-i18n="secTips">What to fix — in plain language</h3>
+      <div id="tips"></div>
+    </section>
+    <section class="sec">
+      <h3 data-i18n="secCompare">Compare designs <span style="color:var(--muted)">· Pro</span></h3>
+      <div id="compareBox"><p data-i18n="compareEmpty">Pin up to 4 designs to compare their scores side by side.</p></div>
+      <div class="actions"><button class="btn ghost" id="pinBtn" data-i18n="pin">Pin this design</button></div>
+    </section>
+    <section class="sec">
+      <h3 data-i18n="secHistory">Critique history</h3>
+      <div class="hist" id="history"></div>
+      <div class="actions">
+        <button class="btn ghost" id="csvBtn" data-i18n="exportCsv">Export CSV 🔒</button>
+        <button class="btn ghost" id="jsonBtn" data-i18n="exportJson">Export JSON 🔒</button>
+      </div>
+    </section>
+    <section class="sec">
+      <h3 data-i18n="secWeights">Rubric weights <span style="color:var(--muted)">· Pro</span></h3>
+      <p data-i18n="weightsNote">Free uses the default mix (Contrast 25 · Harmony 25 · Balance 10 · Whitespace 15 · Focus 25). Pro lets you weight what your team cares about.</p>
+      <div id="weights"></div>
+    </section>
+    <section class="sec">
+      <h3 data-i18n="secShare">Share this critique <span style="color:var(--muted)">· Pro</span></h3>
+      <div class="actions"><button class="btn ghost" id="shareBtn" data-i18n="share">Copy share link 🔒</button></div>
+    </section>
+    <section class="sec">
+      <h3 data-i18n="secPro">OpenX Pro</h3>
+      <p data-i18n="proNote">Pro unlocks batch compare, the contrast heatmap, custom rubric weights, HD 2048px reports, unlimited history with CSV / JSON export, and share links.</p>
+      <div class="keyrow"><input id="proKeyIn" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off"><button class="btn" id="proKeyBtn" data-i18n="unlock">Unlock</button></div>
+      <div class="msg" id="proMsg"></div>
+      <div class="actions"><button class="btn ghost" id="buyBtn" data-i18n="getPro">Get OpenX Pro</button></div>
+    </section>
+    <section class="sec">
+      <h3 data-i18n="secHow">How the scores work</h3>
+      <p data-i18n="howText">Every score is pixel maths, computed on a 240×240 copy of your image — no AI, no server, no taste judgement. Contrast is a WCAG-style luminance ratio; Harmony reads hue relationships on the colour wheel; Balance weighs where the visual mass sits; Whitespace measures quiet area; Focus measures how strongly one area pulls the eye. A high score means the pixels are balanced. It cannot judge meaning, brand fit, or originality — that part is still yours.</p>
+    </section>
+    <p class="foot"><span data-i18n="footCopy">© 2026 OpenX Mo — a design-health toy, not a substitute for a human eye.</span><br><a href="https://openx-mo.vercel.app/" target="_blank" rel="noopener">OpenX</a> · <a href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener">Buy Me a Coffee</a></p>
+  </div>
+</aside>
+
+<div class="modal" id="proModal">
+  <div class="mbox">
+    <button class="x" data-close="proModal">✕</button>
+    <h2 data-i18n="proTitle">This one is Pro</h2>
+    <p data-i18n="proBody">OpenX Pro unlocks the full critic — batch compare, contrast heatmap, custom rubric weights, HD 2048px reports, unlimited history with CSV / JSON export, and share links. One key unlocks every OpenX tool.</p>
+    <ul class="prolist">
+      <li data-i18n="proLi1">Monthly US$9.99 · Yearly US$88 · Lifetime US$166</li>
+      <li data-i18n="proLi2">Keys are validated per device; offline checks are honoured for a while.</li>
+    </ul>
+    <div class="keyrow"><input id="proKeyIn2" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off"><button class="btn" id="proKeyBtn2" data-i18n="unlock">Unlock</button></div>
+    <div class="msg" id="proMsg2"></div>
+    <div class="actions"><button class="btn" id="buyBtn2" data-i18n="getPro">Get OpenX Pro</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ================= i18n ================= */
+const I18N={
+en:{tagline:"POCKET DESIGN CRITIC",overall:"Overall score",upload:"Upload a design",random:"Random sample",exportPng:"Export report PNG",heatmap:"Contrast map 🔒",stageHint:"Drop any image here — a poster, flyer, UI screenshot or logo. Everything is analysed in your browser; nothing is uploaded anywhere.",drawerTitle:"Critique desk",secUpload:"Your design",dropHere:"Drop an image here",dropSub:"or click to choose a file — JPG / PNG / WebP",secSamples:"Sample posters — try the critic",samplesNote:"Six posters drawn by code, from a near-perfect bold type poster to a deliberately chaotic collage. The critic should love the first and scold the last.",secPalette:"Extracted palette",paletteNote:"Tap a swatch to copy its hex code.",secTips:"What to fix — in plain language",secCompare:"Compare designs",compareEmpty:"Pin up to 4 designs to compare their scores side by side.",pin:"Pin this design",secHistory:"Critique history",exportCsv:"Export CSV 🔒",exportJson:"Export JSON 🔒",secWeights:"Rubric weights",weightsNote:"Free uses the default mix (Contrast 25 · Harmony 25 · Balance 10 · Whitespace 15 · Focus 25). Pro lets you weight what your team cares about.",secShare:"Share this critique",share:"Copy share link 🔒",secPro:"OpenX Pro",proNote:"Pro unlocks batch compare, the contrast heatmap, custom rubric weights, HD 2048px reports, unlimited history with CSV / JSON export, and share links.",unlock:"Unlock",getPro:"Get OpenX Pro",secHow:"How the scores work",howText:"Every score is pixel maths, computed on a 240×240 copy of your image — no AI, no server, no taste judgement. Contrast is a WCAG-style luminance ratio; Harmony reads hue relationships on the colour wheel; Balance weighs where the visual mass sits; Whitespace measures quiet area; Focus measures how strongly one area pulls the eye. A high score means the pixels are balanced. It cannot judge meaning, brand fit, or originality — that part is still yours.",footCopy:"© 2026 OpenX Mo — a design-health toy, not a substitute for a human eye.",proTitle:"This one is Pro",proBody:"OpenX Pro unlocks the full critic — batch compare, contrast heatmap, custom rubric weights, HD 2048px reports, unlimited history with CSV / JSON export, and share links. One key unlocks every OpenX tool.",proLi1:"Monthly US$9.99 · Yearly US$88 · Lifetime US$166",proLi2:"Keys are validated per device; offline checks are honoured for a while.",
+dim_contrast:"Contrast",dim_harmony:"Colour harmony",dim_balance:"Balance",dim_whitespace:"Whitespace",dim_focus:"Focus",
+grade_S:"Outstanding",grade_A:"Strong",grade_B:"Solid",grade_C:"Needs work",grade_D:"Rough draft",
+verdict_S:"This design is in excellent shape — the pixels are doing exactly what they should.",verdict_A:"A strong design. One or two small tweaks and it is ready to ship.",verdict_B:"Solid bones. The fixes below will lift it a whole grade.",verdict_C:"Readable, but the balance is off — work through the fixes below.",verdict_D:"The critic is not impressed. Start with the biggest fix below and re-run it.",
+key_ok:"Pro unlocked — welcome aboard.",key_bad:"That key did not check out. Try again.",key_net:"Could not reach the license server. Check your connection and try again.",key_saved:"Checking…",
+copied:"Copied",pinned:"Pinned to compare",unpinned:"Removed from compare",historyEmpty:"No critiques yet — upload a design or try a sample.",reportSaved:"Report PNG saved",needPro:"Pro feature — unlock OpenX Pro to use it.",histCap:"Free history holds 12 critiques — Pro keeps them all.",shareCopied:"Share link copied",weightsReset:"Weights reset to the default mix",uploadOk:"Design loaded — analysed in ",uploadFail:"That file could not be read as an image.",sampleLoaded:"Sample loaded"},
+zh:{tagline:"口袋設計評分師",overall:"總分",upload:"上載設計稿",random:"隨機範例",exportPng:"匯出報告 PNG",heatmap:"對比熱力圖 🔒",stageHint:"拖任何圖片入嚟——海報、傳單、介面截圖或者標誌。全部喺你嘅瀏覽器入面分析，唔會上載去任何地方。",drawerTitle:"評分工作台",secUpload:"你嘅設計稿",dropHere:"拖圖片到呢度",dropSub:"或者撳一下揀檔案——JPG / PNG / WebP",secSamples:"範例海報——試下個評分師",samplesNote:"六張程式畫出嚟嘅海報，由近乎完美嘅粗體字海報，到刻意混亂嘅拼貼。評分師應該讚第一張、鬧最後一張。",secPalette:"抽出嚟嘅配色",paletteNote:"撳色塊複製 hex 碼。",secTips:"要改邊度——白話版",secCompare:"對比設計稿",compareEmpty:"釘起最多 4 張設計稿，並排比較分數。",pin:"釘起呢張",secHistory:"評分紀錄",exportCsv:"匯出 CSV 🔒",exportJson:"匯出 JSON 🔒",secWeights:"評分比重",weightsNote:"免費版用預設比重（對比 25 · 色彩 25 · 平衡 10 · 留白 15 · 焦點 25）。Pro 可以按團隊重視嘅嘢自己調。",secShare:"分享呢次評分",share:"複製分享連結 🔒",secPro:"OpenX Pro",proNote:"Pro 解鎖批量對比、對比熱力圖、自訂評分比重、2048px 高清報告、無上限紀錄連 CSV / JSON 匯出、同分享連結。",unlock:"解鎖",getPro:"拎 OpenX Pro",secHow:"分數點計出嚟",howText:"每個分數都係像素數學，喺你張圖嘅 240×240 縮細版上面計出嚟——冇 AI、冇伺服器、冇品味判斷。對比係 WCAG 式嘅亮度比；色彩係睇色輪上面嘅色相關係；平衡係量視覺重量坐喺邊；留白係量安靜面積；焦點係量邊個位最搶眼。高分即係像素平衡，唔代表意思、品牌啱唔啱或者有冇原創性——嗰部分仍然係你嘅。",footCopy:"© 2026 OpenX Mo — 設計健康小玩具，唔可以代替人眼。",proTitle:"呢個係 Pro 功能",proBody:"OpenX Pro 解鎖完整評分師——批量對比、對比熱力圖、自訂評分比重、2048px 高清報告、無上限紀錄連 CSV / JSON 匯出、同分享連結。一條 key 解鎖全部 OpenX 工具。",proLi1:"月費 US$9.99 · 年費 US$88 · 終身 US$166",proLi2:"每部裝置驗證一次 key；離線嗰陣會寬限一段時間。",
+dim_contrast:"對比",dim_harmony:"色彩和諧",dim_balance:"平衡",dim_whitespace:"留白",dim_focus:"焦點",
+grade_S:"出色",grade_A:"紮實",grade_B:"合格",grade_C:"要執",grade_D:"草稿階段",
+verdict_S:"呢張設計狀態非常好——像素完全做到應該做嘅嘢。",verdict_A:"設計好紮實，執一兩樣細節就可以出街。",verdict_B:"骨架唔錯。跟住下面嘅建議改，可以升一級。",verdict_C:"睇得明，但平衡唔啱——逐樣跟下面改。",verdict_D:"評分師唔收貨。由最大嗰樣開始改，再跑多次。",
+key_ok:"Pro 已解鎖——歡迎。",key_bad:"呢條 key 驗唔到，再試一次。",key_net:"連唔到授權伺服器，檢查網絡再試。",key_saved:"檢查緊…",
+copied:"已複製",pinned:"已釘起對比",unpinned:"已取消釘起",historyEmpty:"未有評分紀錄——上載設計稿或者試範例。",reportSaved:"報告 PNG 已儲存",needPro:"Pro 功能——解鎖 OpenX Pro 先用到。",histCap:"免費紀錄只 keep 12 次——Pro 全部保留。",shareCopied:"分享連結已複製",weightsReset:"比重已還原預設",uploadOk:"設計稿已載入——分析用咗 ",uploadFail:"讀唔到呢個圖片檔。",sampleLoaded:"範例已載入"}};
+let LANG="en";
+function T(k){return (I18N[LANG]&&I18N[LANG][k])||I18N.en[k]||k;}
+function applyLang(){document.querySelectorAll("[data-i18n]").forEach(el=>{const k=el.dataset.i18n;if(I18N[LANG][k]!==undefined)el.textContent=I18N[LANG][k];});$("langBtn").textContent=LANG==="en"?"EN":"繁中";document.documentElement.lang=LANG==="en"?"en":"zh-Hant";renderAll();}
+
+/* ================= helpers / themes ================= */
+const $=id=>document.getElementById(id);
+const THEMES=["silver","white","black"];
+const THEME_LABEL={silver:"◐ Silver",white:"○ White",black:"● Black"};
+let THEME="silver";
+function applyTheme(){document.body.dataset.theme=THEME;$("themeBtn").textContent=THEME_LABEL[THEME];try{localStorage.setItem("critiquemo_theme",THEME);}catch(e){}}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200);}
+function hexOf(r,g,b){return "#"+[r,g,b].map(v=>Math.round(clamp(v,0,255)).toString(16).padStart(2,"0")).join("").toUpperCase();}
+
+/* ================= Pro (hardened pattern, same as Sleep/Fit Mo) ================= */
+/* NOTE: Lemon Squeezy shut down 2026-11-16/17; Paddle migration is pending.
+   This build still ships the LS test wiring, like every other tool in the
+   series — the Pro dialogs will be swapped to Paddle together, once the
+   Paddle checkout is live. */
+const CONFIG={storeId:508220,licenseValidateUrl:"https://api.lemonsqueezy.com/v1/licenses/validate",instanceName:"critique-mo",
+buyMonthly:"https://openx.lemonsqueezy.com/checkout/buy/934fa5b0-fe63-4707-b9cb-d303de1e127f",
+buyLifetime:"https://openx.lemonsqueezy.com/checkout/buy/d107e805-e8e9-42b0-9c1a-eb89078421be"};
+let PRO=false;
+function storedPro(){try{const s=localStorage.getItem("critiquemo_pro");return s?JSON.parse(s):null;}catch(e){return null;}}
+function savePro(k){try{localStorage.setItem("critiquemo_pro",JSON.stringify({key:k}));}catch(e){}}
+function clearPro(){try{localStorage.removeItem("critiquemo_pro");}catch(e){}}
+function getProInstance(){try{let id=localStorage.getItem("critiquemo_instance");if(!id){id="critiquemo-"+Date.now().toString(36)+Math.random().toString(36).slice(2,10);localStorage.setItem("critiquemo_instance",id);}return id;}catch(e){return CONFIG.instanceName;}}
+function lsValid(d){return !!(d&&d.valid&&d.license_key&&d.license_key.status==="active");}
+async function validateKey(fromModal){const inp=fromModal?$("proKeyIn2"):$("proKeyIn");const msg=fromModal?$("proMsg2"):$("proMsg");const key=inp.value.trim();if(!key){msg.textContent=T("key_bad");msg.className="msg err";return;}msg.textContent=T("key_saved");msg.className="msg";try{const res=await fetch(CONFIG.licenseValidateUrl,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({license_key:key,instance_name:getProInstance()})});let data=null;try{data=await res.json();}catch(e){}if(lsValid(data)){savePro(key);PRO=true;refreshPro();msg.textContent=T("key_ok");msg.className="msg ok";setTimeout(()=>{closeProModal();},900);renderAll();}else{msg.textContent=T("key_bad");msg.className="msg err";}}catch(err){msg.textContent=T("key_net");msg.className="msg err";}}
+async function revalidatePro(){const s=storedPro();if(!s||!s.key)return;try{const res=await fetch(CONFIG.licenseValidateUrl,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({license_key:s.key,instance_name:getProInstance()})});let data=null;try{data=await res.json();}catch(e){}if(!lsValid(data)){clearPro();PRO=false;refreshPro();}}catch(err){/* offline grace: keep Pro until a check succeeds */}}
+function refreshPro(){buildWeights();renderCompare();renderHistory();}
+function needPro(){openProModal();toast(T("needPro"));}
+function openProModal(){$("proModal").classList.add("open");}
+function closeProModal(){$("proModal").classList.remove("open");}
+
+/* ================= state ================= */
+const DIMS=[{id:"contrast",w:.25},{id:"harmony",w:.25},{id:"balance",w:.10},{id:"whitespace",w:.15},{id:"focus",w:.25}];
+const DEFAULT_W={contrast:.25,harmony:.25,balance:.10,whitespace:.15,focus:.25};
+let WEIGHTS={...DEFAULT_W};
+let S={sample:"bold",name:"Bold Type",source:"sample",weightsNote:false};
+let CUR=null;           // current analysis result
+let CURIMG=null;        // {canvas, w, h} full-res artwork source
+let PINNED=[];          // up to 4 pinned analyses
+let HISTORY=[];         // {name, score, grade, palette, date, thumb}
+let HEAT=false;
+function saveState(){try{localStorage.setItem("critiquemo_state",JSON.stringify({sample:S.sample,name:S.name,source:S.source,lang:LANG,theme:THEME,weights:WEIGHTS,history:HISTORY.slice(0,40)}));}catch(e){}}
+function loadState(){try{const raw=localStorage.getItem("critiquemo_state");if(!raw)return;const o=JSON.parse(raw);if(o.sample)S.sample=o.sample;if(o.name)S.name=o.name;if(o.source)S.source=o.source;if(o.lang==="zh"||o.lang==="en")LANG=o.lang;if(THEMES.includes(o.theme))THEME=o.theme;if(o.weights)WEIGHTS={...DEFAULT_W,...o.weights};if(Array.isArray(o.history))HISTORY=o.history;}catch(e){}}
+
+/* ================= sample posters (all drawn by code) ================= */
+const SAMPLES=[
+{id:"bold",name:"Bold Type",en:"Bold Type",zh:"粗體字"},
+{id:"pastel",name:"Pastel Minimal",en:"Pastel Minimal",zh:"粉彩極簡"},
+{id:"neon",name:"Neon Night",en:"Neon Night",zh:"霓虹夜"},
+{id:"chaos",name:"Chaos Collage",en:"Chaos Collage",zh:"混亂拼貼"},
+{id:"grid",name:"Grid Editorial",en:"Grid Editorial",zh:"網格雜誌"},
+{id:"sunset",name:"Sunset Gradient",en:"Sunset Gradient",zh:"落日漸變"}];
+function makeCanvas(w,h){const c=document.createElement("canvas");c.width=w;c.height=h;return c;}
+function drawSample(id){const W=800,H=1000,c=makeCanvas(W,H),x=c.getContext("2d");
+if(id==="bold"){x.fillStyle="#f5efe4";x.fillRect(0,0,W,H);x.fillStyle="#e8442e";x.fillRect(0,0,W,26);x.fillStyle="#111";x.textAlign="left";x.font="400 168px 'Dela Gothic One', sans-serif";x.fillText("HELLO",48,300);x.fillText("WORLD",48,470);x.fillStyle="#e8442e";x.fillRect(48,540,420,26);x.fillStyle="#111";x.font="400 44px 'Dela Gothic One', sans-serif";x.fillText("MAKE IT",48,660);x.fillText("LOUD.",48,720);x.font="400 26px 'Noto Sans TC', sans-serif";x.fillStyle="#555";x.fillText("A poster that shouts — in three colours only.",48,920);x.fillText("CRITIQUE MO · 2026",48,960);}
+else if(id==="pastel"){x.fillStyle="#fdf6f0";x.fillRect(0,0,W,H);x.fillStyle="#f6c9d4";x.beginPath();x.arc(560,330,210,0,7);x.fill();x.fillStyle="#bcd9e8";x.beginPath();x.arc(240,640,150,0,7);x.fill();x.fillStyle="#cfe8c9";x.fillRect(120,120,300,180);x.strokeStyle="#8a867e";x.lineWidth=3;x.beginPath();x.moveTo(120,820);x.lineTo(680,820);x.stroke();x.fillStyle="#333";x.font="400 54px 'Dela Gothic One', sans-serif";x.textAlign="left";x.fillText("softly,",120,880);x.font="400 26px 'Noto Sans TC', sans-serif";x.fillStyle="#777";x.fillText("pastel minimal · three quiet shapes",120,140);}
+else if(id==="neon"){x.fillStyle="#0b0b12";x.fillRect(0,0,W,H);x.textAlign="center";x.shadowBlur=34;x.shadowColor="#ff2e88";x.fillStyle="#ff2e88";x.font="400 150px 'Dela Gothic One', sans-serif";x.fillText("OPEN",400,420);x.shadowColor="#22d3ee";x.fillStyle="#22d3ee";x.font="400 84px 'Dela Gothic One', sans-serif";x.fillText("ALL NIGHT",400,560);x.shadowBlur=22;x.strokeStyle="#ff2e88";x.lineWidth=6;x.beginPath();x.arc(400,760,110,0,7);x.stroke();x.shadowBlur=0;x.fillStyle="#e8eaed";x.font="400 28px 'Noto Sans TC', sans-serif";x.fillText("neon · no sleep till sunrise",400,940);}
+else if(id==="chaos"){const rnd=mulberry32(42);x.fillStyle="#ffffff";x.fillRect(0,0,W,H);const cols=["#e8442e","#f5b301","#1f8fff","#27ae60","#8e44ad","#ff6fa5","#00b8a9","#ff7f11"];for(let i=0;i<74;i++){x.fillStyle=cols[Math.floor(rnd()*cols.length)];const w2=50+rnd()*240,h2=40+rnd()*200,px=rnd()*(W-w2),py=rnd()*(H-h2);if(rnd()<.5)x.fillRect(px,py,w2,h2);else{x.beginPath();x.arc(px+w2/2,py+h2/2,Math.min(w2,h2)/2,0,7);x.fill();}}x.strokeStyle="#111";x.lineWidth=6;for(let i=0;i<22;i++){x.beginPath();x.moveTo(rnd()*W,rnd()*H);x.lineTo(rnd()*W,rnd()*H);x.stroke();}x.fillStyle="#111";x.font="400 64px 'Dela Gothic One', sans-serif";x.textAlign="left";x.fillText("SALE!",40,120);x.fillText("NOW!",520,880);x.fillText("50% OFF",80,520);x.font="400 30px 'Noto Sans TC', sans-serif";x.fillStyle="#e8442e";x.fillText("everything must go!!!",60,940);x.fillStyle="#1f8fff";x.fillText("new! new! new!",420,200);}
+else if(id==="grid"){x.fillStyle="#ffffff";x.fillRect(0,0,W,H);x.fillStyle="#111";x.fillRect(48,48,704,14);x.fillStyle="#e8442e";x.fillRect(48,84,120,26);x.fillStyle="#111";x.font="400 72px 'Dela Gothic One', sans-serif";x.textAlign="left";x.fillText("THE GRID",48,210);x.font="400 24px 'Noto Sans TC', sans-serif";x.fillStyle="#666";x.fillText("Issue 38 — order, columns & calm",48,250);const greys=["#d8d8d4","#c9c9c4","#e2e2e0","#bdbdb8","#d0d0cc","#cfcfc9"];for(let r=0;r<2;r++)for(let col=0;col<3;col++){const px=48+col*240,py=300+r*300;x.fillStyle=greys[(r*3+col)%6];x.fillRect(px,py,216,220);x.fillStyle="#111";x.fillRect(px,py+236,140,12);x.fillStyle="#888";x.fillRect(px,py+258,180,8);}x.fillStyle="#111";x.font="400 22px 'Noto Sans TC', sans-serif";x.fillText("Six stories. One grid. Nothing shouts.",48,940);}
+else if(id==="sunset"){const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#ff9a3d");g.addColorStop(.45,"#ff5e7a");g.addColorStop(.8,"#7b4bd6");g.addColorStop(1,"#2b1a4d");x.fillStyle=g;x.fillRect(0,0,W,H);x.fillStyle="#fff3d6";x.beginPath();x.arc(400,430,150,0,7);x.fill();x.fillStyle="rgba(255,243,214,.35)";x.beginPath();x.arc(400,430,200,0,7);x.fill();x.fillStyle="#241533";x.beginPath();x.moveTo(0,760);x.bezierCurveTo(200,640,360,800,560,720);x.bezierCurveTo(660,680,740,740,800,700);x.lineTo(800,1000);x.lineTo(0,1000);x.closePath();x.fill();x.fillStyle="#160d24";x.beginPath();x.moveTo(0,860);x.bezierCurveTo(260,780,520,900,800,820);x.lineTo(800,1000);x.lineTo(0,1000);x.closePath();x.fill();x.strokeStyle="#fff";x.lineWidth=4;x.beginPath();x.arc(180,240,16,3.4,6.0);x.arc(240,210,14,3.4,6.0);x.stroke();x.fillStyle="#fff";x.font="400 44px 'Dela Gothic One', sans-serif";x.textAlign="center";x.fillText("GOLDEN HOUR",400,120);}
+return c;}
+
+/* ================= analysis engine (120x120, pure pixel maths) ================= */
+function analyzeCanvas(srcCanvas){
+  const S2=240,tmp=makeCanvas(S2,S2),tx=tmp.getContext("2d",{willReadFrequently:true});
+  tx.drawImage(srcCanvas,0,0,S2,S2);
+  const d=tx.getImageData(0,0,S2,S2).data;
+  const N=S2*S2;
+  const lum=new Float32Array(N),chr=new Float32Array(N),hue=new Float32Array(N);
+  let lumSum=0;
+  for(let i=0;i<N;i++){const r=d[i*4]/255,g=d[i*4+1]/255,b=d[i*4+2]/255;
+    const mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+    let h=0;if(mx!==mn){if(mx===r)h=((g-b)/(mx-mn))%6;else if(mx===g)h=(b-r)/(mx-mn)+2;else h=(r-g)/(mx-mn)+4;h*=60;if(h<0)h+=360;}
+    lum[i]=0.2126*d[i*4]+0.7152*d[i*4+1]+0.0722*d[i*4+2];chr[i]=mx-mn;hue[i]=h;lumSum+=lum[i];}
+  const meanLum=lumSum/N;
+  // --- contrast: WCAG-style ratio between the darkest and lightest luminance
+  //     modes that actually cover >=0.5% of the image (16-bin histogram).
+  const hist=new Array(16).fill(0);
+  for(let i=0;i<N;i++)hist[Math.min(15,Math.floor(lum[i]/16))]++;
+  let darkBin=-1,lightBin=-1;
+  for(let b=0;b<16;b++){if(hist[b]>=N*0.001){darkBin=b;break;}}
+  for(let b=15;b>=0;b--){if(hist[b]>=N*0.001){lightBin=b;break;}}
+  const darkC=darkBin<0?0:darkBin*16+8, lightC=lightBin<0?255:lightBin*16+8;
+  const ratio=(lightC+12.75)/(darkC+12.75);
+  const contrast=clamp(Math.round(100*(1-Math.exp(-(ratio-1)/3))),1,100);
+  // --- palette: chromatic buckets (hue 15deg x sat x light) + achromatic buckets
+  const buckets=new Map();
+  for(let i=0;i<N;i++){
+    let key;
+    if(chr[i]>=0.12){const l=lum[i]/255;key="c:"+Math.floor(hue[i]/15)+":"+(chr[i]<0.35?0:chr[i]<0.7?1:2)+":"+(l<0.35?0:l<0.7?1:2);}
+    else key="a:"+Math.floor((lum[i]/255)*4);
+    let bk=buckets.get(key);if(!bk){bk={n:0,r:0,g:0,b:0,h:0,c:0};buckets.set(key,bk);}
+    bk.n++;bk.r+=d[i*4];bk.g+=d[i*4+1];bk.b+=d[i*4+2];bk.h+=hue[i];bk.c+=chr[i];}
+  const top=[...buckets.values()].sort((a,b)=>b.n-a.n).slice(0,5);
+  const palette=top.map(bk=>({hex:hexOf(bk.r/bk.n,bk.g/bk.n,bk.b/bk.n),share:bk.n/N,hue:bk.h/bk.n,chroma:bk.c/bk.n}));
+  let achN=0;for(let i=0;i<N;i++)if(chr[i]<0.12)achN++;
+  // --- harmony: best standard colour-wheel scheme fit (anchored at dominant hue)
+  const hHist=new Array(24).fill(0);let chrTot=0;
+  for(let i=0;i<N;i++)if(chr[i]>=0.25){hHist[Math.floor(hue[i]/15)]++;chrTot++;}
+  let harmony=90;
+  let nHueBins=0;
+  if(chrTot>0){
+    let h0=0;for(let b=0;b<24;b++)if(hHist[b]>hHist[h0])h0=b;
+    const h0deg=h0*15+7.5;
+    const schemes=[[0],[0,30],[0,-30],[0,180],[0,150,210],[0,120,240],[0,90,180,270]];
+    let best=0;
+    for(const sc of schemes){let cov=0;
+      for(let b=0;b<24;b++){const bd=b*15+7.5;let ok=false;
+        for(const off of sc){let dh=Math.abs(((bd-(h0deg+off))%360+540)%360-180);if(dh<=18){ok=true;break;}}
+        if(ok)cov+=hHist[b];}
+      best=Math.max(best,cov/chrTot);}
+    for(let b=0;b<24;b++)if(hHist[b]>=chrTot*0.02)nHueBins++;
+    harmony=clamp(Math.round(100*best-Math.max(0,nHueBins-6)*8),1,100);
+  }
+  // --- 16px block means (shared by balance, whitespace, focus)
+  const BM=15,bs=16,blockMean=new Float32Array(BM*BM),blockChr=new Float32Array(BM*BM);
+  for(let by=0;by<BM;by++)for(let bx=0;bx<BM;bx++){let m=0,mc=0;
+    for(let y=by*bs;y<by*bs+bs;y++)for(let x2=bx*bs;x2<bx*bs+bs;x2++){const i=y*S2+x2;m+=lum[i];mc+=chr[i];}
+    blockMean[by*BM+bx]=m/(bs*bs);blockChr[by*BM+bx]=mc/(bs*bs);}
+  // --- balance: centre of mass of local-contrast weight, blended with how
+  //     coherently that weight is organised (Gini of block weights)
+  let wSum=0,cx=0,cy=0,wL=0,wR=0,wT=0,wB=0;
+  const blockW=new Float32Array(BM*BM);
+  for(let y=0;y<S2;y++)for(let x2=0;x2<S2;x2++){const i=y*S2+x2;
+    const w=Math.abs(lum[i]-blockMean[Math.floor(y/bs)*BM+Math.floor(x2/bs)])+chr[i]*64;
+    blockW[Math.floor(y/bs)*BM+Math.floor(x2/bs)]+=w;
+    wSum+=w;cx+=w*(x2/S2);cy+=w*(y/S2);if(x2<S2/2)wL+=w;else wR+=w;if(y<S2/2)wT+=w;else wB+=w;}
+  cx/=wSum;cy/=wSum;
+  const dC=Math.hypot(cx-0.5,cy-0.5)*2;
+  const lr=Math.abs(wL-wR)/wSum,tb=Math.abs(wT-wB)/wSum;
+  const centerScore=clamp(100-(dC*40+lr*15+tb*15),1,100);
+  const sortedW=Array.from(blockW).sort((a,b)=>a-b);
+  let gW=0;for(let i=0;i<BM*BM;i++)gW+=(i+1)*sortedW[i];
+  const giniW=wSum>0?clamp((2*gW)/((BM*BM)*wSum)-(BM*BM+1)/(BM*BM),0,1):0;
+  const balance=clamp(Math.round(0.5*centerScore+0.5*giniW*100),1,100);
+  // --- whitespace: quiet 16px blocks (low local variance + low chroma)
+  let quiet=0;
+  for(let by=0;by<BM;by++)for(let bx=0;bx<BM;bx++){let m=0,m2=0,n=0;
+    for(let y=by*bs;y<by*bs+bs;y++)for(let x2=bx*bs;x2<bx*bs+bs;x2++){const i=y*S2+x2;m+=lum[i];m2+=lum[i]*lum[i];n++;}
+    m/=n;const sd=Math.sqrt(Math.max(0,m2/n-m*m));if(sd<9&&blockChr[by*BM+bx]<0.12)quiet++;}
+  const q=quiet/(BM*BM);
+  const whitespace=clamp(Math.round(100*Math.exp(-Math.pow((q-0.45)/0.4,2))),1,100);
+  // --- focus: how strongly ONE compact region pulls the eye. Saliency mixes
+  //     local contrast (60%) with global deviation (40%); the score is the
+  //     density of the best 2x2 block cluster vs the image average.
+  const sal=new Float32Array(100);let salTot=0;
+  for(let by=0;by<10;by++)for(let bx=0;bx<10;bx++){let s=0;
+    for(let y=by*24;y<by*24+24;y++)for(let x2=bx*24;x2<bx*24+24;x2++){const i=y*S2+x2;s+=0.6*(Math.abs(lum[i]-blockMean[Math.floor(y/bs)*BM+Math.floor(x2/bs)])/255)+0.4*(Math.abs(lum[i]-meanLum)/255);}
+    sal[by*10+bx]=s;salTot+=s;}
+  let bestCl=0;
+  for(let by=0;by<9;by++)for(let bx=0;bx<9;bx++){const c=sal[by*10+bx]+sal[by*10+bx+1]+sal[(by+1)*10+bx]+sal[(by+1)*10+bx+1];if(c>bestCl)bestCl=c;}
+  const conc=salTot>0?(bestCl/4)/(salTot/100):1;
+  const focus=clamp(Math.round(100*(1-Math.exp(-(conc-1)/1.2))),1,100);
+  // --- overall + grade
+  const scores={contrast,harmony,balance,whitespace,focus};
+  let overall=0,ws=0;
+  DIMS.forEach(dm=>{const w=WEIGHTS[dm.id]??DEFAULT_W[dm.id];overall+=scores[dm.id]*w;ws+=w;});
+  overall=Math.round(overall/ws);
+  const grade=overall>=90?"S":overall>=80?"A":overall>=70?"B":overall>=55?"C":"D";
+  const stats={ratio:+ratio.toFixed(1),hues:nHueBins,quietPct:Math.round(q*100),conc:+conc.toFixed(1),dCenter:+dC.toFixed(2),achPct:Math.round(achN/N*100),lean:cx<0.46?"left":cx>0.54?"right":cy<0.46?"top":cy>0.54?"bottom":"centre"};
+  return {scores,overall,grade,palette,stats};
+}
+function gradeColor(g){return {S:"#2e7d32",A:"#558b2f",B:"#8a867e",C:"#c07a00",D:"#c62828"}[g]||"#8a867e";}
+
+/* ================= rendering ================= */
+function cssVar(n){return getComputedStyle(document.body).getPropertyValue(n).trim();}
+function drawRadarOn(ctx,ox,oy,W,H,scores){
+  const cx=ox+W/2,cy=oy+H/2+8,R=Math.min(W,H)/2-46;
+  const ink=cssVar("--ink")||"#1d2126",muted=cssVar("--muted")||"#6b7280",line=cssVar("--line")||"#D5D9DC";
+  ctx.clearRect(0,0,W,H);ctx.font="600 "+Math.round(W*0.028)+"px 'Noto Sans TC', sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
+  const pt=(i,r)=>{const a=-Math.PI/2+i*2*Math.PI/5;return [cx+Math.cos(a)*r,cy+Math.sin(a)*r];};
+  [0.25,0.5,0.75,1].forEach(f=>{ctx.beginPath();for(let i=0;i<=5;i++){const [x,y]=pt(i%5,R*f);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.strokeStyle=line;ctx.lineWidth=1;ctx.stroke();});
+  for(let i=0;i<5;i++){const [x,y]=pt(i,R);ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.strokeStyle=line;ctx.stroke();}
+  ctx.beginPath();DIMS.forEach((dm,i)=>{const [x,y]=pt(i,R*scores[dm.id]/100);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.closePath();
+  ctx.fillStyle="rgba(138,134,126,.28)";ctx.fill();ctx.strokeStyle=ink;ctx.lineWidth=2;ctx.stroke();
+  DIMS.forEach((dm,i)=>{const [x,y]=pt(i,R*scores[dm.id]/100);ctx.beginPath();ctx.arc(x,y,5,0,7);ctx.fillStyle=ink;ctx.fill();
+    const [lx,ly]=pt(i,R+26);ctx.fillStyle=muted;ctx.fillText(T("dim_"+dm.id),lx,ly);});
+}
+function drawRadar(){const c=$("radar");drawRadarOn(c.getContext("2d"),0,0,c.width,c.height,CUR?CUR.scores:{contrast:0,harmony:0,balance:0,whitespace:0,focus:0});}
+function renderDims(){const el=$("dimList");el.innerHTML="";if(!CUR)return;DIMS.forEach(dm=>{const v=CUR.scores[dm.id];const row=document.createElement("div");row.className="dimrow";row.innerHTML='<span class="dimname">'+T("dim_"+dm.id)+'</span><span class="bar"><i style="width:'+v+'%"></i></span><span class="dimscore">'+v+'</span>';el.appendChild(row);});}
+function tipsFor(r){const t=[],st=r.stats,s=r.scores;
+  if(st.ratio<4.5)t.push({d:"contrast",x:(LANG==="zh"?"最亮同最暗之間只有 ":"Darkest-to-lightest ratio is only ")+st.ratio+":1 — "+(LANG==="zh"?"文字未必過到 WCAG AA（要 4.5:1）。加深深色或者提亮淺色。":"text may fail WCAG AA (needs 4.5:1). Darken the darks or lighten the lights.")});
+  else if(st.ratio<7)t.push({d:"contrast",x:(LANG==="zh"?"對比 "+st.ratio+":1，過到 WCAG AA；要 AAA 就要 7:1。":"Contrast "+st.ratio+":1 passes WCAG AA; AAA needs 7:1.")});
+  else t.push({d:"contrast",x:(LANG==="zh"?"對比 "+st.ratio+":1，好出色——大字細字都夠清晰。":"Contrast "+st.ratio+":1 — excellent, headlines and body copy both stay legible.")});
+  if(st.hues>5)t.push({d:"harmony",x:(LANG==="zh"?"有 "+st.hues+" 組主色喺度爭——留 2–3 組主色，其餘做配角。":"About "+st.hues+" hue families compete — keep 2–3 leads and let the rest support.")});
+  else if(st.hues<=1)t.push({d:"harmony",x:(LANG==="zh"?"近乎單色——加一個對比色做點綴會生動啲。":"Near-monochrome — one contrasting accent would add lift.")});
+  else t.push({d:"harmony",x:(LANG==="zh"?"色相分佈乾淨（"+st.hues+" 組），色輪關係協調。":"Clean hue spread ("+st.hues+" families) with harmonious wheel relationships.")});
+  if(st.dCenter>0.25)t.push({d:"balance",x:(LANG==="zh"?"視覺重量偏向"+({left:"左邊",right:"右邊",top:"上面",bottom:"下面",centre:"中間"}[st.lean])+"——將最重嘅元素向中心移少少。":"Visual weight leans "+st.lean+" — nudge the heaviest element toward the centre.")});
+  else t.push({d:"balance",x:(LANG==="zh"?"重量分佈均勻，重心幾乎喺正中。":"Weight is evenly spread, centre of mass almost dead centre.")});
+  if(st.quietPct<15)t.push({d:"whitespace",x:(LANG==="zh"?"安靜面積得 "+st.quietPct+"%——幾乎冇呼吸位，刪或者縮細一個元素。":"Only "+st.quietPct+"% quiet area — almost no breathing room; remove or shrink one element.")});
+  else if(st.quietPct>70)t.push({d:"whitespace",x:(LANG==="zh"?"安靜面積有 "+st.quietPct+"%——眼無處落腳，將主角放大。":"Quiet area is "+st.quietPct+"% — the eye has nowhere to land; enlarge the hero element.")});
+  else t.push({d:"whitespace",x:(LANG==="zh"?"留白 "+st.quietPct+"%，啱啱好——有呼吸位，唔會空。":"Whitespace "+st.quietPct+"% — just right, room to breathe without feeling empty.")});
+  if(st.conc<1.5)t.push({d:"focus",x:(LANG==="zh"?"冇明顯焦點（集中度 "+st.conc+"×）——將一個元素放大兩倍或者加粗，畀眼一個落腳點。":"No clear focal point (concentration "+st.conc+"×) — make one element twice as big or bolder so the eye has somewhere to land.")});
+  else if(st.conc>2.5)t.push({d:"focus",x:(LANG==="zh"?"焦點非常強（集中度 "+st.conc+"×）——一眼就知睇邊度。":"Very strong focus (concentration "+st.conc+"×) — the eye knows exactly where to land.")});
+  else t.push({d:"focus",x:(LANG==="zh"?"有焦點，但可以再突出啲——加對比或者放大少少。":"There is a focal point, but it could be bolder — add contrast or scale.")});
+  return t;}
+function renderTips(){const el=$("tips");el.innerHTML="";if(!CUR)return;tipsFor(CUR).forEach(t=>{const d=document.createElement("div");d.className="tipline";d.innerHTML="<b>"+T("dim_"+t.d)+"</b> · <span class='n'>"+CUR.scores[t.d]+"</span><br>"+t.x;el.appendChild(d);});}
+function renderPalette(){const el=$("palette");el.innerHTML="";if(!CUR)return;CUR.palette.forEach(p=>{const s=document.createElement("div");s.className="swatch";s.innerHTML="<i style='background:"+p.hex+"'></i><span>"+p.hex+"</span>";s.title=p.hex+" · "+Math.round(p.share*100)+"%";s.onclick=()=>{copyText(p.hex);};el.appendChild(s);});if(!CUR.palette.length){el.innerHTML="<p style='font-size:13px;color:var(--muted)'>—</p>";}}
+function renderSamples(){const el=$("samples");el.innerHTML="";SAMPLES.forEach(sm=>{const b=document.createElement("button");b.className="sample"+(S.sample===sm.id&&S.source==="sample"?" sel":"");const cv=makeCanvas(120,150);cv.getContext("2d").drawImage(drawSample(sm.id),0,0,120,150);b.appendChild(cv);const sp=document.createElement("span");sp.textContent=LANG==="zh"?sm.zh:sm.en;b.appendChild(sp);b.onclick=()=>{loadSample(sm.id);};el.appendChild(b);});}
+function renderHistory(){const el=$("history");el.innerHTML="";if(!HISTORY.length){el.innerHTML="<p style='font-size:13px;color:var(--muted)'>"+T("historyEmpty")+"</p>";return;}HISTORY.forEach(h=>{const r=document.createElement("div");r.className="histrow";r.innerHTML="<img src='"+h.thumb+"' alt=''><span class='nm'>"+h.name+"</span><span class='sc'>"+h.score+" · "+h.grade+"</span>";r.onclick=()=>{if(h.sample){loadSample(h.sample);}else toast(h.name+" — "+h.score);};el.appendChild(r);});}
+function addHistory(){if(!CUR)return;const thumb=(()=>{const c=makeCanvas(96,120);c.getContext("2d").drawImage($("art"),0,0,96,120);return c.toDataURL("image/png");})();
+  HISTORY.unshift({name:S.name,score:CUR.overall,grade:CUR.grade,palette:CUR.palette.map(p=>p.hex),date:new Date().toISOString().slice(0,10),thumb,sample:S.source==="sample"?S.sample:null});
+  if(!PRO&&HISTORY.length>12){HISTORY.length=12;toast(T("histCap"));}
+  saveState();renderHistory();}
+function buildWeights(){const el=$("weights");el.innerHTML="";DIMS.forEach(dm=>{const row=document.createElement("div");row.className="wrow";const v=Math.round((WEIGHTS[dm.id]??DEFAULT_W[dm.id])*100);
+  row.innerHTML="<span>"+T("dim_"+dm.id)+"</span><input type='range' min='0' max='40' value='"+v+"' "+(PRO?"":"disabled")+"><output>"+v+"</output>";
+  const inp=row.querySelector("input");inp.addEventListener("input",()=>{WEIGHTS[dm.id]=+inp.value/100;row.querySelector("output").textContent=inp.value;rescore();saveState();});
+  inp.addEventListener("change",()=>{if(!PRO){inp.value=Math.round(DEFAULT_W[dm.id]*100);row.querySelector("output").textContent=Math.round(DEFAULT_W[dm.id]*100);needPro();}});
+  el.appendChild(row);});
+  const rst=document.createElement("button");rst.className="btn ghost";rst.style.marginTop="8px";rst.textContent=LANG==="zh"?"還原預設比重":"Reset to default mix";
+  rst.onclick=()=>{WEIGHTS={...DEFAULT_W};buildWeights();rescore();saveState();toast(T("weightsReset"));};el.appendChild(rst);}
+function renderCompare(){const box=$("compareBox");if(!PINNED.length){box.innerHTML="<p>"+T("compareEmpty")+"</p>";return;}
+  let html="<table class='compare'><tr><th></th>";PINNED.forEach(p=>{html+="<th>"+p.name+"</th>";});html+="</tr>";
+  html+="<tr><td><b>"+T("overall")+"</b></td>";PINNED.forEach(p=>{html+="<td><b>"+p.overall+"</b> · "+p.grade+"</td>";});html+="</tr>";
+  DIMS.forEach(dm=>{html+="<tr><td>"+T("dim_"+dm.id)+"</td>";PINNED.forEach(p=>{html+="<td>"+p.scores[dm.id]+"</td>";});html+="</tr>";});
+  html+="</table><p style='font-size:12px;color:var(--muted)'>"+(LANG==="zh"?"撳「釘起」再撳多一次取消。":"Tap Pin again on a pinned design to remove it.")+"</p>";box.innerHTML=html;}
+function rescore(){if(!CUR)return;let o=0,ws=0;DIMS.forEach(dm=>{const w=WEIGHTS[dm.id]??DEFAULT_W[dm.id];o+=CUR.scores[dm.id]*w;ws+=w;});CUR.overall=Math.round(o/ws);CUR.grade=CUR.overall>=90?"S":CUR.overall>=80?"A":CUR.overall>=70?"B":CUR.overall>=55?"C":"D";renderScore();}
+function renderScore(){if(!CUR)return;const target=CUR.overall;const el=$("bigScore");const from=parseInt(el.textContent)||0;const t0=performance.now();
+  (function tick(t){const k=clamp((t-t0)/450,0,1);el.textContent=Math.round(from+(target-from)*k);if(k<1)requestAnimationFrame(tick);})(t0);
+  const gb=$("gradeBadge");gb.textContent=CUR.grade;gb.style.background=gradeColor(CUR.grade);
+  $("gradeWord").textContent=T("grade_"+CUR.grade);
+  $("verdict").innerHTML="<b>"+T("grade_"+CUR.grade)+" · "+CUR.overall+"/100</b> — "+T("verdict_"+CUR.grade);
+  drawRadar();renderDims();renderTips();renderPalette();}
+function renderAll(){renderScore();renderSamples();renderHistory();renderCompare();buildWeights();}
+
+/* ================= load / analyse ================= */
+function setArtwork(canvas,name,source,sampleId){CURIMG={canvas};const art=$("art");
+  const maxW=800,maxH=1000,sc=Math.min(1,maxW/canvas.width,maxH/canvas.height);
+  art.width=Math.round(canvas.width*sc);art.height=Math.round(canvas.height*sc);
+  art.getContext("2d").drawImage(canvas,0,0,art.width,art.height);
+  S.name=name;S.source=source;S.sample=sampleId||null;
+  $("artMeta").textContent=name+(source==="sample"?" — "+(LANG==="zh"?"範例海報":"sample poster"):source==="upload"?" — "+(LANG==="zh"?"已上載":"uploaded"):"");
+  HEAT=false;const hc=$("heat");if(hc)hc.remove();
+  const t0=performance.now();CUR=analyzeCanvas(canvas);CUR.name=name;
+  renderAll();saveState();return performance.now()-t0;}
+function loadSample(id){const sm=SAMPLES.find(s=>s.id===id)||SAMPLES[0];const ms=setArtwork(drawSample(sm.id),sm.name,"sample",sm.id);addHistory();renderSamples();return ms;}
+function loadUpload(file){return new Promise((res,rej)=>{const rd=new FileReader();rd.onload=()=>{const img=new Image();img.onload=()=>{const sc=Math.min(1,1000/img.width,1000/img.height);const c=makeCanvas(Math.max(1,Math.round(img.width*sc)),Math.max(1,Math.round(img.height*sc)));c.getContext("2d").drawImage(img,0,0,c.width,c.height);const ms=setArtwork(c,file.name.replace(/\.[^.]+$/,""),"upload",null);addHistory();toast(T("uploadOk")+Math.round(ms)+" ms");res(true);};img.onerror=()=>rej(new Error("img"));img.src=rd.result;};rd.readAsDataURL(file);rd.onerror=()=>rej(new Error("read"));});}
+function copyText(txt){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(()=>toast(T("copied")+" · "+txt)).catch(()=>toast(txt));}else toast(txt);}
+
+/* ================= export / compare / heatmap / share ================= */
+function exportReport(){if(!CUR)return;const HD=PRO,scale=HD?2:1,W=1024*scale,H=1450*scale;
+  const c=makeCanvas(W,H),x=c.getContext("2d");const u=v=>v*scale;
+  x.fillStyle=getComputedStyle(document.body).getPropertyValue("--panel2").trim()||"#fff";x.fillRect(0,0,W,H);
+  x.fillStyle="#1d2126";x.textAlign="left";x.font="400 "+u(64)+"px 'Dela Gothic One', sans-serif";x.fillText("Critique Mo",u(56),u(104));
+  x.font="400 "+u(26)+"px 'Noto Sans TC', sans-serif";x.fillStyle="#6b7280";x.fillText(S.name+" — "+new Date().toISOString().slice(0,10),u(56),u(150));
+  const aw=u(400),ah=aw*($("art").height/$("art").width);x.drawImage($("art"),u(56),u(190),aw,ah);
+  x.fillStyle="#1d2126";x.font="400 "+u(150)+"px 'Dela Gothic One', sans-serif";x.fillText(String(CUR.overall),u(520),u(330));
+  x.font="400 "+u(34)+"px 'Noto Sans TC', sans-serif";x.fillStyle="#6b7280";x.fillText("/ 100 · Grade "+CUR.grade+" — "+T("grade_"+CUR.grade),u(520),u(390));
+  drawRadarOn(x,u(520),u(430),u(460),u(380),CUR.scores);
+  let y=u(190)+ah+u(60);x.fillStyle="#1d2126";x.font="700 "+u(30)+"px 'Noto Sans TC', sans-serif";x.fillText(LANG==="zh"?"配色":"Palette",u(56),y);y+=u(26);
+  CUR.palette.forEach(p=>{x.fillStyle=p.hex;x.fillRect(u(56),y,u(120),u(54));x.fillStyle="#1d2126";x.font="700 "+u(24)+"px 'Noto Sans TC', sans-serif";x.fillText(p.hex,u(190),y+u(36));y+=u(66);});
+  y+=u(20);x.font="700 "+u(30)+"px 'Noto Sans TC', sans-serif";x.fillText(LANG==="zh"?"要改邊度":"What to fix",u(56),y);y+=u(40);
+  x.font="400 "+u(26)+"px 'Noto Sans TC', sans-serif";x.fillStyle="#333";
+  tipsFor(CUR).slice(0,5).forEach(t=>{const line=T("dim_"+t.d)+" · "+CUR.scores[t.d]+" — "+t.x;const words=line;wrapText(x,words,u(56),y,u(912),u(36));y+=u(78);});
+  x.fillStyle="#6b7280";x.font="400 "+u(22)+"px 'Noto Sans TC', sans-serif";x.fillText("Critique Mo · openx-mo.vercel.app · "+(LANG==="zh"?"像素數學評分，唔係 AI 品味判斷":"Pixel-maths scoring, not AI taste"),u(56),H-u(48));
+  c.toBlob(b=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="critique-mo-report"+(HD?"-2048":"")+".png";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast(T("reportSaved"));},"image/png");}
+function wrapText(x,text,px,py,maxW,lh){const words=text.split(" ");let line="";for(const w of words){const t=line?line+" "+w:w;if(x.measureText(t).width>maxW&&line){x.fillText(line,px,py);line=w;py+=lh;}else line=t;}x.fillText(line,px,py);}
+function toggleHeat(){if(!PRO){needPro();return;}if(!CURIMG)return;HEAT=!HEAT;const old=$("heat");if(old)old.remove();if(!HEAT)return;
+  const art=$("art"),wrap=$("artwrap");const hc=makeCanvas(120,120);const hx=hc.getContext("2d",{willReadFrequently:true});
+  hx.drawImage(CURIMG.canvas,0,0,120,120);const d=hx.getImageData(0,0,120,120).data;
+  const ov=makeCanvas(120,120);const ox=ov.getContext("2d");const od=ox.createImageData(120,120);
+  for(let by=0;by<15;by++)for(let bx=0;bx<15;bx++){let m=0,m2=0,n=0;for(let y=by*8;y<by*8+8;y++)for(let x2=bx*8;x2<bx*8+8;x2++){const i=y*120+x2;const l=0.2126*d[i*4]+0.7152*d[i*4+1]+0.0722*d[i*4+2];m+=l;m2+=l*l;n++;}m/=n;const sd=Math.sqrt(Math.max(0,m2/n-m*m));
+    const r=clamp(Math.round(sd*3.2),0,255),b=clamp(Math.round(220-sd*3.2),0,255);
+    for(let y=by*8;y<by*8+8;y++)for(let x2=bx*8;x2<bx*8+8;x2++){const o=(y*120+x2)*4;od.data[o]=r;od.data[o+1]=60;od.data[o+2]=b;od.data[o+3]=120;}}
+  ox.putImageData(od,0,0);
+  const show=document.createElement("canvas");show.id="heat";show.width=art.width;show.height=art.height;
+  show.style.cssText="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:100%;max-height:100%;pointer-events:none;border-radius:6px;";
+  show.getContext("2d").drawImage(ov,0,0,art.width,art.height);wrap.appendChild(show);
+  toast(LANG==="zh"?"紅＝變化大，藍＝安靜區":"Red = busy, blue = quiet");}
+function doShare(){if(!PRO){needPro();return;}if(!CUR)return;
+  const payload={n:S.name,o:CUR.overall,g:CUR.grade,s:DIMS.map(d=>CUR.scores[d.id]),p:CUR.palette.map(x=>x.hex),sm:S.source==="sample"?S.sample:null};
+  const url=location.origin+location.pathname+"#critique="+btoa(unescape(encodeURIComponent(JSON.stringify(payload)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+  copyText(url);toast(T("shareCopied"));}
+function loadHash(){const m=location.hash.match(/#critique=([A-Za-z0-9\-_]+)/);if(!m)return false;
+  try{let s=m[1].replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";const o=JSON.parse(decodeURIComponent(escape(atob(s))));
+    if(o.sm){loadSample(o.sm);return true;}
+    if(o.s&&o.s.length===5){const c=makeCanvas(800,1000);const x=c.getContext("2d");x.fillStyle="#F6F8F9";x.fillRect(0,0,800,1000);x.fillStyle="#1d2126";x.textAlign="center";x.font="400 90px 'Dela Gothic One', sans-serif";x.fillText(o.o+"/100",400,470);x.font="400 40px 'Noto Sans TC', sans-serif";x.fillStyle="#6b7280";x.fillText("Shared critique · "+(o.n||""),400,540);
+      CUR={scores:{contrast:o.s[0],harmony:o.s[1],balance:o.s[2],whitespace:o.s[3],focus:o.s[4]},overall:o.o,grade:o.g,palette:(o.p||[]).map(h=>({hex:h,share:0.2,hue:0})),stats:{ratio:0,hues:0,quietPct:0,conc:0,dCenter:0,achPct:0,lean:"centre"}};
+      CURIMG={canvas:c};const art=$("art");art.width=800;art.height=1000;art.getContext("2d").drawImage(c,0,0);
+      S.name=o.n||"Shared critique";S.source="shared";$("artMeta").textContent=S.name;renderAll();return true;}}catch(e){}return false;}
+
+/* ================= wire up + init ================= */
+function init(){
+  loadState();
+  applyTheme();applyLang();
+  if(storedPro()&&storedPro().key){PRO=true;}
+  $("drawerBtn").onclick=()=>$("drawer").classList.add("open");
+  $("drawerClose").onclick=()=>$("drawer").classList.remove("open");
+  $("langBtn").onclick=()=>{LANG=LANG==="en"?"zh":"en";applyLang();saveState();};
+  $("themeBtn").onclick=()=>{THEME=THEMES[(THEMES.indexOf(THEME)+1)%THEMES.length];applyTheme();saveState();};
+  $("uploadBtn").onclick=()=>$("fileIn").click();
+  $("dropZone").onclick=()=>$("fileIn").click();
+  $("fileIn").addEventListener("change",e=>{const f=e.target.files[0];if(f)loadUpload(f).catch(()=>toast(T("uploadFail")));e.target.value="";});
+  const wrap=$("artwrap");
+  ["dragenter","dragover"].forEach(ev=>wrap.addEventListener(ev,e=>{e.preventDefault();wrap.classList.add("drag");}));
+  ["dragleave","drop"].forEach(ev=>wrap.addEventListener(ev,e=>{e.preventDefault();wrap.classList.remove("drag");}));
+  wrap.addEventListener("drop",e=>{const f=e.dataTransfer.files[0];if(f)loadUpload(f).catch(()=>toast(T("uploadFail")));});
+  $("randomBtn").onclick=()=>{const ids=SAMPLES.map(s=>s.id).filter(id=>id!==S.sample);loadSample(ids[Math.floor(Math.random()*ids.length)]);toast(T("sampleLoaded"));};
+  $("pngBtn").onclick=()=>exportReport();
+  $("heatBtn").onclick=()=>toggleHeat();
+  $("pinBtn").onclick=()=>{if(!PRO){needPro();return;}if(!CUR)return;const ix=PINNED.findIndex(p=>p.name===S.name&&p.overall===CUR.overall);
+    if(ix>=0){PINNED.splice(ix,1);toast(T("unpinned"));}else{if(PINNED.length>=4){PINNED.shift();}PINNED.push({name:S.name,overall:CUR.overall,grade:CUR.grade,scores:{...CUR.scores}});toast(T("pinned"));}renderCompare();};
+  $("csvBtn").onclick=()=>{if(!PRO){needPro();return;}const rows=[["name","score","grade","date"].join(",")].concat(HISTORY.map(h=>[JSON.stringify(h.name),h.score,h.grade,h.date].join(",")));downloadText(rows.join("\n"),"critique-mo-history.csv","text/csv");};
+  $("jsonBtn").onclick=()=>{if(!PRO){needPro();return;}downloadText(JSON.stringify(HISTORY,null,2),"critique-mo-history.json","application/json");};
+  $("shareBtn").onclick=()=>doShare();
+  $("proKeyBtn").onclick=()=>validateKey(false);
+  $("proKeyBtn2").onclick=()=>validateKey(true);
+  $("buyBtn").onclick=()=>window.open(CONFIG.buyMonthly,"_blank");
+  $("buyBtn2").onclick=()=>window.open(CONFIG.buyMonthly,"_blank");
+  document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.close).classList.remove("open"));
+  $("proModal").addEventListener("click",e=>{if(e.target===$("proModal"))closeProModal();});
+  if(!loadHash()){loadSample(S.source==="sample"&&SAMPLES.some(s=>s.id===S.sample)?S.sample:"bold");}
+  if(!HISTORY.length)renderHistory();
+  revalidatePro();
+}
+function downloadText(txt,name,mime){const b=new Blob([txt],{type:mime});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>
