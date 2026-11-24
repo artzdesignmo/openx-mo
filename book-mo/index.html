@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Book Mo — Macau Education Centre Booking</title>
+<meta name="description" content="Book trial classes, parent meetings and make-up classes at Macau education centres. Free trial bookings, Pro unlocks everything.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='3' y='5' width='18' height='16' rx='2' fill='%233E4C59'/%3E%3Cpath d='M3 10h18M8 3v4M16 3v4' stroke='white' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EAEDEF;--panel:#F6F8F9;--panel2:#FFFFFF;--line:#D5D9DC;--ink:#22262B;--muted:#6B7178;--icon:#8A867E;--accent:#3E4C59;--accent-ink:#FFFFFF;--chip:#E8EBED;--danger:#C0392B;--ok:#2E7D32;--radius:14px}
+body[data-theme="white"]{--bg:#FFFFFF;--panel:#F7F7F7;--panel2:#FFFFFF;--line:#E5E5E5;--ink:#22262B;--muted:#6B7178;--chip:#EFEFEF}
+body[data-theme="black"]{--bg:#14171A;--panel:#1E2226;--panel2:#24292E;--line:#33383E;--ink:#EDEFF1;--muted:#9AA1A8;--chip:#2A3036;--accent:#D8DDE2;--accent-ink:#14171A}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans","Noto Sans TC",system-ui,sans-serif;-webkit-font-smoothing:antialiased;min-height:100dvh}
+h1,h2,h3,.display{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-weight:400;letter-spacing:.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+input[type="text"],input[type="tel"],input[type="number"],select,textarea{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;width:100%;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top));background:var(--bg);border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:10px;min-width:0}
+.logo .mark{width:38px;height:38px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none}
+.logo .mark svg{width:22px;height:22px}
+.logo h1{font-size:19px;margin:0;white-space:nowrap}
+.logo p{margin:0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .spacer{flex:1}
+.iconbtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;color:var(--icon);flex:none;text-decoration:none}
+.iconbtn svg{width:19px;height:19px}
+.iconbtn:hover{color:var(--ink)}
+.pillbtn{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:8px 14px;font-weight:700;white-space:nowrap}
+.pillbtn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pillbtn:disabled{opacity:.45;cursor:default}
+.main{max-width:1080px;margin:0 auto;padding:18px 16px calc(28px + env(safe-area-inset-bottom))}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;display:none}
+.panel.active{display:block}
+.panel h2{font-size:22px;margin:0 0 4px}
+.panel .desc{color:var(--muted);font-size:14px;margin:0 0 18px;line-height:1.6}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;letter-spacing:.04em}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:9px;padding:11px 20px;font-weight:700}
+.btn.ghost{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.btn.small{padding:7px 12px;font-size:13px}
+.btn.danger{background:var(--danger)}
+.btn:disabled{opacity:.45;cursor:default}
+.btnrow{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px;position:relative;text-align:left}
+.card:hover{border-color:var(--accent)}
+.card.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.card b{font-size:15px;display:block;margin-bottom:3px}
+.card span{font-size:12px;color:var(--muted);display:block;line-height:1.5}
+.card .fee{font-size:13px;font-weight:700;color:var(--ink);margin-top:6px}
+.card .lock{position:absolute;top:10px;right:12px;font-size:13px;color:var(--icon)}
+.card .tag{position:absolute;top:10px;right:12px;font-size:11px;font-weight:700;background:var(--chip);border-radius:999px;padding:3px 9px;color:var(--muted)}
+.steps{display:flex;gap:6px;margin:0 0 18px;flex-wrap:wrap}
+.step{font-size:12px;font-weight:700;color:var(--muted);background:var(--chip);border-radius:999px;padding:6px 12px}
+.step.on{background:var(--accent);color:var(--accent-ink)}
+.step.done{background:var(--panel2);border:1px solid var(--line)}
+.calhead{display:flex;align-items:center;gap:10px;margin:6px 0 12px}
+.calhead h3{margin:0;font-size:17px;flex:1;text-align:center}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal .dow{font-size:11px;font-weight:700;color:var(--muted);text-align:center;padding:4px 0}
+.day{min-height:64px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:7px 8px;text-align:left;position:relative}
+.day b{font-size:14px;display:block}
+.day small{font-size:10px;color:var(--muted);display:block;line-height:1.35}
+.day.avail:hover{border-color:var(--accent)}
+.day.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.day.off{opacity:.42;cursor:default}
+.day.hol{border-color:#E8B4B0}
+.day.hol small{color:var(--danger)}
+.day .dot{position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.slots{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.slot{border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:8px 15px;font-weight:700;font-size:13px}
+.slot:hover{border-color:var(--accent)}
+.slot.sel{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.slot.taken{opacity:.38;text-decoration:line-through;cursor:default}
+.bkrow{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.bkrow .r1{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.bkrow b{font-size:15px}
+.bkrow .ref{font-size:12px;font-weight:700;background:var(--chip);border-radius:6px;padding:2px 8px}
+.bkrow .meta{font-size:13px;color:var(--muted);margin-top:5px;line-height:1.6}
+.bkrow .acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.badge{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:3px 9px;background:var(--chip);color:var(--muted)}
+.badge.ok{background:#DDEEDF;color:var(--ok)}
+.badge.pro{background:var(--accent);color:var(--accent-ink)}
+.msg{font-size:13px;margin:8px 0 0;line-height:1.5}
+.msg.err{color:var(--danger)}
+.msg.ok{color:var(--ok)}
+.drawer{position:fixed;inset:0;z-index:50;pointer-events:none}
+.drawer .scrim{position:absolute;inset:0;background:rgba(0,0,0,.35);opacity:0;transition:opacity .18s}
+.drawer .box{position:absolute;top:0;left:0;bottom:0;width:290px;max-width:86vw;background:var(--panel);border-right:1px solid var(--line);transform:translateX(-102%);transition:transform .2s;padding:18px 14px;overflow:auto}
+.drawer.open{pointer-events:auto}
+.drawer.open .scrim{opacity:1}
+.drawer.open .box{transform:none}
+.drawer h3{font-size:12px;letter-spacing:.14em;color:var(--muted);margin:14px 6px 8px}
+.drawer h3:first-child{margin-top:0}
+.navbtn{display:flex;align-items:center;gap:11px;width:100%;text-align:left;border:1px solid transparent;background:transparent;border-radius:11px;padding:11px 12px;margin-bottom:3px;color:var(--ink)}
+.navbtn svg{width:20px;height:20px;color:var(--icon);flex:none}
+.navbtn b{font-size:14px;display:block}
+.navbtn span{font-size:11px;color:var(--muted);display:block}
+.navbtn:hover{background:var(--panel2)}
+.navbtn.active{background:var(--panel2);border-color:var(--line)}
+.navbtn .lock{margin-left:auto;font-size:13px;color:var(--icon)}
+.modal{position:fixed;inset:0;z-index:60;display:none;place-items:center;padding:18px}
+.modal.open{display:grid}
+.modal .scrim{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.modal .box{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;max-width:460px;width:100%;max-height:88dvh;overflow:auto}
+.modal .box h2{margin:0 0 6px;font-size:20px}
+.modal .box p{color:var(--muted);font-size:14px;line-height:1.65;margin:0 0 14px}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.plan{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+.plan b{font-size:14px}
+.plan div{font-size:13px;color:var(--muted);margin:4px 0 10px}
+.avgrid{overflow-x:auto}
+.avgrid table{border-collapse:collapse;min-width:640px;width:100%}
+.avgrid th,.avgrid td{border:1px solid var(--line);padding:5px 6px;text-align:center;font-size:12px}
+.avgrid th{background:var(--panel2)}
+.avgrid input{width:17px;height:17px;accent-color:var(--accent)}
+.tmpl{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.65;margin-bottom:10px;white-space:pre-wrap}
+.hint{font-size:12px;color:var(--muted);line-height:1.6}
+.foot{margin-top:22px;font-size:12px;color:var(--muted);text-align:center;line-height:1.7}
+@media(max-width:640px){
+  .grid2,.grid3{grid-template-columns:1fr}
+  .panel{padding:16px}
+  .day{min-height:52px;padding:5px 6px}
+  .day small{display:none}
+  .logo p{display:none}
+  .logo h1{display:none}
+  .topbar{gap:8px;padding-left:12px;padding-right:12px}
+  .plans{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <button class="iconbtn" id="drawerBtn" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <div class="logo">
+    <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg></div>
+    <div><h1>Book Mo</h1><p data-i18n="subtitle">Macau education centre booking</p></div>
+  </div>
+  <div class="spacer"></div>
+  <a class="iconbtn" href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener" aria-label="Buy me a coffee" title="Buy me a coffee"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><path d="M6 2v2M10 2v2M14 2v2"/></svg></a>
+  <button class="iconbtn" id="themeBtn" aria-label="Theme" title="Theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16V4z" fill="currentColor" stroke="none"/></svg></button>
+  <button class="pillbtn" id="langBtn">EN</button>
+  <button class="pillbtn primary" id="proBtn">Pro</button>
+</header>
+
+<nav class="drawer" id="drawer" aria-hidden="true">
+  <div class="scrim" id="drawerScrim"></div>
+  <div class="box">
+    <h3 data-i18n="navBook">Book</h3>
+    <button class="navbtn active" data-view="book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span><b data-i18n="vBook">New booking</b><span data-i18n="vBookSub">Trial class, meetings, make-up</span></span></button>
+    <button class="navbtn" data-view="bookings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg><span><b data-i18n="vMy">My bookings</b><span data-i18n="vMySub">View and cancel</span></span></button>
+    <button class="navbtn" data-view="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><b data-i18n="vToday">Today · admin</b><span data-i18n="vTodaySub">Today's bookings by teacher</span></span></button>
+    <h3 data-i18n="navManage">Manage</h3>
+    <button class="navbtn" data-view="teachers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg><span><b data-i18n="vTeachers">Teachers</b><span data-i18n="vTeachersSub">Availability grid</span></span></button>
+    <button class="navbtn" data-view="export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg><span><b data-i18n="vExport">Export &amp; share</b><span data-i18n="vExportSub">PNG, CSV, JSON, links</span></span></button>
+    <h3>Book Mo</h3>
+    <p class="hint" data-i18n="drawerHint">Local-first: bookings live in this browser only. No account, no cloud, no tracking. Demo teachers and bookings are fictional.</p>
+    <p class="hint" style="margin-top:10px"><span data-i18n="freeNote">Free: trial bookings only · 2 teachers · 10 bookings / month.</span> <a href="#" id="drawerPro" style="color:var(--ink)" data-i18n="goPro">Go Pro →</a></p>
+  </div>
+</nav>
+
+<main class="main">
+  <!-- BOOK -->
+  <section class="panel active" id="panel-book">
+    <h2 data-i18n="bookTitle">Book a class or meeting</h2>
+    <p class="desc" data-i18n="bookDesc">Pick a booking type, a teacher and a time. Trial classes are free to book — no account needed.</p>
+    <div class="steps" id="steps">
+      <span class="step on" data-step="1">1 · <span data-i18n="sType">Type</span></span>
+      <span class="step" data-step="2">2 · <span data-i18n="sTeacher">Teacher</span></span>
+      <span class="step" data-step="3">3 · <span data-i18n="sTime">Date &amp; time</span></span>
+      <span class="step" data-step="4">4 · <span data-i18n="sForm">Details</span></span>
+    </div>
+    <div class="field"><label data-i18n="areaLabel">Centre area</label>
+      <div class="slots" id="areaRow">
+        <button class="slot sel" data-area="macau" data-i18n="areaMacau">澳門半島</button>
+        <button class="slot" data-area="taipa" data-i18n="areaTaipa">氹仔</button>
+        <button class="slot" data-area="coloane" data-i18n="areaColoane">路環</button>
+      </div>
+    </div>
+    <div class="field"><label data-i18n="typeLabel">Booking type</label><div class="grid2" id="typeRow"></div></div>
+    <div class="field"><label data-i18n="teacherLabel">Teacher</label><div class="grid2" id="teacherRow"></div></div>
+    <div class="field"><label data-i18n="dateLabel">Pick a date</label>
+      <div class="calhead"><button class="btn ghost small" id="calPrev">‹</button><h3 id="calTitle"></h3><button class="btn ghost small" id="calNext">›</button></div>
+      <div class="cal" id="calGrid"></div>
+      <p class="hint" id="calHint"></p>
+    </div>
+    <div class="field"><label data-i18n="slotLabel">Available times</label><div class="slots" id="slotRow"></div></div>
+    <div id="formWrap" style="display:none">
+      <div class="field"><label data-i18n="fParent">Parent name *</label><input type="text" id="fParent" autocomplete="name"></div>
+      <div class="grid2">
+        <div class="field"><label data-i18n="fChild">Child name *</label><input type="text" id="fChild"></div>
+        <div class="field"><label data-i18n="fAge">Child age *</label><input type="number" id="fAge" min="3" max="18" placeholder="8"></div>
+      </div>
+      <div class="field"><label data-i18n="fPhone">Macau phone (+853) *</label><input type="tel" id="fPhone" placeholder="6688 1234" autocomplete="tel"><p class="msg err" id="phoneErr" style="display:none"></p></div>
+      <div class="field"><label data-i18n="fCourse">Course interest</label>
+        <select id="fCourse">
+          <option value="English">English 英文</option><option value="Maths">Maths 數學</option><option value="Chinese">Chinese 中文</option><option value="Science">Science 科學</option><option value="Art">Art 美術</option><option value="Other">Other 其他</option>
+        </select>
+      </div>
+      <div class="field"><label data-i18n="fNotes">Notes</label><textarea id="fNotes" rows="2"></textarea></div>
+      <p class="msg err" id="formErr" style="display:none"></p>
+      <div class="btnrow"><button class="btn" id="confirmBtn" data-i18n="confirmBtn">Confirm booking</button><span class="hint" id="feeHint"></span></div>
+    </div>
+    <div id="doneWrap" style="display:none">
+      <div class="bkrow"><div class="r1"><b data-i18n="doneTitle">Booking confirmed</b><span class="ref" id="doneRef"></span><span class="badge ok" data-i18n="doneBadge">Confirmed</span></div><div class="meta" id="doneMeta"></div>
+      <div class="acts"><button class="btn small" id="donePng" data-i18n="pngBtn">Save PNG summary</button><button class="btn ghost small" id="doneAgain" data-i18n="bookAnother">Book another</button></div></div>
+    </div>
+  </section>
+
+  <!-- MY BOOKINGS -->
+  <section class="panel" id="panel-bookings">
+    <h2 data-i18n="myTitle">My bookings</h2>
+    <p class="desc" data-i18n="myDesc">Bookings saved in this browser. Tap a booking to save its PNG summary, or cancel it.</p>
+    <div class="btnrow" style="margin-bottom:14px"><span class="badge" id="monthCount"></span></div>
+    <div id="myList"></div>
+  </section>
+
+  <!-- TODAY -->
+  <section class="panel" id="panel-today">
+    <h2 data-i18n="todayTitle">Today · admin view</h2>
+    <p class="desc" id="todayDesc"></p>
+    <div id="todayList"></div>
+  </section>
+
+  <!-- TEACHERS -->
+  <section class="panel" id="panel-teachers">
+    <h2 data-i18n="teaTitle">Teachers &amp; availability</h2>
+    <p class="desc" data-i18n="teaDesc">Tap a day and time to switch it on or off. Free plan includes 2 teachers; add more with Pro.</p>
+    <div class="grid2" id="teacherEditRow" style="margin-bottom:14px"></div>
+    <div class="field"><label id="avLabel">Availability</label><div class="avgrid"><table id="avTable"></table></div></div>
+    <div class="btnrow"><button class="btn" id="addTeacherBtn" data-i18n="addTeacher">Add teacher</button><span class="hint" id="addTeacherHint"></span></div>
+    <div id="addTeacherForm" style="display:none;margin-top:14px">
+      <div class="grid2">
+        <div class="field"><label data-i18n="tName">Name</label><input type="text" id="tName" placeholder="陳老師"></div>
+        <div class="field"><label data-i18n="tSubject">Subject</label><input type="text" id="tSubject" placeholder="English"></div>
+      </div>
+      <div class="field"><label data-i18n="tArea">Area</label>
+        <select id="tArea"><option value="macau">澳門半島</option><option value="taipa">氹仔</option><option value="coloane">路環</option></select>
+      </div>
+      <div class="btnrow"><button class="btn" id="saveTeacherBtn" data-i18n="saveTeacher">Save teacher</button></div>
+    </div>
+  </section>
+
+  <!-- EXPORT -->
+  <section class="panel" id="panel-export">
+    <h2 data-i18n="expTitle">Export &amp; share</h2>
+    <p class="desc" data-i18n="expDesc">Take your bookings with you. PNG is free at 1024px; HD 2048px, CSV, JSON and share links are Pro.</p>
+    <div class="grid2">
+      <div class="card"><b data-i18n="expPng">Monthly summary PNG</b><span data-i18n="expPngSub">A tidy summary card of this month's bookings.</span><div class="btnrow" style="margin-top:10px"><button class="btn small" id="expPngBtn" data-i18n="downloadPng">Download PNG</button><span class="badge" id="pngBadge">1024px</span></div></div>
+      <div class="card"><b data-i18n="expCsv">CSV / JSON export</b><span data-i18n="expCsvSub">All bookings as a spreadsheet or data file.</span><div class="btnrow" style="margin-top:10px"><button class="btn small" id="expCsvBtn">CSV</button><button class="btn small" id="expJsonBtn">JSON</button><span class="badge pro">Pro</span></div></div>
+      <div class="card"><b data-i18n="expShare">Share booking link</b><span data-i18n="expShareSub">A link that opens one booking's summary.</span><div class="btnrow" style="margin-top:10px"><button class="btn small" id="expShareBtn" data-i18n="copyLink">Copy link</button><span class="badge pro">Pro</span></div><p class="msg" id="shareMsg"></p></div>
+      <div class="card"><b data-i18n="expRemind">Reminder templates</b><span data-i18n="expRemindSub">Ready-to-send WhatsApp reminders.</span><div class="btnrow" style="margin-top:10px"><button class="btn small" id="expRemindBtn" data-i18n="showTpl">Show templates</button><span class="badge pro">Pro</span></div></div>
+    </div>
+    <div id="tplWrap" style="display:none;margin-top:16px"></div>
+  </section>
+
+  <p class="foot"><span data-i18n="foot1">Book Mo — booking for Macau education centres.</span><br><span data-i18n="foot2">Demo data is fictional. Prices in MOP. Free plan: trial bookings only, 2 teachers, 10 bookings / month.</span></p>
+</main>
+
+<!-- PRO MODAL -->
+<div class="modal" id="proModal">
+  <div class="scrim" data-close="proModal"></div>
+  <div class="box">
+    <h2>Book Mo Pro</h2>
+    <p data-i18n="proPitch">Unlock all 4 booking types, unlimited teachers and bookings, reminder templates, CSV / JSON export, HD PNG (2048px) and shareable booking links.</p>
+    <div class="plans">
+      <div class="plan"><b data-i18n="monthly">Monthly</b><div>US$5.99 / mo</div><button class="btn small" data-buy="monthly" data-i18n="buyMonthly">Get Monthly</button></div>
+      <div class="plan"><b data-i18n="lifetime">Lifetime</b><div>US$59.99 once</div><button class="btn small" data-buy="lifetime" data-i18n="buyLifetime">Get Lifetime</button></div>
+    </div>
+    <div class="field"><label data-i18n="keyLabel">Already have a Pro key? Paste it here:</label><input type="text" id="proKeyIn" autocomplete="off" placeholder="OpenX Pro key"></div>
+    <div class="btnrow"><button class="btn" id="validateBtn" data-i18n="validate">Validate key</button><button class="btn ghost" data-close="proModal" data-i18n="close">Close</button></div>
+    <p class="msg" id="proMsg"></p>
+    <p class="hint" data-i18n="testNote">Test checkout — keys are validated against the Lemon Squeezy test store.</p>
+  </div>
+</div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function uid(){return "BK-"+(Date.now().toString(36)+Math.random().toString(36).slice(2,6)).toUpperCase().slice(-6);}
+function pad(n){return String(n).padStart(2,"0");}
+function dkey(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
+function parseKey(k){const p=k.split("-");return new Date(+p[0],+p[1]-1,+p[2]);}
+function todayKey(){return dkey(new Date());}
+function monthKey(d){return d.getFullYear()+"-"+pad(d.getMonth()+1);}
+
+/* ============ Macau 2026 public holidays (same list as Office Mo) ============ */
+const MACAU_HOLIDAYS_2026={
+'2026-01-01':['元旦',"New Year's Day"],'2026-02-17':['農曆正月初一','Lunar New Year Day 1'],
+'2026-02-18':['農曆正月初二','Lunar New Year Day 2'],'2026-02-19':['農曆正月初三','Lunar New Year Day 3'],
+'2026-04-03':['耶穌受難日','Good Friday'],'2026-04-04':['復活節前日','Day before Easter'],
+'2026-04-05':['清明節','Ching Ming Festival'],'2026-04-06':['清明節補假','Ching Ming compensatory day'],
+'2026-05-01':['勞動節','Labour Day'],'2026-05-24':['佛誕節',"Buddha's Birthday"],
+'2026-06-19':['端午節','Dragon Boat Festival'],'2026-09-26':['中秋節翌日','Day after Mid-Autumn Festival'],
+'2026-09-28':['中秋節翌日補假','Mid-Autumn compensatory day'],'2026-10-01':['國慶日','National Day'],
+'2026-10-02':['國慶日翌日','Day after National Day'],'2026-10-18':['重陽節','Chung Yeung Festival'],
+'2026-10-19':['重陽節補假','Chung Yeung compensatory day'],'2026-11-02':['追思節',"All Souls' Day"],
+'2026-12-08':['聖母無原罪瞻禮','Immaculate Conception'],'2026-12-20':['澳門特別行政區成立紀念日','Macau SAR Establishment Day'],
+'2026-12-21':['成立紀念日補假','SAR Day compensatory day'],'2026-12-22':['冬至','Winter Solstice'],
+'2026-12-24':['聖誕節前日','Christmas Eve'],'2026-12-25':['聖誕節','Christmas Day']};
+
+/* ============ Pro (Lemon Squeezy test wiring — same hardened pattern as Fish/Budget/Robo/Signal/Cipher/AI Persona) ============ */
+const CONFIG={storeId:508220,licenseValidateUrl:"https://api.lemonsqueezy.com/v1/licenses/validate",instanceName:"book-mo",
+buyMonthly:"https://openx.lemonsqueezy.com/checkout/buy/934fa5b0-fe63-4707-b9cb-d303de1e127f",
+buyLifetime:"https://openx.lemonsqueezy.com/checkout/buy/d107e805-e8e9-42b0-9c1a-eb89078421be"};
+let PRO=false;
+function storedPro(){try{const s=localStorage.getItem("bookmo_pro");return s?JSON.parse(s):null;}catch(e){return null;}}
+function savePro(k){try{localStorage.setItem("bookmo_pro",JSON.stringify({key:k}));}catch(e){}}
+function clearPro(){try{localStorage.removeItem("bookmo_pro");}catch(e){}}
+function getProInstance(){try{let id=localStorage.getItem("bookmo_instance");if(!id){id="bookmo-"+Date.now().toString(36)+Math.random().toString(36).slice(2,10);localStorage.setItem("bookmo_instance",id);}return id;}catch(e){return CONFIG.instanceName;}}
+function lsValid(d){return !!(d&&d.valid&&d.license_key&&d.license_key.status==="active");}
+function refreshPro(){$("proBtn").textContent=PRO?"Pro ✓":"Pro";$("pngBadge").textContent=PRO?"2048px":"1024px";}
+function needPro(){if(PRO)return true;openProModal();return false;}
+function openProModal(){$("proModal").classList.add("open");}
+function closeProModal(){$("proModal").classList.remove("open");}
+async function validateKey(){const key=$("proKeyIn").value.trim();const msg=$("proMsg");if(!key){msg.textContent=T("key_bad");msg.className="msg err";return;}msg.textContent=T("key_saved");msg.className="msg";try{const res=await fetch(CONFIG.licenseValidateUrl,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({license_key:key,instance_name:getProInstance()})});let data=null;try{data=await res.json();}catch(e){}if(lsValid(data)){savePro(key);PRO=true;refreshPro();msg.textContent=T("key_ok");msg.className="msg ok";setTimeout(closeProModal,900);renderAll();}else{msg.textContent=T("key_bad");msg.className="msg err";}}catch(err){msg.textContent=T("key_net");msg.className="msg err";}}
+async function revalidatePro(){const s=storedPro();if(!s||!s.key)return;try{const res=await fetch(CONFIG.licenseValidateUrl,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({license_key:s.key,instance_name:getProInstance()})});let data=null;try{data=await res.json();}catch(e){}if(!lsValid(data)){clearPro();PRO=false;refreshPro();}}catch(err){/* offline grace: keep Pro until a check succeeds */}}
+
+/* ============ i18n ============ */
+const I18N={
+en:{subtitle:"Macau education centre booking",navBook:"Book",navManage:"Manage",
+vBook:"New booking",vBookSub:"Trial class, meetings, make-up",vMy:"My bookings",vMySub:"View and cancel",
+vToday:"Today · admin",vTodaySub:"Today's bookings by teacher",vTeachers:"Teachers",vTeachersSub:"Availability grid",
+vExport:"Export & share",vExportSub:"PNG, CSV, JSON, links",
+drawerHint:"Local-first: bookings live in this browser only. No account, no cloud, no tracking. Demo teachers and bookings are fictional.",
+freeNote:"Free: trial bookings only · 2 teachers · 10 bookings / month.",goPro:"Go Pro →",
+bookTitle:"Book a class or meeting",bookDesc:"Pick a booking type, a teacher and a time. Trial classes are free to book — no account needed.",
+sType:"Type",sTeacher:"Teacher",sTime:"Date & time",sForm:"Details",
+areaLabel:"Centre area",areaMacau:"Macau Peninsula",areaTaipa:"Taipa",areaColoane:"Coloane",
+typeLabel:"Booking type",teacherLabel:"Teacher",dateLabel:"Pick a date",slotLabel:"Available times",
+fParent:"Parent name *",fChild:"Child name *",fAge:"Child age *",fPhone:"Macau phone (+853) *",fCourse:"Course interest",fNotes:"Notes",
+confirmBtn:"Confirm booking",doneTitle:"Booking confirmed",doneBadge:"Confirmed",pngBtn:"Save PNG summary",bookAnother:"Book another",
+myTitle:"My bookings",myDesc:"Bookings saved in this browser. Tap a booking to save its PNG summary, or cancel it.",
+todayTitle:"Today · admin view",
+teaTitle:"Teachers & availability",teaDesc:"Tap a day and time to switch it on or off. Free plan includes 2 teachers; add more with Pro.",
+addTeacher:"Add teacher",tName:"Name",tSubject:"Subject",tArea:"Area",saveTeacher:"Save teacher",
+expTitle:"Export & share",expDesc:"Take your bookings with you. PNG is free at 1024px; HD 2048px, CSV, JSON and share links are Pro.",
+expPng:"Monthly summary PNG",expPngSub:"A tidy summary card of this month's bookings.",downloadPng:"Download PNG",
+expCsv:"CSV / JSON export",expCsvSub:"All bookings as a spreadsheet or data file.",
+expShare:"Share booking link",expShareSub:"A link that opens one booking's summary.",copyLink:"Copy link",
+expRemind:"Reminder templates",expRemindSub:"Ready-to-send WhatsApp reminders.",showTpl:"Show templates",
+foot1:"Book Mo — booking for Macau education centres.",foot2:"Demo data is fictional. Prices in MOP. Free plan: trial bookings only, 2 teachers, 10 bookings / month.",
+proPitch:"Unlock all 4 booking types, unlimited teachers and bookings, reminder templates, CSV / JSON export, HD PNG (2048px) and shareable booking links.",
+monthly:"Monthly",lifetime:"Lifetime",buyMonthly:"Get Monthly",buyLifetime:"Get Lifetime",
+keyLabel:"Already have a Pro key? Paste it here:",validate:"Validate key",close:"Close",
+key_ok:"Pro unlocked — welcome!",key_bad:"That key did not validate. Check it and try again.",key_saved:"Checking your key…",key_net:"Could not reach the license server. Check your connection and try again.",
+testNote:"Test checkout — keys are validated against the Lemon Squeezy test store.",
+proOnly:"Pro feature — unlock with a Pro key.",
+freeLimit:"Free plan allows 10 bookings this month. Upgrade to Pro for unlimited bookings.",
+freeType:"Trial class is free. The other booking types are Pro.",
+phoneBad:"Enter an 8-digit Macau mobile starting with 6 or 8, e.g. 66881234.",
+fillAll:"Please fill in parent name, child name, age and phone.",
+ageBad:"Child age must be 3–18.",
+saved:"Booking saved.",cancelled:"Booking cancelled.",cancelQ:"Cancel this booking?",
+copied:"Link copied.",copyFail:"Could not copy the link. Your browser blocked clipboard access.",
+exported:"PNG saved.",noBookings:"No bookings yet.",noToday:"No bookings today.",
+monthCount:"bookings this month",slotsNone:"No times on this day — pick another date.",holClosed:"Public holiday — centre closed.",
+pickDateFirst:"Pick a date first.",pickSlotFirst:"Pick a time first.",
+feeTrial:"MOP 0 · free trial",feeMeeting:"MOP 0",feeConsult:"MOP 0",feeMakeup:"MOP 150",
+typeTrial:"Trial class",typeTrialSub:"First lesson, free · 45 min",typeMeeting:"Parent meeting",typeMeetingSub:"Meet the teacher · 30 min",
+typeConsult:"Course consultation",typeConsultSub:"Find the right course · 30 min",typeMakeup:"Make-up class",typeMakeupSub:"Catch up a missed lesson · 60 min",
+remindDay:"Day-before reminder",remindHour:"Same-day reminder",remindThanks:"Thank-you note",
+tplDay:"Hi {parent}, reminder: {child}'s {type} with {teacher} is tomorrow {date} at {time} at our {area} centre. See you then!",
+tplHour:"Hi {parent}, {child}'s {type} with {teacher} starts in 1 hour ({time}). Our {area} centre — see you soon!",
+tplThanks:"Hi {parent}, thanks for {child}'s {type} today. Book the next lesson anytime in Book Mo!",
+addTeacherPro:"Adding a teacher is Pro.",savedTeacher:"Teacher saved.",
+dow:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],months:["January","February","March","April","May","June","July","August","September","October","November","December"]},
+zh:{subtitle:"澳門教育中心預約",navBook:"預約",navManage:"管理",
+vBook:"新預約",vBookSub:"試堂、約見、補課",vMy:"我的預約",vMySub:"查看同取消",
+vToday:"今日 · 管理",vTodaySub:"今日各老師預約",vTeachers:"老師",vTeachersSub:"可預約時間表",
+vExport:"匯出及分享",vExportSub:"PNG、CSV、JSON、連結",
+drawerHint:"本地優先：預約只存喺呢個瀏覽器。冇帳號、冇雲端、冇追蹤。示範老師同預約全部係虛構。",
+freeNote:"免費：只可以試堂 · 2 位老師 · 每月 10 個預約。",goPro:"升級 Pro →",
+bookTitle:"預約課堂或約見",bookDesc:"揀預約類型、老師同時間。試堂免費預約，唔使開帳號。",
+sType:"類型",sTeacher:"老師",sTime:"日期時間",sForm:"資料",
+areaLabel:"中心地區",areaMacau:"澳門半島",areaTaipa:"氹仔",areaColoane:"路環",
+typeLabel:"預約類型",teacherLabel:"老師",dateLabel:"揀日期",slotLabel:"可預約時間",
+fParent:"家長姓名 *",fChild:"小朋友姓名 *",fAge:"小朋友年齡 *",fPhone:"澳門電話 (+853) *",fCourse:"有興趣課程",fNotes:"備註",
+confirmBtn:"確認預約",doneTitle:"預約成功",doneBadge:"已確認",pngBtn:"儲存 PNG 摘要",bookAnother:"再預約一個",
+myTitle:"我的預約",myDesc:"預約存喺呢個瀏覽器。撳預約可以儲存 PNG 摘要，或者取消。",
+todayTitle:"今日 · 管理員視圖",
+teaTitle:"老師及可預約時間",teaDesc:"撳日子及時段可以開關。免費版包 2 位老師，Pro 可以加更多。",
+addTeacher:"加老師",tName:"姓名",tSubject:"科目",tArea:"地區",saveTeacher:"儲存老師",
+expTitle:"匯出及分享",expDesc:"帶走你嘅預約。PNG 免費 1024px；HD 2048px、CSV、JSON 同分享連結係 Pro。",
+expPng:"每月摘要 PNG",expPngSub:"今個月預約嘅整齊摘要卡。",downloadPng:"下載 PNG",
+expCsv:"CSV / JSON 匯出",expCsvSub:"全部預約做試算表或資料檔。",
+expShare:"分享預約連結",expShareSub:"一條連結打開某個預約嘅摘要。",copyLink:"複製連結",
+expRemind:"提醒訊息範本",expRemindSub:"即用 WhatsApp 提醒。",showTpl:"顯示範本",
+foot1:"Book Mo——澳門教育中心預約。",foot2:"示範資料全部虛構。價錢以澳門幣計。免費版：只限試堂、2 位老師、每月 10 個預約。",
+proPitch:"解鎖全部 4 種預約類型、無限老師同預約、提醒範本、CSV / JSON 匯出、HD PNG（2048px）同可分享嘅預約連結。",
+monthly:"月費",lifetime:"終身",buyMonthly:"買月費",buyLifetime:"買終身",
+keyLabel:"已有 Pro 密鑰？喺呢度貼上：",validate:"驗證密鑰",close:"關閉",
+key_ok:"Pro 已解鎖，歡迎！",key_bad:"呢條密鑰驗證唔到，請再檢查一次。",key_saved:"驗證緊密鑰…",key_net:"連唔到授權伺服器，請檢查網絡再試。",
+testNote:"測試結帳——密鑰對住 Lemon Squeezy 測試商店驗證。",
+proOnly:"Pro 功能——用 Pro 密鑰解鎖。",
+freeLimit:"免費版今個月最多 10 個預約。升級 Pro 可以無限預約。",
+freeType:"試堂免費。其他預約類型係 Pro。",
+phoneBad:"請輸入 8 位澳門手提號碼，6 或 8 字頭，例如 66881234。",
+fillAll:"請填家長姓名、小朋友姓名、年齡同電話。",
+ageBad:"小朋友年齡要係 3 至 18 歲。",
+saved:"預約已儲存。",cancelled:"預約已取消。",cancelQ:"取消呢個預約？",
+copied:"連結已複製。",copyFail:"複製唔到連結，瀏覽器擋咗剪貼簿。",
+exported:"PNG 已儲存。",noBookings:"暫時未有預約。",noToday:"今日未有預約。",
+monthCount:"今個月預約",slotsNone:"呢日冇時段——揀另一日。",holClosed:"公眾假期——中心休息。",
+pickDateFirst:"請先揀日期。",pickSlotFirst:"請先揀時間。",
+feeTrial:"MOP 0 · 免費試堂",feeMeeting:"MOP 0",feeConsult:"MOP 0",feeMakeup:"MOP 150",
+typeTrial:"試堂登記",typeTrialSub:"第一堂，免費 · 45 分鐘",typeMeeting:"家長約見",typeMeetingSub:"見老師 · 30 分鐘",
+typeConsult:"課程諮詢",typeConsultSub:"搵啱嘅課程 · 30 分鐘",typeMakeup:"補課",typeMakeupSub:"補返 missed 嘅課 · 60 分鐘",
+remindDay:"前一日提醒",remindHour:"當日提醒",remindThanks:"多謝訊息",
+tplDay:"{parent} 你好，提提你：{child} 聽日 {date} {time} 有{type}，{teacher}，{area}中心，聽日見！",
+tplHour:"{parent} 你好，{child} 嘅{type}（{teacher}）一個鐘後 {time} 開始，{area}中心，陣間見！",
+tplThanks:"{parent} 你好，多謝 {child} 今日嚟上{type}，下次上堂隨時喺 Book Mo 預約！",
+addTeacherPro:"加老師係 Pro 功能。",savedTeacher:"老師已儲存。",
+dow:["日","一","二","三","四","五","六"],months:["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"]}};
+let LANG="en";
+function T(k){const d=I18N[LANG]||I18N.en;return d[k]!=null?d[k]:I18N.en[k];}
+
+/* ============ data ============ */
+const SLOTS=["09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"];
+const TYPES=[
+{id:"trial",fee:0,pro:false},
+{id:"meeting",fee:0,pro:true},
+{id:"consult",fee:0,pro:true},
+{id:"makeup",fee:150,pro:true}];
+const AREAS={macau:{en:"Macau Peninsula",zh:"澳門半島"},taipa:{en:"Taipa",zh:"氹仔"},coloane:{en:"Coloane",zh:"路環"}};
+function areaName(a){return (AREAS[a]||AREAS.macau)[LANG]||AREAS[a].en;}
+function typeName(id){return T("type"+id[0].toUpperCase()+id.slice(1));}
+function typeSub(id){return T("type"+id[0].toUpperCase()+id.slice(1)+"Sub");}
+function feeText(id){return T("fee"+id[0].toUpperCase()+id.slice(1));}
+function defaultAvail(){const a={};for(let d=0;d<7;d++){a[d]={};SLOTS.forEach(s=>{a[d][s]=(d!==0);});}return a;}
+function defaultTeachers(){return [
+{id:"t1",name:"陳老師",subject:"English",area:"macau",avail:defaultAvail()},
+{id:"t2",name:"李老師",subject:"Maths",area:"taipa",avail:defaultAvail()}];}
+function loadJSON(k,fb){try{const s=localStorage.getItem(k);return s?JSON.parse(s):fb;}catch(e){return fb;}}
+function saveJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+let teachers=loadJSON("bookmo_teachers",null);
+if(!teachers){teachers=defaultTeachers();saveJSON("bookmo_teachers",teachers);}
+let bookings=loadJSON("bookmo_bookings",null);
+if(!bookings){
+  const t=new Date();const d1=new Date(t.getFullYear(),t.getMonth(),t.getDate(),15,0,0);
+  const d2=new Date(t.getFullYear(),t.getMonth(),t.getDate()+3,10,0,0);
+  bookings=[
+   {ref:"BK-DEMO01",type:"trial",teacherId:"t1",area:"macau",date:dkey(d1),time:"15:00",parent:"何媽媽",child:"何小晴",age:7,phone:"66881234",course:"English",notes:"第一次試堂",created:Date.now()},
+   {ref:"BK-DEMO02",type:"trial",teacherId:"t2",area:"taipa",date:dkey(d2),time:"10:00",parent:"梁爸爸",child:"梁小峰",age:9,phone:"68885678",course:"Maths",notes:"",created:Date.now()}];
+  saveJSON("bookmo_bookings",bookings);
+}
+let sel={area:"macau",type:"trial",teacherId:"t1",date:null,time:null};
+let calCursor=new Date();calCursor.setDate(1);
+let editTeacherId="t1";
+let lastBooking=null;
+function teacherById(id){return teachers.find(t=>t.id===id)||teachers[0];}
+function isHoliday(key){return !!MACAU_HOLIDAYS_2026[key];}
+function holidayName(key){const h=MACAU_HOLIDAYS_2026[key];return h?(LANG==="en"?h[1]:h[0]):"";}
+function slotTaken(teacherId,date,time){return bookings.some(b=>b.teacherId===teacherId&&b.date===date&&b.time===time);}
+function monthBookings(){const mk=monthKey(new Date());return bookings.filter(b=>b.date.slice(0,7)===mk);}
+function validPhone(raw){const s=String(raw||"").replace(/[\s\-]/g,"").replace(/^\+?853/,"");return /^[68]\d{7}$/.test(s)?s:null;}
+
+/* ============ rendering ============ */
+function setStep(n){document.querySelectorAll("#steps .step").forEach(s=>{const k=+s.dataset.step;s.classList.toggle("on",k===n);s.classList.toggle("done",k<n);});}
+function renderTypes(){const row=$("typeRow");row.innerHTML="";TYPES.forEach(t=>{
+  const c=el("button","card"+(sel.type===t.id?" sel":""));c.type="button";
+  c.innerHTML="<b>"+esc(typeName(t.id))+"</b><span>"+esc(typeSub(t.id))+"</span><div class='fee'>"+esc(feeText(t.id))+"</div>"+(t.pro?"<span class='tag'>Pro</span>":"<span class='tag'>FREE</span>");
+  c.onclick=()=>{if(t.pro&&!PRO){openProModal();return;}sel.type=t.id;sel.time=null;renderTypes();setStep(2);renderSlots();updateFeeHint();};
+  row.appendChild(c);});}
+function renderTeachers(){const row=$("teacherRow");row.innerHTML="";teachers.forEach(t=>{
+  const c=el("button","card"+(sel.teacherId===t.id?" sel":""));c.type="button";
+  c.innerHTML="<b>"+esc(t.name)+" · "+esc(t.subject)+"</b><span>"+esc(areaName(t.area))+"</span>";
+  c.onclick=()=>{sel.teacherId=t.id;sel.time=null;renderTeachers();renderCal();renderSlots();};
+  row.appendChild(c);});}
+function renderCal(){
+  const y=calCursor.getFullYear(),m=calCursor.getMonth();
+  $("calTitle").textContent=(LANG==="en"?I18N.en.months[m]+" "+y:y+"年"+I18N.zh.months[m]);
+  const grid=$("calGrid");grid.innerHTML="";
+  I18N[LANG].dow.forEach(d=>grid.appendChild(el("div","dow",d)));
+  const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
+  const today=new Date();today.setHours(0,0,0,0);
+  for(let i=0;i<first;i++)grid.appendChild(el("div",""));
+  for(let d=1;d<=days;d++){
+    const dt=new Date(y,m,d),key=dkey(dt);
+    const b=el("button","day");b.type="button";
+    const hol=isHoliday(key);
+    const wd=dt.getDay();
+    const teacher=teacherById(sel.teacherId);
+    const hasSlots=teacher&&SLOTS.some(s=>teacher.avail[wd]&&teacher.avail[wd][s]);
+    const past=dt<today;
+    const off=past||hol||!hasSlots;
+    if(off)b.classList.add("off");
+    if(hol)b.classList.add("hol");
+    if(sel.date===key)b.classList.add("sel");
+    let sm="";
+    if(hol)sm=holidayName(key);
+    else if(hasSlots&&!past){const n=SLOTS.filter(s=>teacher.avail[wd][s]&&!slotTaken(teacher.id,key,s)).length;sm=n+" "+(LANG==="en"?"slots":"個時段");}
+    b.innerHTML="<b>"+d+"</b>"+(sm?"<small>"+esc(sm)+"</small>":"");
+    if(!off)b.onclick=()=>{sel.date=key;sel.time=null;renderCal();renderSlots();setStep(3);$("formWrap").style.display="none";};
+    grid.appendChild(b);}
+  $("calHint").textContent=holHint();
+  function holHint(){const list=Object.keys(MACAU_HOLIDAYS_2026).filter(k=>k.slice(0,7)===y+"-"+pad(m+1));
+    return list.length?(LANG==="en"?"Public holidays this month: ":"今個月公眾假期：")+list.map(k=>k.slice(8)+" "+holidayName(k)).join(" · "):"";}
+}
+function renderSlots(){
+  const row=$("slotRow");row.innerHTML="";
+  if(!sel.date){row.appendChild(el("div","hint",T("pickDateFirst")));return;}
+  const teacher=teacherById(sel.teacherId),wd=parseKey(sel.date).getDay();
+  if(isHoliday(sel.date)){row.appendChild(el("div","hint",T("holClosed")));return;}
+  let any=false;
+  SLOTS.forEach(s=>{
+    if(!(teacher.avail[wd]&&teacher.avail[wd][s]))return;any=true;
+    const taken=slotTaken(teacher.id,sel.date,s);
+    const b=el("button","slot"+(sel.time===s?" sel":"")+(taken?" taken":""));b.type="button";b.textContent=s;
+    if(!taken)b.onclick=()=>{sel.time=s;renderSlots();setStep(4);$("formWrap").style.display="block";updateFeeHint();};
+    row.appendChild(b);});
+  if(!any)row.appendChild(el("div","hint",T("slotsNone")));}
+function updateFeeHint(){const t=TYPES.find(x=>x.id===sel.type);$("feeHint").textContent=t?(LANG==="en"?"Fee: ":"費用：")+feeText(t.id):"";}
+function bookingMeta(b){
+  const t=teacherById(b.teacherId);
+  return esc(typeName(b.type))+" · "+esc(t?t.name:"")+" · "+esc(areaName(b.area))+"<br>"+esc(b.date)+" "+esc(b.time)+" · "+esc(b.child)+" ("+esc(b.age)+") · "+esc(b.parent)+" · +853 "+esc(b.phone)+(b.course?" · "+esc(b.course):"")+(b.notes?"<br>"+esc(b.notes):"");}
+function renderMy(){
+  const list=$("myList");list.innerHTML="";
+  $("monthCount").textContent=monthBookings().length+" / 10 "+T("monthCount")+(PRO?" · Pro ∞":"");
+  if(!bookings.length){list.appendChild(el("p","hint",T("noBookings")));return;}
+  const sorted=[...bookings].sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+  sorted.forEach(b=>{
+    const r=el("div","bkrow");
+    r.innerHTML="<div class='r1'><b>"+esc(typeName(b.type))+"</b><span class='ref'>"+esc(b.ref)+"</span><span class='badge ok'>"+esc(T("doneBadge"))+"</span></div><div class='meta'>"+bookingMeta(b)+"</div>";
+    const acts=el("div","acts");
+    const png=el("button","btn small",T("pngBtn"));png.onclick=()=>downloadBookingPng(b);
+    const cancel=el("button","btn ghost small",LANG==="en"?"Cancel":"取消");
+    cancel.onclick=()=>{if(!confirm(T("cancelQ")))return;bookings=bookings.filter(x=>x.ref!==b.ref);saveJSON("bookmo_bookings",bookings);renderAll();};
+    acts.appendChild(png);acts.appendChild(cancel);r.appendChild(acts);list.appendChild(r);});}
+function renderToday(){
+  const tk=todayKey();
+  $("todayDesc").textContent=(LANG==="en"?"Bookings for ":"今日預約 · ")+tk;
+  const list=$("todayList");list.innerHTML="";
+  const todays=bookings.filter(b=>b.date===tk).sort((a,b)=>a.time.localeCompare(b.time));
+  if(!todays.length){list.appendChild(el("p","hint",T("noToday")));return;}
+  teachers.forEach(t=>{
+    const tb=todays.filter(b=>b.teacherId===t.id);if(!tb.length)return;
+    list.appendChild(el("h3","",t.name+" · "+t.subject));
+    tb.forEach(b=>{const r=el("div","bkrow");r.innerHTML="<div class='r1'><b>"+esc(b.time)+"</b><span class='ref'>"+esc(b.ref)+"</span><span class='badge'>"+esc(typeName(b.type))+"</span></div><div class='meta'>"+bookingMeta(b)+"</div>";list.appendChild(r);});});}
+function renderTeacherEdit(){
+  const row=$("teacherEditRow");row.innerHTML="";
+  teachers.forEach(t=>{
+    const c=el("button","card"+(editTeacherId===t.id?" sel":""));c.type="button";
+    c.innerHTML="<b>"+esc(t.name)+" · "+esc(t.subject)+"</b><span>"+esc(areaName(t.area))+"</span>";
+    c.onclick=()=>{editTeacherId=t.id;renderTeacherEdit();renderAvTable();};
+    row.appendChild(c);});
+  $("addTeacherHint").textContent=teachers.length>=2&&!PRO?T("addTeacherPro"):"";
+  $("avLabel").textContent=(LANG==="en"?"Availability — ":"可預約時間 — ")+(teacherById(editTeacherId)||{}).name;
+}
+function renderAvTable(){
+  const t=teacherById(editTeacherId);if(!t)return;
+  const tbl=$("avTable");tbl.innerHTML="";
+  const tr0=el("tr");tr0.appendChild(el("th","",LANG==="en"?"Time":"時間"));
+  I18N[LANG].dow.forEach(d=>tr0.appendChild(el("th","",d)));tbl.appendChild(tr0);
+  SLOTS.forEach(s=>{
+    const tr=el("tr");tr.appendChild(el("th","",s));
+    for(let d=0;d<7;d++){
+      const td=el("td");
+      const cb=document.createElement("input");cb.type="checkbox";cb.checked=!!(t.avail[d]&&t.avail[d][s]);
+      cb.onchange=()=>{t.avail[d][s]=cb.checked;saveJSON("bookmo_teachers",teachers);renderCal();renderSlots();};
+      td.appendChild(cb);tr.appendChild(td);}
+    tbl.appendChild(tr);});}
+function renderTpl(){
+  const w=$("tplWrap");w.innerHTML="";
+  const b=bookings[0];if(!b){w.appendChild(el("p","hint",T("noBookings")));return;}
+  const t=teacherById(b.teacherId);
+  const fill=s=>s.replace("{parent}",b.parent).replace("{child}",b.child).replace("{type}",typeName(b.type)).replace("{teacher}",t?t.name:"").replace("{date}",b.date).replace("{time}",b.time).replace("{area}",areaName(b.area));
+  [["remindDay","tplDay"],["remindHour","tplHour"],["remindThanks","tplThanks"]].forEach(([k,v])=>{
+    w.appendChild(el("div","",T(k)));
+    const d=el("div","tmpl",fill(T(v)));w.appendChild(d);});
+}
+function downloadFile(name,content,mime){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([content],{type:mime}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);}
+function drawSummary(b,size){
+  const c=document.createElement("canvas");c.width=size;c.height=Math.round(size*0.62);
+  const x=c.getContext("2d");const W=c.width,H=c.height;
+  x.fillStyle="#F6F8F9";x.fillRect(0,0,W,H);
+  x.fillStyle="#EAEDEF";x.fillRect(0,0,W,Math.round(H*0.16));
+  x.fillStyle="#3E4C59";x.font="bold "+Math.round(size*0.045)+"px 'Dela Gothic One', sans-serif";
+  x.fillText("Book Mo",Math.round(W*0.05),Math.round(H*0.10));
+  x.fillStyle="#22262B";x.font="bold "+Math.round(size*0.032)+"px sans-serif";
+  const t=teacherById(b.teacherId);
+  const lines=[b.ref+"  ·  "+typeName(b.type),b.date+"  "+b.time+"  ·  "+(t?t.name:""),areaName(b.area)+"  ·  "+b.course,b.child+" ("+b.age+")  ·  "+b.parent,"+853 "+b.phone];
+  lines.forEach((ln,i)=>x.fillText(ln,Math.round(W*0.05),Math.round(H*(0.26+i*0.09))));
+  x.fillStyle="#6B7178";x.font=Math.round(size*0.022)+"px sans-serif";
+  x.fillText("Macau education centre booking · Prices in MOP",Math.round(W*0.05),Math.round(H*0.93));
+  return c;}
+function downloadCanvas(c,name){const a=document.createElement("a");a.href=c.toDataURL("image/png");a.download=name;a.click();}
+function downloadBookingPng(b){const size=PRO?2048:1024;downloadCanvas(drawSummary(b,size),"book-mo-"+b.ref+".png");}
+function downloadMonthPng(){
+  const mk=monthKey(new Date());const list=bookings.filter(b=>b.date.slice(0,7)===mk);
+  const size=PRO?2048:1024;const c=document.createElement("canvas");c.width=size;c.height=Math.round(size*0.62);
+  const x=c.getContext("2d");const W=c.width,H=c.height;
+  x.fillStyle="#F6F8F9";x.fillRect(0,0,W,H);
+  x.fillStyle="#EAEDEF";x.fillRect(0,0,W,Math.round(H*0.16));
+  x.fillStyle="#3E4C59";x.font="bold "+Math.round(size*0.045)+"px 'Dela Gothic One', sans-serif";
+  x.fillText("Book Mo",Math.round(W*0.05),Math.round(H*0.10));
+  x.fillStyle="#22262B";x.font="bold "+Math.round(size*0.03)+"px sans-serif";
+  x.fillText(mk+"  ·  "+list.length+" bookings",Math.round(W*0.05),Math.round(H*0.26));
+  x.font=Math.round(size*0.024)+"px sans-serif";x.fillStyle="#22262B";
+  list.slice(0,8).forEach((b,i)=>x.fillText(b.date+" "+b.time+"  "+b.child+"  ·  "+typeName(b.type),Math.round(W*0.05),Math.round(H*(0.36+i*0.07))));
+  x.fillStyle="#6B7178";x.font=Math.round(size*0.022)+"px sans-serif";
+  x.fillText("Macau education centre booking · Prices in MOP",Math.round(W*0.05),Math.round(H*0.93));
+  downloadCanvas(c,"book-mo-summary-"+mk+".png");}
+function csvEscape(v){return '"'+String(v==null?"":v).replace(/"/g,'""')+'"';}
+function exportCSV(){
+  const rows=[["ref","type","teacher","area","date","time","parent","child","age","phone","course","notes"]];
+  bookings.forEach(b=>{const t=teacherById(b.teacherId);rows.push([b.ref,b.type,t?t.name:"",b.area,b.date,b.time,b.parent,b.child,b.age,b.phone,b.course,b.notes]);});
+  downloadFile("book-mo-bookings.csv",rows.map(r=>r.map(csvEscape).join(",")).join("\n"),"text/csv");}
+function exportJSON(){downloadFile("book-mo-bookings.json",JSON.stringify(bookings,null,2),"application/json");}
+function shareLink(){
+  const b=bookings[0];if(!b)return;
+  const data=btoa(unescape(encodeURIComponent(JSON.stringify(b))));
+  const url=location.origin+location.pathname+"#book="+data;
+  const msg=$("shareMsg");
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(()=>{msg.textContent=T("copied");msg.className="msg ok";},()=>{msg.textContent=T("copyFail");msg.className="msg err";});}
+  else{msg.textContent=url;msg.className="msg";}}
+function applyShared(){
+  if(!location.hash.startsWith("#book="))return;
+  try{const b=JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(6)))));
+    lastBooking=b;sel.type=b.type;
+    $("doneRef").textContent=b.ref;$("doneMeta").innerHTML=bookingMeta(b);
+    $("doneWrap").style.display="block";showView("book");
+    history.replaceState(null,"",location.pathname);}catch(e){}}
+function showView(v){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  $("panel-"+v).classList.add("active");
+  document.querySelectorAll(".navbtn").forEach(n=>n.classList.toggle("active",n.dataset.view===v));
+  closeDrawer();
+  if(v==="bookings")renderMy();
+  if(v==="today")renderToday();
+  if(v==="teachers"){renderTeacherEdit();renderAvTable();}
+  window.scrollTo({top:0});}
+function openDrawer(){$("drawer").classList.add("open");}
+function closeDrawer(){$("drawer").classList.remove("open");}
+function applyLang(){
+  document.querySelectorAll("[data-i18n]").forEach(n=>{const k=n.getAttribute("data-i18n");if(I18N[LANG]&&I18N[LANG][k]!=null)n.textContent=I18N[LANG][k];});
+  $("langBtn").textContent=LANG==="en"?"EN":"繁";
+  renderAll();}
+function applyTheme(){document.body.dataset.theme=localStorage.getItem("bookmo_theme")||"";}
+function renderAll(){renderTypes();renderTeachers();renderCal();renderSlots();renderMy();renderToday();renderTeacherEdit();renderAvTable();updateFeeHint();}
+
+/* ============ events + init ============ */
+$("drawerBtn").onclick=openDrawer;
+$("drawerScrim").onclick=closeDrawer;
+$("drawerPro").onclick=e=>{e.preventDefault();closeDrawer();openProModal();};
+document.querySelectorAll(".navbtn").forEach(n=>n.onclick=()=>showView(n.dataset.view));
+document.querySelectorAll("[data-close]").forEach(n=>n.onclick=()=>$(n.dataset.close).classList.remove("open"));
+$("proBtn").onclick=openProModal;
+$("validateBtn").onclick=validateKey;
+$("langBtn").onclick=()=>{LANG=LANG==="en"?"zh":"en";localStorage.setItem("bookmo_lang",LANG);applyLang();};
+$("themeBtn").onclick=()=>{const cur=localStorage.getItem("bookmo_theme")||"";const next=cur===""?"white":cur==="white"?"black":"";localStorage.setItem("bookmo_theme",next);applyTheme();};
+document.querySelectorAll("#areaRow .slot").forEach(b=>b.onclick=()=>{sel.area=b.dataset.area;document.querySelectorAll("#areaRow .slot").forEach(x=>x.classList.toggle("sel",x===b));});
+$("calPrev").onclick=()=>{calCursor.setMonth(calCursor.getMonth()-1);sel.date=null;sel.time=null;renderCal();renderSlots();};
+$("calNext").onclick=()=>{calCursor.setMonth(calCursor.getMonth()+1);sel.date=null;sel.time=null;renderCal();renderSlots();};
+$("fPhone").addEventListener("input",()=>{$("phoneErr").style.display="none";});
+$("confirmBtn").onclick=()=>{
+  const err=$("formErr");err.style.display="none";
+  const parent=$("fParent").value.trim(),child=$("fChild").value.trim(),age=+$("fAge").value;
+  const phone=validPhone($("fPhone").value);
+  if(!sel.date||!sel.time){err.textContent=sel.date?T("pickSlotFirst"):T("pickDateFirst");err.style.display="block";return;}
+  if(!parent||!child||!age){err.textContent=T("fillAll");err.style.display="block";return;}
+  if(age<3||age>18){err.textContent=T("ageBad");err.style.display="block";return;}
+  if(!phone){const pe=$("phoneErr");pe.textContent=T("phoneBad");pe.style.display="block";return;}
+  if(!PRO&&monthBookings().length>=10){openProModal();return;}
+  if(slotTaken(sel.teacherId,sel.date,sel.time)){renderSlots();return;}
+  const b={ref:uid(),type:sel.type,teacherId:sel.teacherId,area:sel.area,date:sel.date,time:sel.time,
+    parent,child,age,phone,course:$("fCourse").value,notes:$("fNotes").value.trim(),created:Date.now()};
+  bookings.push(b);saveJSON("bookmo_bookings",bookings);
+  lastBooking=b;
+  $("doneRef").textContent=b.ref;$("doneMeta").innerHTML=bookingMeta(b);
+  $("doneWrap").style.display="block";$("formWrap").style.display="none";
+  setStep(4);renderSlots();renderMy();renderToday();
+  window.scrollTo({top:0});};
+$("doneAgain").onclick=()=>{$("doneWrap").style.display="none";sel.date=null;sel.time=null;renderCal();renderSlots();setStep(1);};
+$("donePng").onclick=()=>{if(lastBooking)downloadBookingPng(lastBooking);};
+$("addTeacherBtn").onclick=()=>{if(teachers.length>=2&&!PRO){openProModal();return;}$("addTeacherForm").style.display="block";};
+$("saveTeacherBtn").onclick=()=>{
+  const name=$("tName").value.trim(),subject=$("tSubject").value.trim()||"General";
+  if(!name)return;
+  teachers.push({id:"t"+Date.now().toString(36),name,subject,area:$("tArea").value,avail:defaultAvail()});
+  saveJSON("bookmo_teachers",teachers);
+  $("addTeacherForm").style.display="none";$("tName").value="";$("tSubject").value="";
+  editTeacherId=teachers[teachers.length-1].id;renderTeacherEdit();renderAvTable();renderTeachers();};
+$("expPngBtn").onclick=downloadMonthPng;
+$("expCsvBtn").onclick=()=>{if(!needPro())return;exportCSV();};
+$("expJsonBtn").onclick=()=>{if(!needPro())return;exportJSON();};
+$("expShareBtn").onclick=()=>{if(!needPro())return;shareLink();};
+$("expRemindBtn").onclick=()=>{if(!needPro())return;const w=$("tplWrap");const show=w.style.display!=="block";w.style.display=show?"block":"none";if(show)renderTpl();};
+document.querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>window.open(b.getAttribute("data-buy")==="monthly"?CONFIG.buyMonthly:CONFIG.buyLifetime,"_blank","noopener"));
+/* init */
+LANG=localStorage.getItem("bookmo_lang")||"en";
+applyTheme();
+applyLang();
+refreshPro();
+revalidatePro();
+applyShared();
+</script>
+</body>
+</html>

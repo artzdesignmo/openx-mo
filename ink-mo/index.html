@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ink Mo — Generative Ink Wash Painting Studio</title>
+<meta name="description" content="Ink Mo is a generative ink wash painting studio. Watch a mountains-and-water landscape, bamboo grove, plum blossom or moonlit pine paint itself stroke by stroke — then paint your own. Single HTML file, zero dependencies, local-first.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EAEDEF;--panel:#F6F8F9;--line:#D5D9DC;--ink:#22262a;--mut:#8A867E;--gold:#B08D3C;--red:#B03A2E;--radius:12px}
+body[data-theme="white"]{--bg:#ffffff;--panel:#f7f7f5;--line:#e2e2de;--ink:#22262a;--mut:#8a867e}
+body[data-theme="black"]{--bg:#101214;--panel:#1a1d1f;--line:#2c3134;--ink:#e8e6e2;--mut:#8a867e}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:"Noto Sans TC",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+h1,h2,.display{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-weight:400}
+#stage{position:fixed;top:0;left:0;width:100%;height:100vh;height:100dvh}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
+#topbar{position:fixed;top:0;left:0;right:0;height:calc(52px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 12px 0;display:flex;align-items:center;gap:8px;z-index:20;pointer-events:none}
+#topbar>*{pointer-events:auto}
+#topbar .spacer{flex:1}
+.iconbtn{width:38px;height:38px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:10px;font-size:17px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.iconbtn:hover{border-color:var(--mut)}
+.brand{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 12px 6px 8px}
+.brand .mark{width:26px;height:26px;border-radius:7px;background:var(--ink);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:15px;font-family:serif}
+.brand b{font-family:"Dela Gothic One",sans-serif;font-weight:400;font-size:15px;letter-spacing:.5px}
+.brand small{font-size:11px;color:var(--mut)}
+.txtbtn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:10px;padding:8px 11px;font-size:13px;cursor:pointer;flex:none}
+.txtbtn:hover{border-color:var(--mut)}
+.probtn{background:var(--ink);color:var(--bg);border:none;border-radius:10px;padding:9px 13px;font-weight:700;font-size:13px;cursor:pointer;flex:none}
+.coffee{width:38px;height:38px;border:1px solid var(--line);background:var(--panel);border-radius:10px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;flex:none}
+.coffee svg{width:20px;height:20px;fill:none;stroke:#8A867E;stroke-width:1.8}
+#drawer{position:fixed;top:calc(52px + env(safe-area-inset-top,0px));left:0;bottom:0;width:308px;max-width:86vw;background:var(--panel);border-right:1px solid var(--line);z-index:30;transform:translateX(-105%);transition:transform .25s ease;overflow-y:auto;padding:14px 14px calc(30px + env(safe-area-inset-bottom,0px))}
+#drawer.open{transform:none}
+#drawer h2{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--mut);margin:18px 0 8px}
+#drawer h2:first-child{margin-top:2px}
+.presetGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.preset{border:1px solid var(--line);background:var(--bg);border-radius:var(--radius);padding:10px;cursor:pointer;text-align:left;color:var(--ink)}
+.preset.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.preset .glyph{font-size:26px;line-height:1.1}
+.preset b{display:block;font-size:13px;margin-top:4px}
+.preset small{font-size:11px;color:var(--mut)}
+.protag{display:inline-block;font-size:10px;font-weight:700;background:var(--gold);color:#fff;border-radius:5px;padding:2px 5px;margin-left:4px;vertical-align:middle}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:8px 10px;font-size:13px;cursor:pointer;color:var(--ink)}
+.chip.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.swatch{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
+.swatch.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--ink)}
+input[type=range]{width:100%;accent-color:var(--ink)}
+label.lb{font-size:12px;color:var(--mut);display:block;margin:10px 0 4px}
+label.lb b{color:var(--ink);font-weight:700}
+.widebtn{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:11px;font-size:14px;cursor:pointer;margin-top:8px}
+.widebtn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.widebtn:disabled{opacity:.45;cursor:default}
+.sealRow{display:flex;gap:8px}
+.sealChar{flex:1;aspect-ratio:1;border:1px solid var(--line);background:#B03A2E;color:#fff;border-radius:8px;font-size:26px;font-family:serif;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sealChar.on{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--ink)}
+.hint{font-size:12px;color:var(--mut);line-height:1.5;margin-top:8px}
+#caption{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:15;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--mut);max-width:70vw}
+#caption b{color:var(--ink)}
+#paintHint{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:15;background:var(--ink);color:var(--bg);border-radius:10px;padding:8px 12px;font-size:12px;display:none}
+#paintHint.show{display:block}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal.open{display:flex}
+.modalCard{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:420px;width:100%;padding:22px;position:relative;color:var(--ink)}
+.modalCard h2{font-size:20px}
+.modalCard p{font-size:14px;line-height:1.6;margin:10px 0;color:var(--ink)}
+.modalCard .closeX{position:absolute;top:10px;right:10px}
+.modalCard input[type=text]{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:10px;font-size:14px;margin-top:6px}
+.modalCard .buyrow{display:flex;gap:8px;margin-top:12px}
+.modalCard .buyrow a{flex:1;text-align:center;background:var(--ink);color:var(--bg);border-radius:10px;padding:11px;text-decoration:none;font-weight:700;font-size:14px}
+.modalCard .msg{font-size:13px;margin-top:8px;min-height:18px}
+.modalCard .msg.err{color:#B03A2E}.modalCard .msg.ok{color:#2e7d32}
+.modalCard small{color:var(--mut);font-size:12px;line-height:1.5;display:block;margin-top:10px}
+.foot{font-size:11px;color:var(--mut);line-height:1.6;margin-top:22px}
+@media (max-width:640px){.brand small{display:none}#caption{max-width:56vw;font-size:11px}#topbar{gap:6px;padding-left:8px;padding-right:8px}.iconbtn{width:34px;height:34px}.txtbtn{padding:8px 8px}.probtn{padding:9px 10px}.coffee{width:34px;height:34px}}
+@media (max-width:400px){.brand b{display:none}.brand{padding:6px 8px}}
+</style>
+</head>
+<body data-theme="silver">
+<div id="stage"><canvas id="cv"></canvas></div>
+<header id="topbar">
+  <button class="iconbtn" id="menuBtn" aria-label="Menu">☰</button>
+  <div class="brand"><span class="mark">墨</span><div><b>Ink Mo</b><br><small data-i18n="tagline">Ink wash painting studio</small></div></div>
+  <div class="spacer"></div>
+  <button class="txtbtn" id="langBtn">繁中</button>
+  <button class="iconbtn" id="themeBtn" aria-label="Theme">◐</button>
+  <button class="probtn" id="proBtn">Pro</button>
+  <a class="coffee" href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener" aria-label="Buy Me a Coffee" title="Buy Me a Coffee"><svg viewBox="0 0 24 24"><path d="M4 8h12v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8z"/><path d="M16 9h2a2.5 2.5 0 0 1 0 5h-2"/><path d="M7 4c0 1.2 1 1.2 1 2.4M11 4c0 1.2 1 1.2 1 2.4"/></svg></a>
+</header>
+<aside id="drawer" aria-label="Controls">
+  <h2 data-i18n="secScene">Composition</h2>
+  <div class="presetGrid" id="presetGrid"></div>
+  <div class="row" style="margin-top:8px">
+    <button class="widebtn" id="replayBtn" style="flex:1;margin-top:0">▶ <span data-i18n="replay">Replay painting</span></button>
+    <button class="widebtn" id="regenBtn" style="flex:1;margin-top:0">🎲 <span data-i18n="regen">New variation</span></button>
+  </div>
+  <h2 data-i18n="secPaper">Rice paper</h2>
+  <div class="row" id="paperRow"></div>
+  <h2 data-i18n="secInk">Ink &amp; brush</h2>
+  <div class="row" id="inkRow"></div>
+  <label class="lb"><span data-i18n="brushSize">Brush size</span> — <b id="brushVal">6</b></label>
+  <input type="range" id="brushRange" min="2" max="18" value="6" step="1">
+  <label class="lb"><span data-i18n="wetness">Wetness (bleed)</span> — <b id="wetVal">55%</b></label>
+  <input type="range" id="wetRange" min="0" max="100" value="55" step="5">
+  <label class="lb"><span data-i18n="dryness">Dry brush</span> — <b id="dryVal">25%</b></label>
+  <input type="range" id="dryRange" min="0" max="80" value="25" step="5">
+  <button class="widebtn" id="paintBtn">🖌️ <span data-i18n="paintMode">Paint freely</span></button>
+  <button class="widebtn" id="clearBtn">🧹 <span data-i18n="clearPaint">Clear my strokes</span></button>
+  <h2 data-i18n="secSeal">Seal stamp</h2>
+  <div class="sealRow" id="sealRow"></div>
+  <p class="hint" data-i18n="sealHint">Tap a character, then tap the painting to stamp it. Drag the seal to move it.</p>
+  <h2 data-i18n="secExport">Export &amp; share</h2>
+  <button class="widebtn primary" id="pngBtn">⬇️ <span data-i18n="png">Save PNG</span> <span id="pngSize">1024px</span></button>
+  <button class="widebtn" id="shareBtn">🔗 <span data-i18n="share">Share painting link</span><span class="protag">PRO</span></button>
+  <p class="hint" data-i18n="honest">A generative art toy: the ink, bleed and brushwork are simulated with code. It does not teach real brushwork — enjoy the mood.</p>
+  <p class="foot">Ink Mo · OpenX Lab · <span data-i18n="foot">Single HTML file, zero dependencies, local-first. Your painting never leaves this browser.</span><br>© 2026 Ink Mo contributors. All rights reserved.</p>
+</aside>
+<div id="caption"><b id="capTitle">Mountains &amp; Water</b> · <span id="capMeta"></span></div>
+<div id="paintHint" data-i18n="paintHintOn">Painting mode — drag on the paper to paint</div>
+<div class="modal" id="proModal">
+  <div class="modalCard">
+    <button class="iconbtn closeX" id="proClose" aria-label="Close">✕</button>
+    <h2>Ink Mo <span class="protag">PRO</span></h2>
+    <p data-i18n="proPitch">Unlock the Plum Blossom and Moonlit Pine compositions, aged rice paper, all six seal characters, HD PNG (2048px) and shareable painting links.</p>
+    <div class="buyrow">
+      <a id="buyMonthly" href="#" target="_blank" rel="noopener">US$5.99 / mo</a>
+      <a id="buyLifetime" href="#" target="_blank" rel="noopener">US$59.99 lifetime</a>
+    </div>
+    <p style="margin-top:14px"><label for="proKeyIn" data-i18n="keyLabel">Already have a Pro key? Paste it here:</label>
+    <input id="proKeyIn" type="text" autocomplete="off" placeholder="XXXX-XXXX-XXXX-XXXX"></p>
+    <button class="widebtn primary" id="proValidateBtn" data-i18n="validate">Validate key</button>
+    <div class="msg" id="proMsg"></div>
+    <small data-i18n="proNote">One key unlocks Pro across all OpenX tools. Keys are validated against the Lemon Squeezy license API and stored only in your browser.</small>
+  </div>
+</div>
+<script>
+"use strict";
+/* Ink Mo — generative ink wash painting studio. Single file, zero dependencies. */
+const $=id=>document.getElementById(id);
+const cv=$("cv"),ctx=cv.getContext("2d");
+/* ---------- Pro (hardened, same pattern as Robo/Fish Mo: per-device instance + load-time revalidate + store check + offline grace; test checkout links) ---------- */
+const CONFIG={storeId:508220,licenseValidateUrl:"https://api.lemonsqueezy.com/v1/licenses/validate",instanceName:"ink-mo",
+buyMonthly:"https://openx.lemonsqueezy.com/checkout/buy/934fa5b0-fe63-4707-b9cb-d303de1e127f",
+buyLifetime:"https://openx.lemonsqueezy.com/checkout/buy/d107e805-e8e9-42b0-9c1a-eb89078421be"};
+$("buyMonthly").href=CONFIG.buyMonthly;$("buyLifetime").href=CONFIG.buyLifetime;
+let PRO=false;
+function getProInstance(){try{let v=localStorage.getItem("inkmo_instance");if(!v){v="inkmo-"+Math.random().toString(36).slice(2,10)+Date.now().toString(36);localStorage.setItem("inkmo_instance",v);}return v;}catch(e){return "inkmo-web";}}
+function storedPro(){try{const s=localStorage.getItem("inkmo_pro");return s?JSON.parse(s):null;}catch(e){return null;}}
+function savePro(k){try{localStorage.setItem("inkmo_pro",JSON.stringify({key:k}));}catch(e){}}
+function clearPro(){try{localStorage.removeItem("inkmo_pro");}catch(e){}}
+function lsValid(d){return !!(d&&d.valid&&d.license_key&&d.license_key.status==="active");}
+function refreshPro(){$("proBtn").textContent=PRO?"Pro ✓":"Pro";$("pngSize").textContent=PRO?"2048px":"1024px";renderPanels();}
+function needPro(){if(PRO)return true;openProModal();return false;}
+function openProModal(){$("proModal").classList.add("open");}
+function closeProModal(){$("proModal").classList.remove("open");}
+async function validateKey(){const key=$("proKeyIn").value.trim();const msg=$("proMsg");if(!key){msg.textContent=T("key_bad");msg.className="msg err";return;}msg.textContent=T("key_saved");msg.className="msg";try{const res=await fetch(CONFIG.licenseValidateUrl,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({license_key:key,instance_name:getProInstance()})});let data=null;try{data=await res.json();}catch(e){}if(lsValid(data)){savePro(key);PRO=true;refreshPro();msg.textContent=T("key_ok");msg.className="msg ok";setTimeout(closeProModal,900);}else{msg.textContent=T("key_bad");msg.className="msg err";}}catch(err){msg.textContent=T("key_net");msg.className="msg err";}}
+async function revalidatePro(){const s=storedPro();if(!s||!s.key)return;try{const res=await fetch(CONFIG.licenseValidateUrl,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({license_key:s.key,instance_name:getProInstance()})});let data=null;try{data=await res.json();}catch(e){}if(!lsValid(data)){clearPro();PRO=false;refreshPro();}}catch(err){/* offline grace: keep Pro until a check succeeds */}}
+/* ---------- i18n ---------- */
+const I18N={
+en:{tagline:"Ink wash painting studio",secScene:"Composition",secPaper:"Rice paper",secInk:"Ink & brush",secSeal:"Seal stamp",secExport:"Export & share",replay:"Replay painting",regen:"New variation",brushSize:"Brush size",wetness:"Wetness (bleed)",dryness:"Dry brush",paintMode:"Paint freely",paintOff:"Stop painting",clearPaint:"Clear my strokes",png:"Save PNG",share:"Share painting link",honest:"A generative art toy: the ink, bleed and brushwork are simulated with code. It does not teach real brushwork — enjoy the mood.",foot:"Single HTML file, zero dependencies, local-first. Your painting never leaves this browser.",proPitch:"Unlock the Plum Blossom and Moonlit Pine compositions, aged rice paper, all six seal characters, HD PNG (2048px) and shareable painting links.",keyLabel:"Already have a Pro key? Paste it here:",validate:"Validate key",key_ok:"Pro unlocked — welcome!",key_bad:"That key did not validate. Check it and try again.",key_saved:"Checking your key…",key_net:"Could not reach the license server. Check your connection and try again.",proNote:"One key unlocks Pro across all OpenX tools. Keys are validated against the Lemon Squeezy license API and stored only in your browser.",paintHintOn:"Painting mode — drag on the paper to paint",sealHint:"Tap a character, then tap the painting to stamp it. Drag the seal to move it.",paper_white:"Bright white",paper_warm:"Warm",paper_aged:"Aged",proOnly:"Pro feature — unlock with a Pro key.",copied:"Link copied to clipboard.",painted:"painted",strokes:"strokes",seed:"seed"},
+zh:{tagline:"水墨畫工作室",secScene:"構圖",secPaper:"宣紙",secInk:"墨與筆",secSeal:"印章",secExport:"匯出與分享",replay:"重播作畫",regen:"換個變化",brushSize:"筆粗",wetness:"濕潤（暈染）",dryness:"乾筆",paintMode:"自由作畫",paintOff:"停止作畫",clearPaint:"清除我的筆觸",png:"儲存 PNG",share:"分享畫作連結",honest:"生成藝術玩具：墨色、暈染同筆觸都係程式模擬，唔係真筆法——享受嗰份意境就好。",foot:"單一 HTML 檔，零依賴，本地優先。你的畫作唔會離開呢個瀏覽器。",proPitch:"解鎖梅花同月夜松兩個構圖、舊宣紙、全部六個印章字、HD PNG（2048px）同可分享嘅畫作連結。",keyLabel:"已有 Pro 密鑰？貼喺呢度：",validate:"驗證密鑰",key_ok:"Pro 已解鎖——歡迎！",key_bad:"呢個密鑰驗證唔到，請檢查再試。",key_saved:"驗證緊密鑰…",key_net:"連唔到授權伺服器，請檢查網絡再試。",proNote:"一個密鑰解鎖全部 OpenX 工具嘅 Pro。密鑰經 Lemon Squeezy 授權 API 驗證，只儲存喺你的瀏覽器。",paintHintOn:"作畫模式——喺紙上拖曳作畫",sealHint:"揀一個字，再撳畫面蓋印。拖曳印章可以搬位。",paper_white:"亮白",paper_warm:"暖白",paper_aged:"舊紙",proOnly:"Pro 功能——用 Pro 密鑰解鎖。",copied:"連結已複製。",painted:"已畫",strokes:"筆觸",seed:"種子"},
+};
+let LANG="en";
+function T(k){return (I18N[LANG]&&I18N[LANG][k])||I18N.en[k]||k;}
+const PRESETS={
+mountains:{en:"Mountains & Water",zh:"山水",glyph:"🏔️",free:true,sub:{en:"layered ridges, mist, red sun",zh:"層巒、煙霧、紅日"}},
+bamboo:{en:"Bamboo Grove",zh:"竹林",glyph:"🎋",free:true,sub:{en:"stalks, joints & leaves",zh:"竹竿、竹節、竹葉"}},
+plum:{en:"Plum Blossom",zh:"梅花",glyph:"🌸",free:false,sub:{en:"gnarled branch & blossoms",zh:"虬枝與花朵"}},
+pine:{en:"Moonlit Pine",zh:"月夜松",glyph:"🌙",free:false,sub:{en:"great moon & old pine",zh:"明月與古松"}},
+};
+const PAPERS={white:{en:"Bright white",zh:"亮白",base:"#f7f4ec",free:true},warm:{en:"Warm",zh:"暖白",base:"#f1e8d5",free:true},aged:{en:"Aged",zh:"舊紙",base:"#e6d9b8",free:false}};
+const SEALS=[{ch:"墨",free:true},{ch:"山",free:true},{ch:"竹",free:false},{ch:"月",free:false},{ch:"松",free:false},{ch:"印",free:false}];
+const INKS=[{id:"black",c:"#1a1a1a",label:"墨"},{id:"indigo",c:"#2b3a67",label:"藍"},{id:"cinnabar",c:"#b03a2e",label:"朱"}];
+/* ---------- seeded random ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+/* ---------- state ---------- */
+const state={preset:"mountains",paper:"white",seed:(Math.random()*1e9)|0,ink:"#1a1a1a",brush:6,wet:0.55,dry:0.25,paintMode:false,sealChar:"墨",seal:null,myStrokes:[],strokes:[],progress:0,animating:false,theme:"silver"};
+let paperCache=null,paperKey="";
+function saveState(){try{localStorage.setItem("inkmo_state",JSON.stringify({preset:state.preset,paper:state.paper,seed:state.seed,ink:state.ink,brush:state.brush,wet:state.wet,dry:state.dry,sealChar:state.sealChar,lang:LANG,theme:state.theme}));}catch(e){}}
+function loadState(){try{const s=JSON.parse(localStorage.getItem("inkmo_state")||"null");if(!s)return;if(PRESETS[s.preset])state.preset=s.preset;if(PAPERS[s.paper])state.paper=s.paper;if(typeof s.seed==="number")state.seed=s.seed;if(s.ink)state.ink=s.ink;if(s.brush)state.brush=s.brush;if(typeof s.wet==="number")state.wet=s.wet;if(typeof s.dry==="number")state.dry=s.dry;if(s.sealChar)state.sealChar=s.sealChar;if(s.lang)LANG=s.lang;if(s.theme)state.theme=s.theme;}catch(e){}}
+/* ---------- canvas sizing ---------- */
+let W=0,H=0,DPR=1;
+function sizeCanvas(){DPR=Math.min(window.devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;cv.width=Math.max(1,W*DPR);cv.height=Math.max(1,H*DPR);paperCache=null;renderStatic();}
+window.addEventListener("resize",sizeCanvas);
+if(window.visualViewport){visualViewport.addEventListener("resize",sizeCanvas);}
+/* ---------- rice paper ---------- */
+function paperColor(){return PAPERS[state.paper].base;}
+function drawPaper(c,w,h,rng){
+  c.fillStyle=paperColor();c.fillRect(0,0,w,h);
+  // fibres: many faint short strokes
+  c.save();c.globalAlpha=1;
+  for(let i=0;i<900;i++){const x=rng()*w,y=rng()*h,a=rng()*Math.PI,l=2+rng()*9;
+    c.strokeStyle=rng()<0.5?"rgba(120,110,90,0.05)":"rgba(255,255,255,0.06)";c.lineWidth=0.7;
+    c.beginPath();c.moveTo(x,y);c.lineTo(x+Math.cos(a)*l,y+Math.sin(a)*l);c.stroke();}
+  // stains: a few large soft blotches
+  for(let i=0;i<4;i++){const x=rng()*w,y=rng()*h,r=(0.15+rng()*0.25)*Math.min(w,h);
+    const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,"rgba(150,130,90,0.05)");g.addColorStop(1,"rgba(150,130,90,0)");
+    c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,7);c.fill();}
+  // faint deckle vignette
+  const v=c.createRadialGradient(w/2,h/2,Math.min(w,h)*0.35,w/2,h/2,Math.max(w,h)*0.75);
+  v.addColorStop(0,"rgba(0,0,0,0)");v.addColorStop(1,"rgba(90,70,40,0.06)");c.fillStyle=v;c.fillRect(0,0,w,h);
+  c.restore();
+}
+function getPaper(w,h,scale){scale=scale||1;const key=state.paper+"|"+state.seed+"|"+w+"x"+h+"@"+scale;if(paperCache&&paperKey===key)return paperCache;
+  const off=document.createElement("canvas");off.width=Math.max(1,Math.round(w*scale));off.height=Math.max(1,Math.round(h*scale));drawPaper(off.getContext("2d"),off.width,off.height,mulberry32(hashStr("paper"+state.seed)));
+  paperCache=off;paperKey=key;return off;}
+/* ---------- stroke model ---------- */
+/* stroke: {pts:[[x,y,w]...] normalised, color, alpha, dry, bleed} */
+function mkStroke(color,alpha,dry,bleed){return{pts:[],color:color,alpha:alpha,dry:dry,bleed:bleed};}
+function addPt(s,x,y,w){s.pts.push([x,y,w]);}
+/* tapered stroke from (x0,y0) to (x1,y1) with width profile w0->w1, jittered */
+function taperedStroke(rng,x0,y0,x1,y1,w0,w1,color,alpha,dry,bleed,curve){
+  const s=mkStroke(color,alpha,dry,bleed);const n=14+((rng()*10)|0);
+  const mx=(x0+x1)/2+(rng()-0.5)*(curve||0.06),my=(y0+y1)/2+(rng()-0.5)*(curve||0.06);
+  for(let i=0;i<=n;i++){const t=i/n;
+    const bx=(1-t)*(1-t)*x0+2*(1-t)*t*mx+t*t*x1, by=(1-t)*(1-t)*y0+2*(1-t)*t*my+t*t*y1;
+    const w=w0+(w1-w0)*t; addPt(s,bx+(rng()-0.5)*0.0015,by+(rng()-0.5)*0.0015,Math.max(0.0012,w));}
+  return s;}
+function drawStroke(c,w,h,s,frac,rng){
+  if(!s.pts.length||frac<=0)return;
+  const total=s.pts.length-1;const upto=Math.max(1,Math.floor(total*frac));
+  const m=Math.min(w,h);
+  c.save();c.globalCompositeOperation="multiply";c.lineCap="round";c.lineJoin="round";
+  // bleed pass: wide, very faint polyline (max width of the stroke)
+  if(s.bleed>0){let mw=0;s.pts.forEach(p=>{mw=Math.max(mw,p[2]);});
+    c.strokeStyle=s.color;c.globalAlpha=s.alpha*0.07*s.bleed;
+    c.lineWidth=Math.max(1,mw*m*2.4);
+    c.beginPath();for(let i=0;i<=upto;i++){const p=s.pts[i];if(i===0)c.moveTo(p[0]*w,p[1]*h);else c.lineTo(p[0]*w,p[1]*h);}c.stroke();}
+  // main pass: dense overlapping dabs interpolated along each segment so the line stays continuous
+  for(let i=0;i<upto;i++){
+    const p0=s.pts[i],p1=s.pts[i+1];
+    const segLen=Math.hypot((p1[0]-p0[0])*w,(p1[1]-p0[1])*h);
+    const wAvg=(p0[2]+p1[2])/2*m;
+    const steps=Math.max(1,Math.ceil(segLen/Math.max(1.5,wAvg*0.45)));
+    const ang=Math.atan2((p1[1]-p0[1])*h,(p1[0]-p0[0])*w);
+    for(let k=0;k<=steps;k++){
+      const t=k/steps;
+      const x=p0[0]+(p1[0]-p0[0])*t,y=p0[1]+(p1[1]-p0[1])*t;
+      const wdt=(p0[2]+(p1[2]-p0[2])*t)*m;
+      const dh=hashStr("dab"+i+"-"+k+"|"+s.pts.length);
+      if(s.dry>0&&(dh%100)/100<s.dry*0.7)continue; // dry-brush gaps
+      c.globalAlpha=s.alpha*(0.75+((dh%40)/100)*0.5);
+      c.fillStyle=s.color;
+      c.beginPath();c.ellipse(x*w,y*h,Math.max(0.6,wdt*0.62),Math.max(0.4,wdt*0.30),ang,0,7);c.fill();}
+  }
+  c.restore();}
+function washBlob(c,w,h,rng,cx,cy,rx,ry,alpha,color){
+  const g=c.createRadialGradient(cx*w,cy*h,0,cx*w,cy*h,Math.max(rx*w,ry*h));
+  g.addColorStop(0,"rgba(40,40,40,"+alpha+")");g.addColorStop(0.7,"rgba(40,40,40,"+(alpha*0.4)+")");g.addColorStop(1,"rgba(40,40,40,0)");
+  c.save();c.globalCompositeOperation="multiply";c.fillStyle=g;
+  c.beginPath();c.ellipse(cx*w,cy*h,rx*w,ry*h,0,0,7);c.fill();c.restore();}
+/* ---------- composers: each returns {strokes:[], washes:[], sun:{x,y,r,color}|null, seal:{x,y}} ---------- */
+function composeMountains(rng){
+  const strokes=[],washes=[];
+  // far wash + ridges back to front
+  washes.push({x:0.5,y:0.30,rx:0.42,ry:0.10,a:0.05});
+  const layers=[{y:0.34,amp:0.05,a:0.35,w:0.010},{y:0.46,amp:0.07,a:0.5,w:0.014},{y:0.60,amp:0.09,a:0.65,w:0.020},{y:0.74,amp:0.07,a:0.85,w:0.028}];
+  layers.forEach((L,li)=>{
+    let x=-0.05,y=L.y+(rng()-0.5)*0.03;const pts=[[x,y]];
+    while(x<1.05){x+=0.06+rng()*0.08;y=L.y+Math.sin(x*9+li*2.1)*L.amp*(0.4+rng()*0.8)+(rng()-0.5)*0.02;pts.push([x,Math.max(0.08,Math.min(0.92,y))]);}
+    const s=mkStroke("#1a1a1a",L.a,0.15+li*0.04,0.5);
+    pts.forEach((p,i)=>{const w=L.w*(0.7+0.6*Math.abs(Math.sin(i*1.3+li)));addPt(s,p[0],p[1],w);});
+    strokes.push(s);
+    // ridge texture strokes: short diagonals under each peak
+    for(let k=0;k<7;k++){const px=0.05+rng()*0.9,py=L.y+0.01+rng()*0.05;
+      strokes.push(taperedStroke(rng,px,py,px+0.02+rng()*0.03,py+0.03+rng()*0.04,0.004,0.001,"#1a1a1a",L.a*0.7,0.3,0.3,0.01));}
+  });
+  // mist bands between ridges
+  washes.push({x:0.5,y:0.52,rx:0.6,ry:0.05,a:0.04});
+  // red sun
+  const sun={x:0.72+rng()*0.08,y:0.20+rng()*0.04,r:0.045,color:"#b03a2e"};
+  // water lines
+  for(let i=0;i<6;i++){const yy=0.82+i*0.025;strokes.push(taperedStroke(rng,0.15+rng()*0.2,yy,0.75+rng()*0.15,yy+(rng()-0.5)*0.008,0.0035,0.0012,"#1a1a1a",0.5,0.2,0.4,0.004));}
+  // tiny boat
+  const bx=0.42+rng()*0.1,by=0.845;
+  strokes.push(taperedStroke(rng,bx,by,bx+0.07,by,0.006,0.006,"#1a1a1a",0.85,0.1,0.2,0.002));
+  strokes.push(taperedStroke(rng,bx+0.035,by,bx+0.035,by-0.045,0.003,0.0015,"#1a1a1a",0.85,0.1,0.2,0.002));
+  return{strokes:strokes,washes:washes,sun:sun,seal:{x:0.88,y:0.86}};
+}
+function composeBamboo(rng){
+  const strokes=[],washes=[];
+  washes.push({x:0.5,y:0.5,rx:0.4,ry:0.3,a:0.03});
+  const stalks=4+((rng()*2)|0);
+  for(let k=0;k<stalks;k++){
+    const x0=0.12+k*0.17+(rng()-0.5)*0.06;let y=1.02;let x=x0;
+    const segs=3+((rng()*3)|0);
+    for(let sgm=0;sgm<segs;sgm++){
+      const y2=y-(0.22+rng()*0.12);const x2=x+(rng()-0.5)*0.05;
+      strokes.push(taperedStroke(rng,x,y,x2,y2,0.010,0.008,"#1a1a1a",0.8,0.15,0.4,0.02));
+      // node tick
+      strokes.push(taperedStroke(rng,x2-0.012,y2,x2+0.012,y2,0.004,0.004,"#1a1a1a",0.85,0.1,0.2,0.001));
+      x=x2;y=y2;
+      // leaves from this joint
+      const ln=2+((rng()*3)|0);
+      for(let lf=0;lf<ln;lf++){const lx=x+(rng()-0.5)*0.03,ly=y;
+        const dir=rng()<0.5?-1:1;const len=0.07+rng()*0.06;
+        strokes.push(taperedStroke(rng,lx,ly,lx+dir*len,ly-0.02-rng()*0.05,0.007,0.0008,"#1a1a1a",0.75,0.25,0.3,0.03));}
+    }
+  }
+  // fallen leaf accents
+  for(let k=0;k<3;k++){strokes.push(taperedStroke(rng,0.2+rng()*0.6,0.9+rng()*0.06,0.26+rng()*0.6,0.88+rng()*0.06,0.005,0.0008,"#1a1a1a",0.6,0.3,0.3,0.01));}
+  return{strokes:strokes,washes:washes,sun:null,seal:{x:0.86,y:0.88}};
+}
+function composePlum(rng){
+  const strokes=[],washes=[];
+  washes.push({x:0.5,y:0.42,rx:0.5,ry:0.22,a:0.04});
+  // gnarled main branch from lower left
+  let x=0.02,y=0.95;const branch=mkStroke("#1a1a1a",0.9,0.2,0.35);
+  addPt(branch,x,y,0.030);
+  const ctrl=[[0.18,0.82],[0.34,0.86],[0.48,0.66],[0.62,0.70],[0.78,0.52],[0.92,0.55]];
+  ctrl.forEach((c,i)=>{for(let t=1;t<=6;t++){const px=x+(c[0]-x)*t/6,py=y+(c[1]-y)*t/6;addPt(branch,px,py,0.030-(i*6+t)*0.0016);}x=c[0];y=c[1];});
+  strokes.push(branch);
+  // sub branches
+  const subs=[[0.34,0.86,0.30,0.60],[0.48,0.66,0.44,0.44],[0.62,0.70,0.66,0.46],[0.78,0.52,0.86,0.34]];
+  subs.forEach(sb=>{strokes.push(taperedStroke(rng,sb[0],sb[1],sb[2],sb[3],0.010,0.0015,"#1a1a1a",0.85,0.2,0.3,0.03));
+    strokes.push(taperedStroke(rng,sb[2],sb[3],sb[2]+0.05,sb[3]-0.05,0.004,0.0008,"#1a1a1a",0.8,0.25,0.3,0.01));});
+  // blossoms along branch points
+  const blooms=[[0.30,0.60],[0.44,0.44],[0.66,0.46],[0.86,0.34],[0.55,0.58],[0.72,0.60],[0.40,0.72],[0.90,0.48]];
+  blooms.forEach(b=>{const petals=5;const red=rng()<0.35;
+    for(let p=0;p<petals;p++){const a=p/petals*Math.PI*2+rng()*0.3;const px=b[0]+Math.cos(a)*0.018,py=b[1]+Math.sin(a)*0.014;
+      strokes.push(taperedStroke(rng,b[0],b[1],px,py,0.008,0.004,red?"#b03a2e":"#1a1a1a",red?0.85:0.6,0.1,0.25,0.005));}
+    const c=mkStroke("#1a1a1a",0.9,0,0);addPt(c,b[0],b[1],0.006);strokes.push(c);});
+  // a few falling petals
+  for(let k=0;k<4;k++){const px=0.2+rng()*0.6,py=0.7+rng()*0.2;const c=mkStroke("#b03a2e",0.7,0,0.2);addPt(c,px,py,0.005);strokes.push(c);}
+  return{strokes:strokes,washes:washes,sun:null,seal:{x:0.88,y:0.86}};
+}
+function composePine(rng){
+  const strokes=[],washes=[];
+  washes.push({x:0.5,y:0.45,rx:0.55,ry:0.25,a:0.05});
+  // big pale moon
+  const sun={x:0.74,y:0.22,r:0.085,color:"#d8cfae"};
+  // stars
+  for(let k=0;k<14;k++){const c=mkStroke("#1a1a1a",0.5,0,0);addPt(c,0.05+rng()*0.9,0.05+rng()*0.3,0.0025);strokes.push(c);}
+  // old pine trunk, leaning
+  const trunk=mkStroke("#1a1a1a",0.92,0.2,0.3);
+  let tx=0.30,ty=1.02;addPt(trunk,tx,ty,0.034);
+  [[0.32,0.86],[0.30,0.72],[0.34,0.58],[0.31,0.46]].forEach(c=>{for(let t=1;t<=6;t++){addPt(trunk,tx+(c[0]-tx)*t/6,ty+(c[1]-ty)*t/6,0.034-t*0.002);}tx=c[0];ty=c[1];});
+  strokes.push(trunk);
+  // layered branches + needle clusters
+  const branches=[[0.31,0.72,0.14,0.62],[0.31,0.72,0.48,0.60],[0.33,0.58,0.16,0.50],[0.33,0.58,0.50,0.46],[0.31,0.46,0.18,0.38],[0.31,0.46,0.46,0.36]];
+  branches.forEach(b=>{strokes.push(taperedStroke(rng,b[0],b[1],b[2],b[3],0.012,0.002,"#1a1a1a",0.88,0.2,0.3,0.03));
+    for(let n=0;n<5;n++){const nx=b[2]+(rng()-0.5)*0.16,ny=b[3]+(rng()-0.5)*0.05;
+      strokes.push(taperedStroke(rng,b[2],b[3],nx,ny,0.005,0.0007,"#1a1a1a",0.7,0.3,0.3,0.02));}});
+  // ground line
+  strokes.push(taperedStroke(rng,0.08,0.97,0.6,0.95,0.006,0.002,"#1a1a1a",0.6,0.25,0.3,0.01));
+  return{strokes:strokes,washes:washes,sun:sun,seal:{x:0.86,y:0.88}};
+}
+const COMPOSERS={mountains:composeMountains,bamboo:composeBamboo,plum:composePlum,pine:composePine};
+/* ---------- render ---------- */
+let scene=null;
+function compose(){
+  const rng=mulberry32(hashStr(state.preset+"|"+state.seed));
+  scene=COMPOSERS[state.preset](rng);
+  // assign paint order timing
+  scene.strokes.forEach((s,i)=>{s.t0=i/scene.strokes.length*0.75;s.dur=0.25;});
+  state.progress=0;state.animating=true;
+}
+function drawSeal(c,w,h,frac){
+  const seal=state.seal||{x:scene?scene.seal.x:0.86,y:scene?scene.seal.y:0.88};
+  const m=Math.min(w,h),sz=m*0.075,x=seal.x*w,y=seal.y*h;
+  c.save();c.globalAlpha=Math.min(1,frac*3);
+  c.fillStyle="#B03A2E";c.fillRect(x-sz/2,y-sz/2,sz,sz);
+  c.fillStyle="rgba(255,255,255,0.92)";c.font="bold "+(sz*0.62)+"px serif";c.textAlign="center";c.textBaseline="middle";
+  c.fillText(state.sealChar,x,y+sz*0.03);
+  c.strokeStyle="rgba(176,58,46,0.5)";c.lineWidth=1;c.strokeRect(x-sz/2-2,y-sz/2-2,sz+4,sz+4);
+  c.restore();}
+function renderScene(c,w,h,frac,scale){
+  scale=scale||1;
+  c.setTransform(scale,0,0,scale,0,0);
+  c.drawImage(getPaper(w,h,scale),0,0,w,h);
+  if(!scene)return;
+  const rng=mulberry32(hashStr("draw"+state.seed));
+  scene.washes.forEach(ws=>{if(frac>0.05)washBlob(c,w,h,rng,ws.x,ws.y,ws.rx,ws.ry,ws.a*Math.min(1,frac*2));});
+  if(scene.sun&&frac>0.1){const m=Math.min(w,h);
+    c.save();c.globalCompositeOperation="multiply";
+    for(let i=3;i>=1;i--){c.globalAlpha=0.25*(4-i)/3;c.fillStyle=scene.sun.color;c.beginPath();c.arc(scene.sun.x*w,scene.sun.y*h,scene.sun.r*m*(1+i*0.12),0,7);c.fill();}
+    c.globalAlpha=0.9;c.fillStyle=scene.sun.color;c.beginPath();c.arc(scene.sun.x*w,scene.sun.y*h,scene.sun.r*m,0,7);c.fill();c.restore();}
+  scene.strokes.forEach(s=>{const f=Math.max(0,Math.min(1,(frac-s.t0)/s.dur));drawStroke(c,w,h,s,f,rng);});
+  state.myStrokes.forEach(s=>{drawStroke(c,w,h,s,1,rng);});
+  if(frac>=0.95)drawSeal(c,w,h,(frac-0.95)/0.05);
+}
+function renderStatic(){renderScene(ctx,W,H,state.animating?state.progress:1,DPR);}
+let rafId=null;
+function tick(ts){
+  if(!state.animating){rafId=null;return;}
+  state.progress+=0.008;
+  if(state.progress>=1){state.progress=1;state.animating=false;}
+  renderStatic();
+  updateCaption();
+  if(state.animating)rafId=requestAnimationFrame(tick);else rafId=null;
+}
+function startPaint(){if(!scene)compose();state.progress=0;state.animating=true;if(!rafId)rafId=requestAnimationFrame(tick);}
+function updateCaption(){
+  const p=PRESETS[state.preset];
+  $("capTitle").textContent=LANG==="zh"?p.zh:p.en;
+  $("capMeta").textContent=T("seed")+" "+state.seed+" · "+(state.myStrokes.length+(scene?scene.strokes.length:0))+" "+T("strokes")+(state.animating?" · "+T("painted")+" "+Math.round(state.progress*100)+"%":"");
+}
+/* ---------- export ---------- */
+function exportPNG(){
+  const size=PRO?2048:1024;
+  const off=document.createElement("canvas");const ratio=H/Math.max(1,W);
+  off.width=size;off.height=Math.round(size*ratio);
+  const c=off.getContext("2d");
+  const savedPaper=paperCache,paperK=paperKey;
+  paperCache=null;renderScene(c,off.width,off.height,1,1);
+  paperCache=savedPaper;paperKey=paperK;
+  const a=document.createElement("a");a.download="ink-mo-"+state.preset+"-"+state.seed+".png";a.href=off.toDataURL("image/png");a.click();
+}
+function shareLink(){
+  if(!needPro())return;
+  const o={p:state.preset,s:state.seed,pa:state.paper,sc:state.sealChar};
+  const b=btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+  const url=location.href.split("#")[0]+"#s="+b;
+  const done=()=>{const m=$("paintHint");m.textContent=T("copied");m.classList.add("show");setTimeout(()=>{m.textContent=T("paintHintOn");if(!state.paintMode)m.classList.remove("show");},1800);};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done,()=>{prompt("Copy link:",url);});}
+  else prompt("Copy link:",url);
+}
+/* ---------- UI panels ---------- */
+function renderPanels(){
+  const g=$("presetGrid");g.innerHTML="";
+  Object.keys(PRESETS).forEach(id=>{const p=PRESETS[id];
+    const b=document.createElement("button");b.className="preset"+(state.preset===id?" on":"");b.dataset.preset=id;
+    b.innerHTML='<div class="glyph">'+p.glyph+'</div><b>'+(LANG==="zh"?p.zh:p.en)+(p.free?"":'<span class="protag">PRO</span>')+'</b><small>'+(LANG==="zh"?p.sub.zh:p.sub.en)+'</small>';
+    b.onclick=()=>{if(!p.free&&!PRO){needPro();return;}state.preset=id;state.myStrokes=[];saveState();compose();renderPanels();startPaint();};
+    g.appendChild(b);});
+  const pr=$("paperRow");pr.innerHTML="";
+  Object.keys(PAPERS).forEach(id=>{const p=PAPERS[id];
+    const b=document.createElement("button");b.className="chip"+(state.paper===id?" on":"");b.dataset.paper=id;
+    b.innerHTML=(LANG==="zh"?p.zh:p.en)+(p.free?"":'<span class="protag">PRO</span>');
+    b.style.background=p.base;b.style.color="#22262a"; // paper chips are always light, keep text dark in every theme
+    b.onclick=()=>{if(!p.free&&!PRO){needPro();return;}state.paper=id;paperCache=null;saveState();renderPanels();renderStatic();};
+    pr.appendChild(b);});
+  const ir=$("inkRow");ir.innerHTML="";
+  INKS.forEach(ik=>{const b=document.createElement("button");b.className="swatch"+(state.ink===ik.c?" on":"");b.style.background=ik.c;b.title=ik.label;
+    b.onclick=()=>{state.ink=ik.c;saveState();renderPanels();};ir.appendChild(b);});
+  const sr=$("sealRow");sr.innerHTML="";
+  SEALS.forEach(sc=>{const b=document.createElement("button");b.className="sealChar"+(state.sealChar===sc.ch?" on":"");b.textContent=sc.ch;
+    b.onclick=()=>{if(!sc.free&&!PRO){needPro();return;}state.sealChar=sc.ch;saveState();renderPanels();renderStatic();};
+    sr.appendChild(b);});
+  document.querySelectorAll("[data-i18n]").forEach(el=>{const k=el.getAttribute("data-i18n");if(I18N[LANG][k]||I18N.en[k])el.textContent=T(k);});
+  $("langBtn").textContent=LANG==="zh"?"EN":"繁中";
+  $("brushVal").textContent=state.brush;$("wetVal").textContent=Math.round(state.wet*100)+"%";$("dryVal").textContent=Math.round(state.dry*100)+"%";
+  $("paintBtn").querySelector("span").textContent=T(state.paintMode?"paintOff":"paintMode");
+  updateCaption();
+}
+function applyTheme(){document.body.dataset.theme=state.theme;}
+/* ---------- free painting ---------- */
+let painting=null,sealDrag=false;
+function canvasPos(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height};}
+cv.addEventListener("pointerdown",e=>{
+  const p=canvasPos(e);
+  const seal=state.seal||{x:scene?scene.seal.x:0.86,y:scene?scene.seal.y:0.88};
+  const m=Math.min(W,H),sz=m*0.075;
+  if(Math.abs(p.x*W-seal.x*W)<sz&&Math.abs(p.y*H-seal.y*H)<sz){sealDrag=true;cv.setPointerCapture(e.pointerId);return;}
+  if(!state.paintMode){state.seal={x:p.x,y:p.y};renderStatic();return;}
+  painting=mkStroke(state.ink,0.85,state.dry,state.wet);addPt(painting,p.x,p.y,state.brush/600);
+  painting._last={x:p.x,y:p.y,t:performance.now()};
+  cv.setPointerCapture(e.pointerId);});
+cv.addEventListener("pointermove",e=>{
+  const p=canvasPos(e);
+  if(sealDrag){state.seal={x:p.x,y:p.y};renderStatic();return;}
+  if(!painting)return;
+  const now=performance.now();const dt=Math.max(1,now-painting._last.t);
+  const dx=p.x-painting._last.x,dy=p.y-painting._last.y;const dist=Math.hypot(dx,dy);
+  const speed=dist/dt;const w=Math.max(0.002,Math.min(0.03,(state.brush/600)*(1.6-Math.min(1.2,speed*8))));
+  addPt(painting,p.x,p.y,w);painting._last={x:p.x,y:p.y,t:now};renderStatic();});
+function endPointer(){if(sealDrag){sealDrag=false;return;}
+  if(painting){if(painting.pts.length>1)state.myStrokes.push(painting);painting=null;renderStatic();updateCaption();}}
+cv.addEventListener("pointerup",endPointer);
+cv.addEventListener("pointercancel",endPointer);
+/* ---------- wiring ---------- */
+$("menuBtn").onclick=()=>$("drawer").classList.toggle("open");
+$("langBtn").onclick=()=>{LANG=LANG==="zh"?"en":"zh";saveState();renderPanels();};
+$("themeBtn").onclick=()=>{state.theme=state.theme==="silver"?"black":state.theme==="black"?"white":"silver";applyTheme();saveState();};
+$("proBtn").onclick=openProModal;
+$("proClose").onclick=closeProModal;
+$("proModal").addEventListener("click",e=>{if(e.target===$("proModal"))closeProModal();});
+$("proValidateBtn").onclick=validateKey;
+$("replayBtn").onclick=()=>{startPaint();};
+$("regenBtn").onclick=()=>{state.seed=(Math.random()*1e9)|0;state.myStrokes=[];saveState();compose();renderPanels();startPaint();};
+$("brushRange").oninput=e=>{state.brush=+e.target.value;$("brushVal").textContent=state.brush;saveState();};
+$("wetRange").oninput=e=>{state.wet=+e.target.value/100;$("wetVal").textContent=e.target.value+"%";saveState();};
+$("dryRange").oninput=e=>{state.dry=+e.target.value/100;$("dryVal").textContent=e.target.value+"%";saveState();};
+$("paintBtn").onclick=()=>{state.paintMode=!state.paintMode;$("paintHint").classList.toggle("show",state.paintMode);renderPanels();};
+$("clearBtn").onclick=()=>{state.myStrokes=[];renderStatic();updateCaption();};
+$("pngBtn").onclick=exportPNG;
+$("shareBtn").onclick=shareLink;
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("drawer").classList.remove("open");closeProModal();}});
+/* ---------- init ---------- */
+function loadHash(){try{const m=location.hash.match(/#s=([A-Za-z0-9\-_]+)/);if(!m)return;const o=JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g,"+").replace(/_/g,"/")))));if(o.p&&PRESETS[o.p])state.preset=o.p;if(typeof o.s==="number")state.seed=o.s;if(o.pa&&PAPERS[o.pa])state.paper=o.pa;if(o.sc)state.sealChar=o.sc;}catch(e){}}
+loadState();loadHash();
+$("brushRange").value=state.brush;$("wetRange").value=Math.round(state.wet*100);$("dryRange").value=Math.round(state.dry*100);
+applyTheme();
+const _sp=storedPro();if(_sp&&_sp.key){PRO=true;revalidatePro();}
+refreshPro();
+sizeCanvas();
+compose();
+renderPanels();
+startPaint();
+</script>
+</body>
+</html>

@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sleep Mo — Pocket Sleep-Cycle Planner</title>
+<meta name="description" content="Sleep Mo plans your night around 90-minute sleep cycles. Pick a wake time, see the best bedtimes on a night dial, watch your hypnogram, log your sleep and plan naps — all on your device.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%2312183a'/%3E%3Cpath d='M21 19a7 7 0 1 1-2-13.7A8.5 8.5 0 1 0 21 19z' fill='%23fde68a'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+TC:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eaedef; --panel:#f6f8f9; --panel2:#ffffff; --ink:#1d2126; --muted:#6b7280;
+  --line:#d5d9dc; --accent:#4f46e5; --accent2:#7c3aed; --amber:#d97706; --ok:#15803d;
+  --night:#0f1530; --shadow:0 8px 28px rgba(20,30,60,.10);
+}
+[data-theme="white"]{ --bg:#ffffff; --panel:#f7f7f7; --panel2:#ffffff; --ink:#1d2126; --muted:#6b7280; --line:#e2e2e0; }
+[data-theme="black"]{ --bg:#14161a; --panel:#1d2026; --panel2:#23262d; --ink:#e8eaed; --muted:#9aa0a8; --line:#33373f; --shadow:0 8px 28px rgba(0,0,0,.45); }
+*{box-sizing:border-box; margin:0; padding:0}
+html,body{height:100%}
+body{font-family:"Inter","Noto Sans TC",system-ui,sans-serif; background:var(--bg); color:var(--ink); overflow-x:hidden}
+h1,h2,h3,.dela{font-family:"Dela Gothic One","Noto Sans TC",sans-serif; font-weight:400; letter-spacing:.01em}
+button{font-family:inherit; cursor:pointer}
+input,select{font-family:inherit}
+
+/* ===== top bar ===== */
+.topbar{position:sticky; top:0; z-index:40; display:flex; align-items:center; gap:10px;
+  padding:10px 14px; background:var(--bg); border-bottom:1px solid var(--line)}
+.iconbtn{width:38px; height:38px; border:1px solid var(--line); background:var(--panel2); color:var(--ink);
+  border-radius:10px; font-size:17px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto}
+.iconbtn:hover{border-color:var(--accent)}
+.brand{font-size:19px; line-height:1; white-space:nowrap}
+.brand small{font-family:"Inter","Noto Sans TC",sans-serif; font-size:11px; color:var(--muted); display:block; margin-top:3px}
+.spacer{flex:1}
+.pillbtn{height:38px; padding:0 13px; border:1px solid var(--line); background:var(--panel2); color:var(--ink);
+  border-radius:19px; font-size:13px; font-weight:600; white-space:nowrap}
+.pillbtn.pro-on{background:var(--accent); border-color:var(--accent); color:#fff}
+.bmc{display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:10px;
+  border:1px solid var(--line); background:var(--panel2); flex:0 0 auto}
+.bmc svg{width:20px; height:20px; fill:#8a867e}
+
+/* ===== stage ===== */
+.stage{max-width:1060px; margin:0 auto; padding:18px 14px 30px}
+.hero{text-align:center; margin:6px 0 4px}
+.hero h1{font-size:clamp(30px,6vw,46px)}
+.hero p{color:var(--muted); font-size:14px; margin-top:8px}
+.mode-row{display:flex; justify-content:center; gap:8px; margin:16px 0 6px; flex-wrap:wrap}
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--panel2)}
+.seg button{border:0; background:transparent; color:var(--ink); padding:9px 16px; font-size:13px; font-weight:600}
+.seg button.on{background:var(--accent); color:#fff}
+.dial-wrap{display:flex; justify-content:center; margin-top:6px}
+#dial{display:block; width:min(540px,94vw); height:auto; touch-action:none; cursor:grab; border-radius:50%}
+#dial:active{cursor:grabbing}
+.readout{text-align:center; margin-top:2px}
+.readout .big{font-size:26px; font-weight:700}
+.readout .big .dela{font-size:26px}
+.readout .sub{color:var(--muted); font-size:13px; margin-top:4px}
+.readout .sub b{color:var(--ink)}
+.cycle-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:16px}
+.cycle{border:1px solid var(--line); background:var(--panel2); border-radius:14px; padding:12px 10px; text-align:center; cursor:pointer}
+.cycle:hover{border-color:var(--accent)}
+.cycle.sel{border:2px solid var(--accent); background:var(--panel); padding:11px 9px}
+.cycle .n{font-size:12px; color:var(--muted); font-weight:600; letter-spacing:.04em}
+.cycle .t{font-size:21px; font-weight:700; margin-top:4px}
+.cycle .h{font-size:12px; color:var(--muted); margin-top:2px}
+.cycle .q{font-size:12px; margin-top:6px; font-weight:600}
+.cycle .q.good{color:var(--ok)} .cycle .q.mid{color:var(--amber)} .cycle .q.low{color:#b91c1c}
+.cycle .st{font-size:11px; color:var(--muted); margin-top:3px}
+.now-list{display:none; max-width:560px; margin:14px auto 0; border:1px solid var(--line); border-radius:14px; background:var(--panel2); overflow:hidden}
+.now-list.open{display:block}
+.now-list .nl-head{padding:11px 14px; font-size:13px; font-weight:600; border-bottom:1px solid var(--line); background:var(--panel)}
+.now-row{display:flex; align-items:center; gap:10px; width:100%; border:0; border-bottom:1px solid var(--line);
+  background:transparent; color:var(--ink); padding:12px 14px; font-size:14px; text-align:left}
+.now-row:last-child{border-bottom:0}
+.now-row:hover{background:var(--panel)}
+.now-row .wt{font-weight:700; font-size:17px}
+.now-row .wc{color:var(--muted); font-size:12px}
+.now-row .go{margin-left:auto; color:var(--accent); font-weight:700}
+
+/* hypnogram */
+.hypo-card{margin-top:18px; border:1px solid var(--line); border-radius:16px; background:var(--panel2); padding:16px; box-shadow:var(--shadow)}
+.hypo-card h2{font-size:18px}
+.hypo-card .hintline{color:var(--muted); font-size:13px; margin-top:5px}
+#hypo{width:100%; height:170px; display:block; margin-top:10px}
+.legend{display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--muted); margin-top:8px}
+.legend i{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:-1px}
+.smart{margin-top:10px; font-size:13px; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 12px}
+.smart b{color:var(--accent)}
+
+/* ===== drawer ===== */
+.scrim{position:fixed; inset:0; background:rgba(10,14,30,.45); opacity:0; pointer-events:none; transition:opacity .2s; z-index:50}
+.scrim.open{opacity:1; pointer-events:auto}
+.drawer{position:fixed; top:0; left:0; bottom:0; width:min(380px,92vw); background:var(--panel2); z-index:60;
+  transform:translateX(-102%); transition:transform .25s ease; overflow-y:auto; border-right:1px solid var(--line)}
+.drawer.open{transform:none}
+.drawer .dhead{position:sticky; top:0; background:var(--panel2); display:flex; align-items:center; gap:10px;
+  padding:14px; border-bottom:1px solid var(--line); z-index:2}
+.drawer .dhead h2{font-size:18px; flex:1}
+.dsec{padding:16px 14px; border-bottom:1px solid var(--line)}
+.dsec h3{font-size:15px; margin-bottom:4px}
+.dsec .desc{font-size:12.5px; color:var(--muted); line-height:1.55; margin-bottom:12px}
+.field{margin-bottom:12px}
+.field label{display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:5px}
+.field input[type="time"],.field input[type="date"],.field select{width:100%; height:40px; border:1px solid var(--line);
+  border-radius:10px; background:var(--panel); color:var(--ink); padding:0 10px; font-size:15px}
+.chips{display:flex; gap:8px; flex-wrap:wrap}
+.chip{border:1px solid var(--line); background:var(--panel); color:var(--ink); border-radius:20px;
+  padding:8px 13px; font-size:13px; font-weight:600}
+.chip.on{background:var(--accent); border-color:var(--accent); color:#fff}
+.chip.locked{opacity:.55}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:6px; border:0; border-radius:11px;
+  background:var(--accent); color:#fff; font-size:14px; font-weight:600; padding:11px 18px}
+.btn.ghost{background:transparent; color:var(--ink); border:1px solid var(--line)}
+.btn.danger{background:#b91c1c}
+.btn.small{padding:8px 12px; font-size:13px}
+.btn:disabled{opacity:.5; cursor:default}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.stars{display:flex; gap:4px}
+.stars button{border:0; background:transparent; font-size:22px; color:#cbd5e1; padding:2px}
+.stars button.on{color:#f59e0b}
+.loglist{margin-top:12px}
+.logrow{display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--line); font-size:13.5px}
+.logrow .d{font-weight:700}
+.logrow .t{color:var(--muted)}
+.logrow .q{margin-left:auto; color:#f59e0b; letter-spacing:1px}
+.logrow .del{border:0; background:transparent; color:var(--muted); font-size:16px; padding:4px}
+.statgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px}
+.stat{border:1px solid var(--line); border-radius:12px; padding:10px 8px; text-align:center; background:var(--panel)}
+.stat b{font-size:19px; display:block}
+.stat span{font-size:11px; color:var(--muted)}
+#logChart{width:100%; height:120px; display:block; margin-top:10px}
+.napring{display:flex; align-items:center; gap:14px; margin-top:12px}
+#napRing{width:96px; height:96px; flex:0 0 auto}
+.napclock{font-size:30px; font-weight:700}
+.napstate{font-size:12.5px; color:var(--muted); margin-top:2px}
+.kv{display:flex; justify-content:space-between; font-size:13.5px; padding:8px 2px; border-bottom:1px solid var(--line)}
+.kv:last-child{border-bottom:0}
+.kv b{text-align:right}
+.ok-t{color:var(--ok); font-weight:700} .warn-t{color:var(--amber); font-weight:700} .bad-t{color:#b91c1c; font-weight:700}
+.tips{font-size:13.5px; line-height:1.6; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px}
+.tips b{display:block; margin-bottom:4px}
+.foot{text-align:center; color:var(--muted); font-size:12px; line-height:1.7; padding:8px 16px 26px}
+.foot a{color:var(--muted)}
+
+/* ===== pro modal ===== */
+.modal{position:fixed; inset:0; z-index:80; display:none; align-items:center; justify-content:center; padding:16px;
+  background:rgba(10,14,30,.55)}
+.modal.open{display:flex}
+.modal .box{background:var(--panel2); color:var(--ink); border-radius:18px; max-width:440px; width:100%;
+  padding:22px; max-height:88vh; overflow-y:auto}
+.modal .box h2{font-size:20px}
+.modal .box p{font-size:13.5px; line-height:1.6; color:var(--muted); margin:9px 0}
+.plans{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:12px 0}
+.plan{border:1px solid var(--line); border-radius:12px; padding:12px; text-align:center}
+.plan b{font-size:14px}
+.plan div{font-size:13px; color:var(--muted); margin:5px 0 9px}
+.modal .field input[type="text"]{width:100%; height:40px; border:1px solid var(--line); border-radius:10px;
+  background:var(--panel); color:var(--ink); padding:0 10px; font-size:14px}
+.msg{font-size:13px; min-height:18px}
+.msg.ok{color:var(--ok)} .msg.err{color:#b91c1c}
+.hint{font-size:12px; color:var(--muted)}
+
+@media (max-width:560px){
+  .cycle-grid{grid-template-columns:repeat(2,1fr)}
+  .brand small{display:none}
+  .pillbtn{padding:0 10px}
+  .hero h1{font-size:30px}
+  #hypo{height:150px}
+}
+</style>
+</head>
+<body data-theme="silver">
+
+<header class="topbar">
+  <button class="iconbtn" id="drawerBtn" aria-label="Menu">☰</button>
+  <div class="brand"><span class="dela">Sleep Mo</span><small data-i18n="brandSub">Pocket sleep-cycle planner</small></div>
+  <div class="spacer"></div>
+  <button class="pillbtn" id="langBtn">中</button>
+  <button class="pillbtn" id="themeBtn" aria-label="Theme">◐ Silver</button>
+  <button class="pillbtn" id="proBtn">Pro</button>
+  <a class="bmc" href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener" aria-label="Buy Me a Coffee" title="Buy Me a Coffee">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h12v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8zm2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4H6zm13 1.5a2.5 2.5 0 0 1 0 5H18v-5h1zM6 4h9v1.5H6z"/></svg>
+  </a>
+</header>
+
+<main class="stage">
+  <div class="hero">
+    <h1 data-i18n="heroTitle">Sleep by the cycle.</h1>
+    <p data-i18n="heroSub">Pick a wake time — Sleep Mo finds the bedtimes that land you between cycles, so you wake up light instead of groggy.</p>
+  </div>
+
+  <div class="mode-row">
+    <div class="seg" role="tablist">
+      <button id="modeWakeBtn" class="on" data-i18n="modeWake">Wake at…</button>
+      <button id="modeNowBtn" data-i18n="modeNow">Sleep now</button>
+    </div>
+  </div>
+
+  <div class="dial-wrap"><canvas id="dial" width="540" height="540" aria-label="Night dial"></canvas></div>
+
+  <div class="readout">
+    <div class="big"><span class="dela" id="roWake">07:00</span> <span style="font-size:15px;color:var(--muted)" data-i18n="wakeUp">wake up</span></div>
+    <div class="sub"><span data-i18n="sleepAt">Sleep at</span> <b id="roBed">23:16</b> · <b id="roCycles">5 cycles</b> · <b id="roHours">7h 30m</b> <span data-i18n="inBed">in bed</span></div>
+  </div>
+
+  <div class="cycle-grid" id="cycleGrid"></div>
+
+  <div class="now-list" id="nowList">
+    <div class="nl-head"><span data-i18n="nowHead">If you fall asleep now</span> <span id="nowTime" style="color:var(--accent)"></span></div>
+    <div id="nowRows"></div>
+  </div>
+
+  <section class="hypo-card">
+    <h2 data-i18n="hypoTitle">Your night, stage by stage</h2>
+    <p class="hintline" data-i18n="hypoSub">A hypnogram for the selected night. Early cycles carry more deep sleep; later cycles carry more dreaming (REM). The 14 minutes to fall asleep are included.</p>
+    <canvas id="hypo" width="980" height="170"></canvas>
+    <div class="legend">
+      <span><i style="background:#f59e0b"></i><span data-i18n="lgAwake">Awake</span></span>
+      <span><i style="background:#38bdf8"></i><span data-i18n="lgLight">Light</span></span>
+      <span><i style="background:#c084fc"></i><span data-i18n="lgRem">Dreaming · REM</span></span>
+      <span><i style="background:#4f46e5"></i><span data-i18n="lgDeep">Deep</span></span>
+    </div>
+    <div class="smart" id="smartLine"></div>
+  </section>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Planner">
+  <div class="dhead">
+    <h2 data-i18n="drawerTitle">Planner</h2>
+    <button class="iconbtn" id="drawerClose" aria-label="Close">✕</button>
+  </div>
+
+  <section class="dsec">
+    <h3 data-i18n="planTitle">Plan your night</h3>
+    <p class="desc" data-i18n="planDesc">Sleep runs in ~90-minute cycles. Waking at the end of a cycle — in light sleep — feels far easier than being pulled out of deep sleep.</p>
+    <div class="field">
+      <label data-i18n="wakeLabel">Wake time</label>
+      <input type="time" id="wakeInput" value="07:00">
+    </div>
+    <div class="field">
+      <label data-i18n="targetLabel">Sleep need (target)</label>
+      <div class="chips" id="ageChips">
+        <button class="chip" data-age="teen" data-i18n="ageTeen">Teen · 8–10h</button>
+        <button class="chip on" data-age="adult" data-i18n="ageAdult">Adult · 7–9h</button>
+        <button class="chip" data-age="older" data-i18n="ageOlder">65+ · 7–8h</button>
+      </div>
+    </div>
+    <div class="field">
+      <label data-i18n="shiftLabel">Shift work / custom night window</label>
+      <div class="btnrow"><button class="btn ghost small" id="shiftBtn">🔒 <span data-i18n="shiftBtn">Pro: custom window</span></button></div>
+    </div>
+  </section>
+
+  <section class="dsec">
+    <h3 data-i18n="logTitle">Sleep log</h3>
+    <p class="desc" data-i18n="logDesc">Log last night and watch your 7-day pattern. Free keeps your last 7 nights; Pro keeps the full history.</p>
+    <div class="field"><label data-i18n="logDate">Night of</label><input type="date" id="logDate"></div>
+    <div class="btnrow" style="gap:10px">
+      <div class="field" style="flex:1;margin:0"><label data-i18n="logBed">Fell asleep</label><input type="time" id="logBed" value="23:16"></div>
+      <div class="field" style="flex:1;margin:0"><label data-i18n="logWake">Woke up</label><input type="time" id="logWake" value="07:00"></div>
+    </div>
+    <div class="field" style="margin-top:12px"><label data-i18n="logQuality">How did you feel?</label>
+      <div class="stars" id="logStars">
+        <button data-q="1">★</button><button data-q="2">★</button><button data-q="3" class="on">★</button><button data-q="4">★</button><button data-q="5">★</button>
+      </div>
+    </div>
+    <div class="btnrow"><button class="btn" id="logAdd" data-i18n="logAdd">Log this night</button></div>
+    <div class="statgrid">
+      <div class="stat"><b id="stAvg">—</b><span data-i18n="stAvg">avg / night</span></div>
+      <div class="stat"><b id="stDebt">—</b><span data-i18n="stDebt">sleep debt · 7d</span></div>
+      <div class="stat"><b id="stBest">—</b><span data-i18n="stBest">best night</span></div>
+    </div>
+    <canvas id="logChart" width="700" height="120"></canvas>
+    <div class="loglist" id="logList"></div>
+  </section>
+
+  <section class="dsec">
+    <h3 data-i18n="napTitle">Nap planner</h3>
+    <p class="desc" data-i18n="napDesc">A 20-minute nap refreshes without grogginess; a full 90-minute cycle is the other safe length. Avoid starting a nap within 8 hours of bedtime.</p>
+    <div class="chips" id="napChips">
+      <button class="chip on" data-nap="20" data-i18n="nap20">20 min · power nap</button>
+      <button class="chip" data-nap="90" data-i18n="nap90">90 min · full cycle</button>
+      <button class="chip locked" data-nap="custom">🔒 <span data-i18n="napCustom">Custom · Pro</span></button>
+    </div>
+    <div class="napring">
+      <canvas id="napRing" width="192" height="192"></canvas>
+      <div>
+        <div class="napclock" id="napClock">20:00</div>
+        <div class="napstate" id="napState" data-i18n="napReady">Ready when you are.</div>
+      </div>
+    </div>
+    <div class="btnrow" style="margin-top:12px">
+      <button class="btn" id="napStart" data-i18n="napStart">Start nap</button>
+      <button class="btn ghost" id="napStop" data-i18n="napStop">Stop</button>
+      <button class="btn ghost small" id="chimeBtn" data-i18n="chimeBtn">♪ Preview chime</button>
+    </div>
+    <div style="margin-top:12px">
+      <div class="kv"><span data-i18n="napLatest">Latest nap start tonight</span><b id="napLatest">—</b></div>
+      <div class="kv"><span data-i18n="napNow">If you nap now</span><b id="napNow">—</b></div>
+    </div>
+  </section>
+
+  <section class="dsec">
+    <h3 data-i18n="cafTitle">Caffeine cutoff</h3>
+    <p class="desc" data-i18n="cafDesc">Caffeine's half-life is about 6 hours — half of it is still with you at bedtime if you drink it too late. General guidance, not medical advice.</p>
+    <div class="field"><label data-i18n="cafLabel">Last coffee / tea</label><input type="time" id="cafInput"></div>
+    <div class="kv"><span data-i18n="cafCutoff">Last safe cup (bedtime − 6h)</span><b id="cafCutoff">—</b></div>
+    <div class="kv"><span data-i18n="cafLeft">Still in you at bedtime</span><b id="cafLeft">—</b></div>
+    <div class="kv"><span data-i18n="cafVerdict">Verdict</span><b id="cafVerdict">—</b></div>
+  </section>
+
+  <section class="dsec">
+    <h3 data-i18n="expTitle">Export &amp; share</h3>
+    <p class="desc" data-i18n="expDesc">Take tonight's plan with you. The PNG is a sleep card with your dial, hypnogram and stats.</p>
+    <div class="btnrow">
+      <button class="btn" id="pngBtn">PNG <span id="pngBadge">1024px</span></button>
+      <button class="btn ghost" id="csvBtn">CSV</button>
+      <button class="btn ghost" id="jsonBtn">JSON</button>
+      <button class="btn ghost" id="shareBtn" data-i18n="shareBtn">Copy plan link</button>
+    </div>
+  </section>
+
+  <section class="dsec">
+    <h3 data-i18n="tipTitle">Tonight's tip</h3>
+    <div class="tips"><b id="tipHead">—</b><span id="tipBody">—</span></div>
+  </section>
+
+  <section class="dsec">
+    <h3 data-i18n="aboutTitle">About</h3>
+    <p class="desc" data-i18n="aboutDesc">Sleep Mo is a planning toy built on the 90-minute sleep-cycle model. Times are estimates — real sleep varies night to night. General sleep information only, not medical advice. If you snore heavily, stop breathing at night, or feel exhausted despite enough sleep, talk to a doctor. Everything is stored in this browser only: no account, no cloud, no tracking.</p>
+  </section>
+</aside>
+
+<div class="modal" id="proModal" role="dialog" aria-label="Sleep Mo Pro">
+  <div class="box">
+    <h2>Sleep Mo Pro</h2>
+    <p data-i18n="proPitch">Unlock the full sleep history, CSV / JSON export, shareable plan links, HD sleep cards (2048px), custom nap lengths and shift-work night windows.</p>
+    <div class="plans">
+      <div class="plan"><b data-i18n="monthly">Monthly</b><div>US$5.99 / mo</div><button class="btn small" data-buy="monthly" data-i18n="buyMonthly">Get Monthly</button></div>
+      <div class="plan"><b data-i18n="lifetime">Lifetime</b><div>US$59.99 once</div><button class="btn small" data-buy="lifetime" data-i18n="buyLifetime">Get Lifetime</button></div>
+    </div>
+    <div class="field"><label data-i18n="keyLabel">Already have a Pro key? Paste it here:</label><input type="text" id="proKeyIn" autocomplete="off" placeholder="OpenX Pro key"></div>
+    <div class="btnrow"><button class="btn" id="validateBtn" data-i18n="validate">Validate key</button><button class="btn ghost" data-close="proModal" data-i18n="close">Close</button></div>
+    <p class="msg" id="proMsg"></p>
+    <p class="hint" data-i18n="testNote">Test checkout — keys are validated against the Lemon Squeezy test store.</p>
+  </div>
+</div>
+
+<footer class="foot">
+  <span data-i18n="footLine">Sleep Mo · OpenX Lab · Local-first — your sleep log never leaves this device.</span><br>
+  <span data-i18n="footCopy">© 2026 OpenX Mo — All rights reserved. A planning toy, not a medical device.</span>
+</footer>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+function pad(n){return String(n).padStart(2,"0");}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function lerp(a,b,t){return a+(b-a)*t;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+/* minutes since midnight, 0..1439 */
+function norm(m){return ((m%1440)+1440)%1440;}
+function fmt(min){min=norm(Math.round(min));return pad(Math.floor(min/60))+":"+pad(min%60);}
+function fmtDur(min){min=Math.round(min);const h=Math.floor(min/60),m=min%60;return h>0?(h+"h "+pad(m)+"m"):(m+"m");}
+function parseTime(s){if(!s)return null;const p=s.split(":");if(p.length<2)return null;const v=(+p[0])*60+(+p[1]);return isNaN(v)?null:norm(v);}
+function dkey(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
+function diffMin(a,b){return norm(b-a);} /* minutes from a forward to b */
+
+/* ============ i18n ============ */
+const I18N={
+en:{brandSub:"Pocket sleep-cycle planner",heroTitle:"Sleep by the cycle.",heroSub:"Pick a wake time — Sleep Mo finds the bedtimes that land you between cycles, so you wake up light instead of groggy.",
+modeWake:"Wake at…",modeNow:"Sleep now",wakeUp:"wake up",sleepAt:"Sleep at",inBed:"in bed",
+nowHead:"If you fall asleep now",hypoTitle:"Your night, stage by stage",
+hypoSub:"A hypnogram for the selected night. Early cycles carry more deep sleep; later cycles carry more dreaming (REM). The 14 minutes to fall asleep are included.",
+lgAwake:"Awake",lgLight:"Light",lgRem:"Dreaming · REM",lgDeep:"Deep",
+drawerTitle:"Planner",planTitle:"Plan your night",planDesc:"Sleep runs in ~90-minute cycles. Waking at the end of a cycle — in light sleep — feels far easier than being pulled out of deep sleep.",
+wakeLabel:"Wake time",targetLabel:"Sleep need (target)",ageTeen:"Teen · 8–10h",ageAdult:"Adult · 7–9h",ageOlder:"65+ · 7–8h",
+shiftLabel:"Shift work / custom night window",shiftBtn:"Pro: custom window",
+logTitle:"Sleep log",logDesc:"Log last night and watch your 7-day pattern. Free keeps your last 7 nights; Pro keeps the full history.",
+logDate:"Night of",logBed:"Fell asleep",logWake:"Woke up",logQuality:"How did you feel?",logAdd:"Log this night",
+stAvg:"avg / night",stDebt:"sleep debt · 7d",stBest:"best night",
+napTitle:"Nap planner",napDesc:"A 20-minute nap refreshes without grogginess; a full 90-minute cycle is the other safe length. Avoid starting a nap within 8 hours of bedtime.",
+nap20:"20 min · power nap",nap90:"90 min · full cycle",napCustom:"Custom · Pro",
+napReady:"Ready when you are.",napStart:"Start nap",napStop:"Stop",chimeBtn:"♪ Preview chime",
+napLatest:"Latest nap start tonight",napNow:"If you nap now",napDone:"Nap done — rise gently.",
+napRunning:"napping…",napTooLate:"Too late for a nap — it would steal tonight's sleep.",
+cafTitle:"Caffeine cutoff",cafDesc:"Caffeine's half-life is about 6 hours — half of it is still with you at bedtime if you drink it too late. General guidance, not medical advice.",
+cafLabel:"Last coffee / tea",cafCutoff:"Last safe cup (bedtime − 6h)",cafLeft:"Still in you at bedtime",cafVerdict:"Verdict",
+cafOk:"Fine — mostly cleared by bedtime.",cafMid:"Borderline — a quarter or more remains.",cafLate:"Too late — most of it is still with you.",
+cafSet:"Set a time above.",expTitle:"Export & share",expDesc:"Take tonight's plan with you. The PNG is a sleep card with your dial, hypnogram and stats.",
+shareBtn:"Copy plan link",tipTitle:"Tonight's tip",aboutTitle:"About",
+aboutDesc:"Sleep Mo is a planning toy built on the 90-minute sleep-cycle model. Times are estimates — real sleep varies night to night. General sleep information only, not medical advice. If you snore heavily, stop breathing at night, or feel exhausted despite enough sleep, talk to a doctor. Everything is stored in this browser only: no account, no cloud, no tracking.",
+proPitch:"Unlock the full sleep history, CSV / JSON export, shareable plan links, HD sleep cards (2048px), custom nap lengths and shift-work night windows.",
+monthly:"Monthly",lifetime:"Lifetime",buyMonthly:"Get Monthly",buyLifetime:"Get Lifetime",
+keyLabel:"Already have a Pro key? Paste it here:",validate:"Validate key",close:"Close",
+testNote:"Test checkout — keys are validated against the Lemon Squeezy test store.",
+key_ok:"Pro unlocked — sweet dreams.",key_bad:"That key did not validate. Check it and try again.",
+key_net:"Could not reach the license server. Check your connection and try again.",key_saved:"Checking…",
+footLine:"Sleep Mo · OpenX Lab · Local-first — your sleep log never leaves this device.",
+footCopy:"© 2026 OpenX Mo — All rights reserved. A planning toy, not a medical device.",
+cycles:"cycles",cycle:"cycle",qExcellent:"Excellent · full night",qGreat:"Great · core night",qOk:"Okay · short night",qMin:"Minimum · power night",
+deepLbl:"deep",remLbl:"REM",smartBest:"Best wake inside your 30-minute window:",smartDeep:"— your alarm lands in deep sleep; the window's lightest point is ",
+smartLight:" (light sleep).",smartAt:" at ",smartAllDeep:"Your whole 30-minute window is deep sleep — try shifting bedtime 20–30 minutes earlier or later.",asleepLbl:"asleep",
+smartRem:" — waking from a dream (REM), easy to rise.",smartAwake:" — you're already stirring, a perfect moment.",smartLight2:" — waking in light sleep, no grogginess.",logEmpty:"No nights logged yet — log last night above.",
+logFull:"Free keeps 7 nights — unlock Pro to keep the full history.",logSaved:"Night logged.",logDup:"That night is already logged — it was updated.",
+copied:"Plan link copied.",needProFirst:"Pro unlocks this.",pngDone:"Sleep card saved.",
+wakeSet:"Wake time set.",tipHead1:"Keep it regular",tipBody1:"The same bedtime and wake time — even on weekends — trains your body clock more than any gadget.",
+tipHead2:"Cool, dark, quiet",tipBody2:"A cool room (around 18–20°C), blackout dark and quiet helps you fall asleep faster and stay in deep sleep longer.",
+tipHead3:"Screens down",tipBody3:"Bright screens late at night push your body clock later. Dim them an hour before bed — or leave the phone charging outside the bedroom.",
+tipHead4:"Morning light",tipBody4:"Sunlight within an hour of waking anchors your clock, so you feel sleepy at the right time tonight.",
+tipHead5:"Don't chase the clock",tipBody5:"Watching the minutes tick by makes sleep harder. If you're still awake after ~20 minutes, get up, do something calm, and return when drowsy.",
+tipHead6:"Move in the day",tipBody6:"Daytime movement deepens night sleep — but finish hard workouts at least 3 hours before bed.",
+tipHead7:"A wind-down ritual",tipBody7:"The same 20 quiet minutes every night — book, stretch, warm shower — tells your brain sleep is coming."},
+zh:{brandSub:"口袋睡眠週期規劃器",heroTitle:"跟住週期瞓。",heroSub:"揀一個起身時間，Sleep Mo 會喺夜晚錶盤上面搵出啱你嘅瞓覺時間——喺週期之間醒，唔會瞓到懵。",
+modeWake:"幾點起身…",modeNow:"而家瞓",wakeUp:"起身",sleepAt:"瞓覺時間",inBed:"在床時間",
+nowHead:"如果而家瞓着",hypoTitle:"成晚嘅睡眠階段",
+hypoSub:"所選夜晚嘅睡眠圖。頭幾個週期深睡較多，後面週期發夢（REM）較多。入睡所需嘅 14 分鐘已經計埋。",
+lgAwake:"清醒",lgLight:"淺睡",lgRem:"發夢 · REM",lgDeep:"深睡",
+drawerTitle:"規劃器",planTitle:"計劃今晚",planDesc:"睡眠以大約 90 分鐘一個週期運行。喺週期完結、淺睡嗰陣醒，會比喺深睡中被扯醒舒服得多。",
+wakeLabel:"起身時間",targetLabel:"睡眠需要（目標）",ageTeen:"青少年 · 8–10小時",ageAdult:"成年人 · 7–9小時",ageOlder:"65歲+ · 7–8小時",
+shiftLabel:"輪班工作／自訂夜晚時段",shiftBtn:"Pro：自訂時段",
+logTitle:"睡眠紀錄",logDesc:"記低琴晚，睇吓你 7 日嘅規律。免費版保留最近 7 晚；Pro 保留全部紀錄。",
+logDate:"邊晚",logBed:"瞓着時間",logWake:"起身時間",logQuality:"瞓成點？",logAdd:"記低呢晚",
+stAvg:"每晚平均",stDebt:"睡眠債 · 7日",stBest:"最好一晚",
+napTitle:"小睡規劃",napDesc:"20 分鐘小睡提神又唔會懵；90 分鐘一個完整週期係另一個安全長度。瞓覺前 8 小時內唔好開始小睡。",
+nap20:"20 分鐘 · 提神小睡",nap90:"90 分鐘 · 完整週期",napCustom:"自訂 · Pro",
+napReady:"隨時可以開始。",napStart:"開始小睡",napStop:"停止",chimeBtn:"♪ 試聽提示音",
+napLatest:"今晚最遲開始小睡",napNow:"而家小睡",napDone:"小睡完畢，慢慢起身。",
+napRunning:"小睡中…",napTooLate:"太遲喇——小睡會偷走今晚嘅睡眠。",
+cafTitle:"咖啡因截數時間",cafDesc:"咖啡因半衰期大約 6 小時——飲得太晏，瞓覺嗰陣仲有一半留喺身體。只係一般參考，唔係醫療建議。",
+cafLabel:"最後一杯咖啡／茶",cafCutoff:"最遲一杯（瞓覺前 6 小時）",cafLeft:"瞓覺嗰陣仲剩幾多",cafVerdict:"結論",
+cafOk:"可以——瞓覺前大致代謝晒。",cafMid:"邊緣——仲剩四分一或以上。",cafLate:"太晏——大部份仲喺身體入面。",
+cafSet:"上面設定一個時間。",expTitle:"匯出及分享",expDesc:"帶走今晚嘅計劃。PNG 係一張睡眠卡，有錶盤、睡眠圖同統計。",
+shareBtn:"複製計劃連結",tipTitle:"今晚小貼士",aboutTitle:"關於",
+aboutDesc:"Sleep Mo 係一個建基於 90 分鐘睡眠週期模型嘅規劃玩具。時間只係估算——真實睡眠每晚都唔同。只提供一般睡眠資訊，唔係醫療建議。如果你鼻鼾好大聲、瞓覺時停呼吸，或者瞓夠都係攰，請去睇醫生。所有資料只存喺呢個瀏覽器：唔使帳戶、唔上雲端、唔追蹤。",
+proPitch:"解鎖完整睡眠紀錄、CSV／JSON 匯出、可分享嘅計劃連結、高清睡眠卡（2048px）、自訂小睡長度同輪班夜晚時段。",
+monthly:"月費",lifetime:"終身",buyMonthly:"買月費",buyLifetime:"買終身",
+keyLabel:"已有 Pro key？貼喺呢度：",validate:"驗證 key",close:"關閉",
+testNote:"測試結帳——key 會對住 Lemon Squeezy 測試商店驗證。",
+key_ok:"Pro 已解鎖——祝好夢。",key_bad:"呢個 key 驗證唔到，檢查一下再試。",
+key_net:"連唔到授權伺服器，檢查網絡再試。",key_saved:"驗證中…",
+footLine:"Sleep Mo · OpenX Lab · 本地優先——你嘅睡眠紀錄唔會離開呢部裝置。",
+footCopy:"© 2026 OpenX Mo — 版權所有。規劃玩具，唔係醫療儀器。",
+cycles:"個週期",cycle:"個週期",qExcellent:"極好 · 完整一晚",qGreat:"好好 · 核心一晚",qOk:"尚可 · 短一晚",qMin:"最少 · 精力一晚",
+deepLbl:"深睡",remLbl:"REM",smartBest:"30 分鐘鬧鐘窗口內最好嘅起身時間：",smartDeep:"——鬧鐘原本落喺深睡；窗口內最淺嗰點係 ",
+smartLight:"（淺睡）。",smartAt:" 喺 ",smartAllDeep:"成個 30 分鐘窗口都係深睡——試吓將瞓覺時間提早或者推遲 20–30 分鐘。",asleepLbl:"睡眠",
+smartRem:"——喺發夢（REM）中醒來，好易起身。",smartAwake:"——你已經半醒，係最好嘅時機。",smartLight2:"——喺淺睡中醒來，唔會懵。",logEmpty:"未有紀錄——上面記低琴晚先。",
+logFull:"免費版保留 7 晚——解鎖 Pro 保留全部紀錄。",logSaved:"已記低。",logDup:"呢晚已經記過——已更新。",
+copied:"計劃連結已複製。",needProFirst:"Pro 先用到呢個功能。",pngDone:"睡眠卡已儲存。",
+wakeSet:"起身時間已設定。",tipHead1:"定時定候",tipBody1:"每日同一時間瞓、同一時間起——連週末都一樣——比任何 gadget 更有效訓練你嘅生理時鐘。",
+tipHead2:"涼、黑、靜",tipBody2:"涼爽（約 18–20°C）、夠黑、夠靜嘅房間，幫你瞓得快啲、深睡耐啲。",
+tipHead3:"瞓前放低屏幕",tipBody3:"夜晚光猛嘅屏幕會將你嘅生理時鐘推遲。瞓前一小時調暗屏幕——或者將電話放喺房外充電。",
+tipHead4:"朝早見光",tipBody4:"起身一小時內曬吓太陽，可以定實你嘅生理時鐘，令你今晚啱時間眼瞓。",
+tipHead5:"唔好追住個鐘",tipBody5:"望住分鐘一格格過，只會令你更難入睡。如果 20 分鐘都未瞓着，起身做啲靜態嘢，眼瞓先返去瞓。",
+tipHead6:"日頭郁多啲",tipBody6:"日頭郁吓，夜晚會瞓得深啲——不過劇烈運動要喺瞓前至少 3 小時完成。",
+tipHead7:"瞓前儀式",tipBody7:"每晚同樣嘅 20 分鐘靜態時間——睇書、拉筋、沖個暖水涼——話畀大腦聽，瞓覺時間到喇。"}};
+let LANG="en";
+function T(k){return (I18N[LANG]&&I18N[LANG][k])||I18N.en[k]||k;}
+function applyLang(){
+  document.querySelectorAll("[data-i18n]").forEach(n=>{n.textContent=T(n.dataset.i18n);});
+  document.documentElement.lang=LANG==="zh"?"zh-Hant":"en";
+  $("langBtn").textContent=LANG==="zh"?"EN":"中";
+  renderAll();
+}
+
+/* ============ themes ============ */
+const THEMES=["silver","white","black"];
+const THEME_LABEL={silver:"◐ Silver",white:"○ White",black:"● Black"};
+let THEME="silver";
+function applyTheme(){
+  document.body.dataset.theme=THEME;
+  $("themeBtn").textContent=THEME_LABEL[THEME];
+  try{localStorage.setItem("sleepmo_theme",THEME);}catch(e){}
+  renderDial(); renderHypo(); renderLogChart(); drawNapRing();
+}
+
+/* ============ Pro (Lemon Squeezy test wiring — same hardened pattern as Fit/Book/Fish/Budget/Robo/Signal/Cipher/AI Persona) ============ */
+/* NOTE: Lemon Squeezy shut down 2026-11-16/17. Paddle migration is pending series-wide;
+   this build keeps the established test wiring so the Pro gate behaves exactly like the other tools until the batch migration lands. */
+const CONFIG={storeId:508220,licenseValidateUrl:"https://api.lemonsqueezy.com/v1/licenses/validate",instanceName:"sleep-mo",
+buyMonthly:"https://openx.lemonsqueezy.com/checkout/buy/934fa5b0-fe63-4707-b9cb-d303de1e127f",
+buyLifetime:"https://openx.lemonsqueezy.com/checkout/buy/d107e805-e8e9-42b0-9c1a-eb89078421be"};
+let PRO=false;
+function storedPro(){try{const s=localStorage.getItem("sleepmo_pro");return s?JSON.parse(s):null;}catch(e){return null;}}
+function savePro(k){try{localStorage.setItem("sleepmo_pro",JSON.stringify({key:k}));}catch(e){}}
+function clearPro(){try{localStorage.removeItem("sleepmo_pro");}catch(e){}}
+function getProInstance(){try{let id=localStorage.getItem("sleepmo_instance");if(!id){id="sleepmo-"+Date.now().toString(36)+Math.random().toString(36).slice(2,10);localStorage.setItem("sleepmo_instance",id);}return id;}catch(e){return CONFIG.instanceName;}}
+function lsValid(d){return !!(d&&d.valid&&d.license_key&&d.license_key.status==="active");}
+function refreshPro(){$("proBtn").textContent=PRO?"Pro ✓":"Pro";$("proBtn").classList.toggle("pro-on",PRO);$("pngBadge").textContent=PRO?"2048px":"1024px";}
+function needPro(){if(PRO)return true;openProModal();return false;}
+function openProModal(){$("proModal").classList.add("open");}
+function closeProModal(){$("proModal").classList.remove("open");}
+async function validateKey(){const key=$("proKeyIn").value.trim();const msg=$("proMsg");if(!key){msg.textContent=T("key_bad");msg.className="msg err";return;}msg.textContent=T("key_saved");msg.className="msg";try{const res=await fetch(CONFIG.licenseValidateUrl,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({license_key:key,instance_name:getProInstance()})});let data=null;try{data=await res.json();}catch(e){}if(lsValid(data)){savePro(key);PRO=true;refreshPro();msg.textContent=T("key_ok");msg.className="msg ok";setTimeout(closeProModal,900);renderAll();}else{msg.textContent=T("key_bad");msg.className="msg err";}}catch(err){msg.textContent=T("key_net");msg.className="msg err";}}
+async function revalidatePro(){const s=storedPro();if(!s||!s.key)return;try{const res=await fetch(CONFIG.licenseValidateUrl,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({license_key:s.key,instance_name:getProInstance()})});let data=null;try{data=await res.json();}catch(e){}if(!lsValid(data)){clearPro();PRO=false;refreshPro();}}catch(err){/* offline grace: keep Pro until a check succeeds */}}
+
+/* ============ state + cycle engine ============ */
+const CYCLE_MIN=90, LATENCY=14; /* 90-minute cycles, 14 min to fall asleep */
+let S={mode:"wake", wakeMin:7*60, cycles:5, targetH:8, age:"adult",
+  bedMin:null, log:[], napLen:20, coffeeMin:null, quality:3};
+S.bedMin=norm(S.wakeMin - S.cycles*CYCLE_MIN - LATENCY);
+function loadState(){
+  try{const raw=localStorage.getItem("sleepmo_state");if(raw){const o=JSON.parse(raw);
+    if(typeof o.wakeMin==="number")S.wakeMin=norm(o.wakeMin);
+    if(typeof o.cycles==="number")S.cycles=clamp(o.cycles,3,6);
+    if(typeof o.targetH==="number")S.targetH=o.targetH;
+    if(o.age)S.age=o.age; if(o.lang==="zh"||o.lang==="en")LANG=o.lang;
+    if(THEMES.includes(o.theme))THEME=o.theme;
+    if(Array.isArray(o.log))S.log=o.log.filter(e=>e&&e.d&&typeof e.bed==="number"&&typeof e.wake==="number");
+    if(typeof o.coffeeMin==="number")S.coffeeMin=o.coffeeMin;
+  }}catch(e){}
+  S.bedMin=norm(S.wakeMin - S.cycles*CYCLE_MIN - LATENCY);
+}
+function saveState(){try{localStorage.setItem("sleepmo_state",JSON.stringify({wakeMin:S.wakeMin,cycles:S.cycles,targetH:S.targetH,age:S.age,lang:LANG,theme:THEME,log:S.log,coffeeMin:S.coffeeMin}));}catch(e){}}
+/* bedtime options for a wake time: cycles n -> bed = wake - n*90 - 14 */
+function bedtimesFor(wake){const out=[];for(let n=6;n>=3;n--){out.push({n:n,bed:norm(wake-n*CYCLE_MIN-LATENCY),total:n*CYCLE_MIN});}return out;}
+/* wake windows if you fall asleep at bedMin */
+function wakeWindows(bed){const out=[];for(let n=1;n<=6;n++){out.push({n:n,wake:norm(bed+LATENCY+n*CYCLE_MIN),total:n*CYCLE_MIN});}return out;}
+/* quality label for a cycle count */
+function qualityFor(n){return n>=6?"qExcellent":n===5?"qGreat":n===4?"qOk":"qMin";}
+function qualityClass(n){return n>=6?"good":n===5?"good":n===4?"mid":"low";}
+/* hypnogram model: returns segments [{t0,t1,stage}] stage 0 awake,1 light,2 REM,3 deep; t in minutes after bed */
+function hypoModel(cycles){
+  const total=LATENCY+cycles*CYCLE_MIN, segs=[];
+  segs.push({t0:0,t1:LATENCY,stage:0}); /* falling asleep */
+  for(let i=0;i<cycles;i++){
+    const s=LATENCY+i*CYCLE_MIN, e=s+CYCLE_MIN;
+    const deepDur=Math.max(10,32-i*7), remDur=10+i*6;
+    const deepStart=s+8, deepEnd=Math.min(e-8,deepStart+deepDur);
+    const remStart=Math.max(deepEnd,e-remDur);
+    const lightStart=i===0?s:s+2; /* the 2-min stirring gap after the previous cycle */
+    segs.push({t0:lightStart,t1:deepStart,stage:1});
+    segs.push({t0:deepStart,t1:deepEnd,stage:3});
+    segs.push({t0:deepEnd,t1:remStart,stage:1});
+    segs.push({t0:remStart,t1:e,stage:2});
+    if(i<cycles-1)segs.push({t0:e,t1:e+2,stage:0}); /* brief stirring between cycles */
+  }
+  /* merge adjacent same-stage, clip to total */
+  const out=[];
+  for(const g of segs){const t0=Math.max(0,g.t0),t1=Math.min(total,g.t1);if(t1<=t0)continue;
+    const last=out[out.length-1];
+    if(last&&last.stage===g.stage&&Math.abs(last.t1-t0)<0.01)last.t1=t1;else out.push({t0:t0,t1:t1,stage:g.stage});}
+  return {segs:out,total:total};
+}
+function stageStats(cycles){const m=hypoModel(cycles);let deep=0,rem=0,light=0;
+  for(const g of m.segs){const d=g.t1-g.t0;if(g.stage===3)deep+=d;else if(g.stage===2)rem+=d;else if(g.stage===1)light+=d;}
+  return {deep:Math.round(deep/m.total*100),rem:Math.round(rem/m.total*100),light:Math.round(light/m.total*100)};}
+/* smart alarm: lightest minute inside [wake-30, wake] */
+function smartAlarm(){
+  const m=hypoModel(S.cycles), total=m.total;
+  const score={0:0,1:1,2:2,3:3};
+  let best=null,bestScore=99;
+  for(let t=total-30;t<total;t++){const g=m.segs.find(s=>t>=s.t0&&t<s.t1);const sc=g?score[g.stage]:1;
+    if(sc<bestScore||(sc===bestScore&&best!==null)){bestScore=sc;best=t;}}
+  const wakeAbs=norm(S.bedMin+total);
+  const bestAbs=norm(S.bedMin+best);
+  return {min:best,abs:bestAbs,score:bestScore,inDeep:bestScore===3};
+}
+
+/* ============ night dial ============ */
+const DIAL_C={deep:"#4f46e5",rem:"#c084fc",light:"#38bdf8",awake:"#f59e0b"};
+function angleFor(min){return (min/1440)*Math.PI*2 - Math.PI/2;}
+function minForAngle(a){let m=((a+Math.PI/2)/(Math.PI*2))*1440;return norm(Math.round(m/5)*5);}
+function setupCanvas(cv){const dpr=window.devicePixelRatio||1;const r=cv.getBoundingClientRect();
+  const w=Math.max(1,Math.round(r.width)),h=Math.max(1,Math.round(r.height));
+  if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);}
+  const ctx=cv.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);return {ctx:ctx,w:w,h:h};}
+function drawDial(ctx,W,H,opts){
+  const cx=W/2, cy=H/2, R=Math.min(W,H)/2-14;
+  /* sky */
+  const sky=ctx.createRadialGradient(cx,cy-40,10,cx,cy,R+30);
+  sky.addColorStop(0,"#1b2350");sky.addColorStop(.65,"#12183a");sky.addColorStop(1,"#0b1030");
+  ctx.beginPath();ctx.arc(cx,cy,R+8,0,Math.PI*2);ctx.fillStyle=sky;ctx.fill();
+  /* stars */
+  const rnd=mulberry32(7);
+  for(let i=0;i<90;i++){const a=rnd()*Math.PI*2,rr=Math.sqrt(rnd())*(R-14);
+    const x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr,al=.25+rnd()*.65,r=rnd()*1.4+.4;
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle="rgba(255,255,255,"+al.toFixed(2)+")";ctx.fill();}
+  /* hour ticks + labels */
+  ctx.textAlign="center";ctx.textBaseline="middle";
+  for(let h=0;h<24;h++){const a=angleFor(h*60),x1=cx+Math.cos(a)*(R-2),y1=cy+Math.sin(a)*(R-2),
+    x2=cx+Math.cos(a)*(R-(h%3===0?14:7)),y2=cy+Math.sin(a)*(R-(h%3===0?14:7));
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle="rgba(255,255,255,"+(h%3===0?".85":".35")+")";ctx.lineWidth=h%3===0?2:1;ctx.stroke();
+    if(h%3===0){const lx=cx+Math.cos(a)*(R-30),ly=cy+Math.sin(a)*(R-30);
+      ctx.fillStyle="rgba(255,255,255,.9)";ctx.font="600 12px Inter, sans-serif";ctx.fillText(pad(h)+":00",lx,ly);}}
+  /* sleep arc: bed -> wake going forward */
+  const bed=S.bedMin, wake=S.wakeMin, sweep=diffMin(bed,wake);
+  const a0=angleFor(bed), a1=a0+sweep/1440*Math.PI*2;
+  ctx.beginPath();ctx.arc(cx,cy,R-52,a0,a1);
+  ctx.strokeStyle="rgba(124,58,237,.35)";ctx.lineWidth=30;ctx.lineCap="round";ctx.stroke();
+  const grad=ctx.createLinearGradient(cx+Math.cos(a0)*(R-52),cy+Math.sin(a0)*(R-52),cx+Math.cos(a1)*(R-52),cy+Math.sin(a1)*(R-52));
+  grad.addColorStop(0,"#6366f1");grad.addColorStop(.6,"#8b5cf6");grad.addColorStop(1,"#c084fc");
+  ctx.beginPath();ctx.arc(cx,cy,R-52,a0,a1);ctx.strokeStyle=grad;ctx.lineWidth=22;ctx.lineCap="round";
+  ctx.shadowColor="rgba(139,92,246,.8)";ctx.shadowBlur=18;ctx.stroke();ctx.shadowBlur=0;
+  /* cycle ticks along the arc */
+  for(let i=1;i<S.cycles;i++){const a=angleFor(bed+LATENCY+i*CYCLE_MIN);
+    const x1=cx+Math.cos(a)*(R-66),y1=cy+Math.sin(a)*(R-66),x2=cx+Math.cos(a)*(R-38),y2=cy+Math.sin(a)*(R-38);
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle="rgba(255,255,255,.75)";ctx.lineWidth=2;ctx.stroke();}
+  /* handles: moon at bed, sun at wake */
+  drawMoon(ctx,cx+Math.cos(a0)*(R-52),cy+Math.sin(a0)*(R-52),opts&&opts.drag==="bed"?17:14);
+  drawSun(ctx,cx+Math.cos(a1)*(R-52),cy+Math.sin(a1)*(R-52),opts&&opts.drag==="wake"?17:14);
+  /* centre text */
+  ctx.fillStyle="#fff";ctx.textAlign="center";
+  ctx.font="400 15px Inter, sans-serif";ctx.fillStyle="rgba(255,255,255,.75)";
+  ctx.fillText(LANG==="zh"?"起身":"WAKE UP",cx,cy-46);
+  ctx.fillStyle="#fff";ctx.font="34px 'Dela Gothic One', sans-serif";ctx.fillText(fmt(wake),cx,cy-8);
+  ctx.font="600 14px Inter, sans-serif";ctx.fillStyle="rgba(255,255,255,.85)";
+  ctx.fillText("☾ "+fmt(bed)+"  ·  "+S.cycles+" "+T("cycles"),cx,cy+22);
+  ctx.font="13px Inter, sans-serif";ctx.fillStyle="rgba(255,255,255,.65)";
+  ctx.fillText(fmtDur(S.cycles*CYCLE_MIN+LATENCY)+" · "+stageStats(S.cycles).deep+"% "+T("deepLbl")+" · "+stageStats(S.cycles).rem+"% "+T("remLbl"),cx,cy+44);
+}
+function drawMoon(ctx,x,y,r){
+  ctx.beginPath();ctx.arc(x,y,r+6,0,Math.PI*2);ctx.fillStyle="rgba(255,255,255,.14)";ctx.fill();
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle="#fde68a";ctx.fill();
+  ctx.beginPath();ctx.arc(x+r*.45,y-r*.2,r*.85,0,Math.PI*2);ctx.fillStyle="#1b2350";ctx.fill();
+}
+function drawSun(ctx,x,y,r){
+  ctx.beginPath();ctx.arc(x,y,r+6,0,Math.PI*2);ctx.fillStyle="rgba(255,255,255,.14)";ctx.fill();
+  ctx.strokeStyle="#fbbf24";ctx.lineWidth=2.5;ctx.lineCap="round";
+  for(let i=0;i<8;i++){const a=i*Math.PI/4;ctx.beginPath();
+    ctx.moveTo(x+Math.cos(a)*(r+3),y+Math.sin(a)*(r+3));ctx.lineTo(x+Math.cos(a)*(r+8),y+Math.sin(a)*(r+8));ctx.stroke();}
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle="#fbbf24";ctx.fill();
+  ctx.beginPath();ctx.arc(x,y,r*.55,0,Math.PI*2);ctx.fillStyle="#fde68a";ctx.fill();
+}
+let dragWhat=null;
+function renderDial(){const cv=$("dial");const g=setupCanvas(cv);drawDial(g.ctx,g.w,g.h,{drag:dragWhat});}
+function dialPoint(e){const cv=$("dial");const r=cv.getBoundingClientRect();
+  const x=(e.clientX-r.left),y=(e.clientY-r.top);const cx=r.width/2,cy=r.height/2;
+  const ang=Math.atan2(y-cy,x-cx);const dist=Math.hypot(x-cx,y-cy);
+  const R=Math.min(r.width,r.height)/2-14, arcR=R-52;
+  if(Math.abs(dist-arcR)<34){const m=minForAngle(ang);
+    const dBed=Math.min(Math.abs(norm(m-S.bedMin)),Math.abs(norm(S.bedMin-m)));
+    const dWake=Math.min(Math.abs(norm(m-S.wakeMin)),Math.abs(norm(S.wakeMin-m)));
+    return {min:m,near:dBed<dWake?"bed":"wake",dist:Math.abs(dist-arcR)};}
+  return null;}
+function bindDial(){
+  const cv=$("dial");
+  cv.addEventListener("pointerdown",e=>{const p=dialPoint(e);if(!p)return;dragWhat=p.near;cv.setPointerCapture(e.pointerId);moveDial(p.min);});
+  cv.addEventListener("pointermove",e=>{if(!dragWhat)return;const p=dialPoint(e);if(p)moveDial(p.min);});
+  const end=()=>{if(dragWhat){dragWhat=null;saveState();renderAll();}};
+  cv.addEventListener("pointerup",end);cv.addEventListener("pointercancel",end);
+}
+function moveDial(min){
+  if(dragWhat==="wake"){S.wakeMin=min;S.bedMin=norm(S.wakeMin-S.cycles*CYCLE_MIN-LATENCY);}
+  else{S.bedMin=min;/* keep wake, recompute cycles to nearest */ 
+    const dur=diffMin(S.bedMin,S.wakeMin)-LATENCY;S.cycles=clamp(Math.round(dur/CYCLE_MIN),3,6);
+    S.bedMin=norm(S.wakeMin-S.cycles*CYCLE_MIN-LATENCY);}
+  $("wakeInput").value=fmt(S.wakeMin);
+  renderAll();
+}
+
+/* ============ cycle cards / readout / now list ============ */
+function renderCycles(){
+  const g=$("cycleGrid");g.innerHTML="";
+  for(const o of bedtimesFor(S.wakeMin)){
+    const st=stageStats(o.n);
+    const c=el("div","cycle"+(o.n===S.cycles?" sel":""));
+    c.innerHTML='<div class="n">'+o.n+' '+T("cycles")+'</div><div class="t">'+fmt(o.bed)+'</div>'+
+      '<div class="h">'+fmtDur(o.total+LATENCY)+' · '+fmtDur(o.total)+' '+T("asleepLbl")+'</div>'+
+      '<div class="q '+qualityClass(o.n)+'">'+T(qualityFor(o.n))+'</div>'+
+      '<div class="st">'+st.deep+'% '+T("deepLbl")+' · '+st.rem+'% '+T("remLbl")+'</div>';
+    c.addEventListener("click",()=>{S.cycles=o.n;S.bedMin=o.bed;saveState();renderAll();});
+    g.appendChild(c);
+  }
+  $("roWake").textContent=fmt(S.wakeMin);
+  $("roBed").textContent=fmt(S.bedMin);
+  $("roCycles").textContent=S.cycles+" "+T("cycles");
+  $("roHours").textContent=fmtDur(S.cycles*CYCLE_MIN+LATENCY);
+}
+function renderNow(){
+  const list=$("nowList"),rows=$("nowRows");
+  list.classList.toggle("open",S.mode==="now");
+  $("modeWakeBtn").classList.toggle("on",S.mode==="wake");
+  $("modeNowBtn").classList.toggle("on",S.mode==="now");
+  if(S.mode!=="now")return;
+  const now=new Date();const nowMin=now.getHours()*60+now.getMinutes();
+  $("nowTime").textContent="· "+fmt(nowMin);
+  rows.innerHTML="";
+  for(const w of wakeWindows(nowMin)){
+    const b=el("button","now-row");
+    b.innerHTML='<span class="wt">'+fmt(w.wake)+'</span><span class="wc">'+w.n+' '+T("cycles")+' · '+fmtDur(w.total+LATENCY)+'</span><span class="go">›</span>';
+    b.addEventListener("click",()=>{S.wakeMin=w.wake;S.cycles=w.n;S.bedMin=nowMin;S.mode="wake";saveState();renderAll();});
+    rows.appendChild(b);
+  }
+}
+
+/* ============ hypnogram ============ */
+let hypoProg=0, hypoTimer=null;
+function renderHypo(animate){
+  const cv=$("hypo");const g=setupCanvas(cv);
+  if(animate){hypoProg=0;if(hypoTimer)clearInterval(hypoTimer);
+    hypoTimer=setInterval(()=>{hypoProg=Math.min(1,hypoProg+0.06);drawHypo(g.ctx,g.w,g.h,hypoProg);
+      if(hypoProg>=1)clearInterval(hypoTimer);},28);}
+  else drawHypo(g.ctx,g.w,g.h,1);
+}
+function drawHypo(ctx,W,H,prog){
+  const padL=8,padR=8,padT=14,padB=22;
+  const pw=W-padL-padR, ph=H-padT-padB;
+  ctx.clearRect(0,0,W,H);
+  const m=hypoModel(S.cycles), total=m.total;
+  const yFor=s=>padT+[0,ph*.32,ph*.62,ph][s];
+  /* grid: hour lines */
+  ctx.strokeStyle="rgba(128,128,128,.18)";ctx.lineWidth=1;ctx.fillStyle="rgba(128,128,128,.8)";
+  ctx.font="11px Inter, sans-serif";ctx.textAlign="center";
+  const start=S.bedMin;
+  for(let t=0;t<=total;t+=60){const x=padL+t/total*pw;
+    ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,padT+ph);ctx.stroke();
+    ctx.textAlign=t===0?"left":(t>=total?"right":"center");
+    ctx.fillText(fmt(norm(start+t)),clamp(x,padL+2,W-padR-2),H-6);}
+  /* stage area */
+  const clipW=pw*prog;
+  ctx.save();ctx.beginPath();ctx.rect(padL,0,clipW,H);ctx.clip();
+  ctx.beginPath();
+  let first=true;
+  const pathPts=[];
+  for(const g of m.segs){pathPts.push([g.t0,g.stage]);pathPts.push([g.t1,g.stage]);}
+  for(let i=0;i<pathPts.length;i++){const x=padL+pathPts[i][0]/total*pw, y=yFor(pathPts[i][1]);
+    if(first){ctx.moveTo(x,y);first=false;}else ctx.lineTo(x,y);}
+  ctx.lineTo(padL+total/total*pw,padT+ph);ctx.lineTo(padL,padT+ph);ctx.closePath();
+  ctx.fillStyle="rgba(99,102,241,.10)";ctx.fill();
+  /* stepped line, coloured per segment */
+  for(const g of m.segs){const x0=padL+g.t0/total*pw,x1=padL+g.t1/total*pw,y=yFor(g.stage);
+    ctx.beginPath();ctx.moveTo(x0,y);ctx.lineTo(x1,y);
+    ctx.strokeStyle=DIAL_C[g.stage===0?"awake":g.stage===1?"light":g.stage===2?"rem":"deep"];
+    ctx.lineWidth=g.stage===3?3:2.2;ctx.stroke();
+    if(g.stage===0&&g.t1-g.t0>=2){ctx.beginPath();ctx.arc((x0+x1)/2,y,3,0,Math.PI*2);
+      ctx.fillStyle=DIAL_C.awake;ctx.fill();}}
+  /* vertical joins between segments */
+  ctx.strokeStyle="rgba(99,102,241,.45)";ctx.lineWidth=1;
+  for(let i=1;i+1<pathPts.length;i+=2){const x=padL+pathPts[i][0]/total*pw;
+    ctx.beginPath();ctx.moveTo(x,yFor(pathPts[i][1]));ctx.lineTo(x,yFor(pathPts[i+1][1]));ctx.stroke();}
+  ctx.restore();
+  /* cycle boundaries */
+  ctx.fillStyle="rgba(128,128,128,.8)";ctx.textAlign="left";
+  for(let i=1;i<S.cycles;i++){const x=padL+(LATENCY+i*CYCLE_MIN)/total*pw;
+    ctx.strokeStyle="rgba(128,128,128,.25)";ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(x,padT);ctx.lineTo(x,padT+ph);ctx.stroke();ctx.setLineDash([]);}
+  renderSmart();
+}
+function renderSmart(){
+  const sa=smartAlarm();
+  const line=$("smartLine");
+  if(sa.score===3){
+    line.innerHTML="<b>"+T("smartBest")+"</b> "+T("smartAllDeep");
+  }else if(sa.score===2){
+    line.innerHTML="<b>"+T("smartBest")+"</b> "+fmt(sa.abs)+T("smartRem");
+  }else if(sa.score===0){
+    line.innerHTML="<b>"+T("smartBest")+"</b> "+fmt(sa.abs)+T("smartAwake");
+  }else{
+    line.innerHTML="<b>"+T("smartBest")+"</b> "+fmt(sa.abs)+T("smartLight2");
+  }
+}
+
+/* ============ sleep log ============ */
+let logQuality=3;
+function logDuration(e){return diffMin(e.bed,e.wake);}
+function renderLog(){
+  const list=$("logList");list.innerHTML="";
+  const sorted=S.log.slice().sort((a,b)=>b.d<a.d?-1:1);
+  if(!sorted.length){list.appendChild(el("div","hintline",T("logEmpty")));}
+  for(const e of sorted.slice(0,PRO?99:7)){
+    const r=el("div","logrow");
+    r.innerHTML='<span class="d">'+e.d.slice(5)+'</span><span class="t">'+fmt(e.bed)+' → '+fmt(e.wake)+' · '+fmtDur(logDuration(e))+'</span><span class="q">'+"★".repeat(e.q||3)+'</span>';
+    const del=el("button","del","✕");del.setAttribute("aria-label","Delete");
+    del.addEventListener("click",()=>{S.log=S.log.filter(x=>x.d!==e.d);saveState();renderLog();renderLogChart();});
+    r.appendChild(del);list.appendChild(r);
+  }
+  /* stats over last 7 logged nights */
+  const last7=sorted.slice(0,7);
+  if(last7.length){
+    const avg=last7.reduce((s,e)=>s+logDuration(e),0)/last7.length;
+    const debt=Math.max(0,Math.round((S.targetH*60*last7.length-last7.reduce((s,e)=>s+logDuration(e),0))/60*10)/10);
+    const best=last7.reduce((a,b)=>logDuration(b)>logDuration(a)?b:a);
+    $("stAvg").textContent=fmtDur(avg);
+    $("stDebt").textContent=debt>0?debt+"h":"0h";
+    $("stBest").textContent=fmtDur(logDuration(best));
+  }else{$("stAvg").textContent="—";$("stDebt").textContent="—";$("stBest").textContent="—";}
+  renderLogChart();
+}
+function renderLogChart(){
+  const cv=$("logChart");const g=setupCanvas(cv);const ctx=g.ctx,W=g.w,H=g.h;
+  ctx.clearRect(0,0,W,H);
+  const days=[];const today=new Date();
+  for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(today.getDate()-i);days.push(dkey(d));}
+  const byDate={};for(const e of S.log)byDate[e.d]=e;
+  const bw=(W-16)/7, maxH=10*60;
+  /* target line */
+  const ty=H-18-(S.targetH*60/maxH)*(H-30);
+  ctx.strokeStyle="rgba(79,70,229,.5)";ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(8,ty);ctx.lineTo(W-8,ty);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle="rgba(128,128,128,.85)";ctx.font="10px Inter, sans-serif";ctx.textAlign="left";
+  ctx.fillText("target "+S.targetH+"h",10,ty-4);
+  days.forEach((dk,i)=>{
+    const e=byDate[dk];const x=8+i*bw+bw*.18, w=bw*.64;
+    const h=e?Math.max(3,(logDuration(e)/maxH)*(H-30)):0;
+    const y=H-18-h;
+    ctx.fillStyle=e?(e.q>=4?"#4f46e5":e.q>=3?"#818cf8":"#c7d2fe"):"rgba(128,128,128,.18)";
+    ctx.beginPath();ctx.roundRect(x,y,w,h,4);ctx.fill();
+    ctx.fillStyle="rgba(128,128,128,.85)";ctx.font="10px Inter, sans-serif";ctx.textAlign="center";
+    ctx.fillText(dk.slice(5),x+w/2,H-5);
+  });
+}
+function addLog(){
+  const d=$("logDate").value||dkey(new Date());
+  const bed=parseTime($("logBed").value), wake=parseTime($("logWake").value);
+  if(bed===null||wake===null)return;
+  if(!PRO&&S.log.length>=7&&!S.log.some(e=>e.d===d)){needPro();return;}
+  const ex=S.log.find(e=>e.d===d);
+  if(ex){ex.bed=bed;ex.wake=wake;ex.q=logQuality;}
+  else S.log.push({d:d,bed:bed,wake:wake,q:logQuality});
+  saveState();renderLog();
+}
+
+/* ============ nap timer + chime ============ */
+let napEnd=null,napTimer=null,napLenMin=20;
+let audioCtx=null;
+function chime(times){
+  try{
+    if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==="suspended")audioCtx.resume();
+    const notes=[880,1174.66,1318.51];
+    for(let r=0;r<(times||1);r++){
+      notes.forEach((f,i)=>{
+        const o=audioCtx.createOscillator(),gn=audioCtx.createGain();
+        o.type="sine";o.frequency.value=f;
+        const t0=audioCtx.currentTime+r*1.1+i*0.28;
+        gn.gain.setValueAtTime(0.0001,t0);
+        gn.gain.exponentialRampToValueAtTime(0.22,t0+0.05);
+        gn.gain.exponentialRampToValueAtTime(0.0001,t0+0.9);
+        o.connect(gn);gn.connect(audioCtx.destination);
+        o.start(t0);o.stop(t0+1);
+      });
+    }
+  }catch(e){/* audio unavailable — timer still works */}
+}
+function drawNapRing(frac){
+  const cv=$("napRing");const g=setupCanvas(cv);const ctx=g.ctx,W=g.w,H=g.h;
+  const cx=W/2,cy=H/2,R=Math.min(W,H)/2-8;
+  ctx.clearRect(0,0,W,H);
+  ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.strokeStyle="rgba(128,128,128,.25)";ctx.lineWidth=9;ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,R,-Math.PI/2,-Math.PI/2+Math.PI*2*clamp(frac,0,1));
+  ctx.strokeStyle="#4f46e5";ctx.lineWidth=9;ctx.lineCap="round";ctx.stroke();
+  ctx.fillStyle="rgba(128,128,128,.9)";ctx.font="600 12px Inter, sans-serif";ctx.textAlign="center";
+  ctx.fillText("☾",cx,cy+4);
+}
+function napTick(){
+  if(!napEnd)return;
+  const left=Math.max(0,napEnd-Date.now());
+  const total=napLenMin*60000;
+  const s=Math.ceil(left/1000);$("napClock").textContent=pad(Math.floor(s/60))+":"+pad(s%60);
+  $("napState").textContent=T("napRunning");
+  drawNapRing(1-left/total);
+  if(left<=0){clearInterval(napTimer);napTimer=null;napEnd=null;
+    $("napState").textContent=T("napDone");chime(2);drawNapRing(1);}
+}
+function napStart(){
+  napLenMin=S.napLen;napEnd=Date.now()+napLenMin*60000;
+  if(napTimer)clearInterval(napTimer);
+  napTimer=setInterval(napTick,250);napTick();
+}
+function napStop(){if(napTimer)clearInterval(napTimer);napTimer=null;napEnd=null;
+  $("napClock").textContent=pad(S.napLen)+":00";$("napState").textContent=T("napReady");drawNapRing(0);}
+function renderNapInfo(){
+  const latest=norm(S.bedMin-8*60);
+  $("napLatest").textContent=fmt(latest);
+  const now=new Date();const nowMin=now.getHours()*60+now.getMinutes();
+  /* a nap is fine while bedtime is still more than 8h away */
+  const toBed=diffMin(nowMin,S.bedMin);
+  if(toBed>8*60){
+    $("napNow").textContent=fmt(norm(nowMin+S.napLen))+" · "+T("napRunning").replace("…","");
+    $("napNow").className="";
+  }else{$("napNow").textContent=T("napTooLate");$("napNow").className="bad-t";}
+}
+
+/* ============ caffeine ============ */
+function renderCaffeine(){
+  $("cafCutoff").textContent=fmt(norm(S.bedMin-6*60));
+  if(S.coffeeMin===null){$("cafLeft").textContent="—";const v=$("cafVerdict");v.textContent=T("cafSet");v.className="";return;}
+  const hoursToBed=diffMin(S.coffeeMin,S.bedMin)/60;
+  const pct=Math.round(100*Math.pow(0.5,hoursToBed/6));
+  $("cafLeft").textContent=pct+"%";
+  const v=$("cafVerdict");
+  if(pct<25){v.textContent=T("cafOk");v.className="ok-t";}
+  else if(pct<=50){v.textContent=T("cafMid");v.className="warn-t";}
+  else{v.textContent=T("cafLate");v.className="bad-t";}
+}
+
+/* ============ export & share ============ */
+function downloadBlob(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
+function exportPNG(){
+  const size=PRO?2048:1024, scale=size/1024;
+  const cv=document.createElement("canvas");cv.width=size;cv.height=Math.round(640*scale);
+  const ctx=cv.getContext("2d");
+  ctx.fillStyle=THEME==="black"?"#14161a":"#eaedef";ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.fillStyle=THEME==="black"?"#e8eaed":"#1d2126";ctx.textAlign="left";
+  ctx.font="400 "+Math.round(44*scale)+"px 'Dela Gothic One', sans-serif";
+  ctx.fillText("Sleep Mo",Math.round(40*scale),Math.round(64*scale));
+  ctx.font="600 "+Math.round(20*scale)+"px Inter, sans-serif";ctx.fillStyle="#6b7280";
+  ctx.fillText(fmt(S.bedMin)+"  →  "+fmt(S.wakeMin)+"  ·  "+S.cycles+" "+T("cycles")+"  ·  "+fmtDur(S.cycles*CYCLE_MIN+LATENCY),Math.round(40*scale),Math.round(100*scale));
+  /* mini dial */
+  const dcx=cv.width/2, dcy=Math.round(300*scale), dR=Math.round(150*scale);
+  ctx.save();ctx.translate(dcx-dR,dcy-dR);
+  const tmp=document.createElement("canvas");tmp.width=tmp.height=Math.round(dR*2);
+  drawDial(tmp.getContext("2d"),tmp.width,tmp.height,{});
+  ctx.drawImage(tmp,0,0);ctx.restore();
+  /* hypnogram strip */
+  const m=hypoModel(S.cycles), total=m.total;
+  const hx=Math.round(40*scale), hy=Math.round(470*scale), hw=cv.width-Math.round(80*scale), hh=Math.round(110*scale);
+  ctx.strokeStyle="rgba(128,128,128,.3)";ctx.strokeRect(hx,hy,hw,hh);
+  const yFor=s=>hy+[0,hh*.32,hh*.62,hh][s];
+  ctx.lineWidth=Math.max(2,Math.round(3*scale));
+  for(const g of m.segs){const x0=hx+g.t0/total*hw,x1=hx+g.t1/total*hw,y=yFor(g.stage);
+    ctx.beginPath();ctx.moveTo(x0,y);ctx.lineTo(x1,y);
+    ctx.strokeStyle=DIAL_C[g.stage===0?"awake":g.stage===1?"light":g.stage===2?"rem":"deep"];ctx.stroke();}
+  ctx.fillStyle="#6b7280";ctx.font=Math.round(16*scale)+"px Inter, sans-serif";ctx.textAlign="left";
+  ctx.fillText("sleepmo · openx-mo.vercel.app",Math.round(40*scale),cv.height-Math.round(24*scale));
+  cv.toBlob(b=>{if(b)downloadBlob(b,"sleep-mo-plan.png");},"image/png");
+}
+function exportCSV(){
+  if(!needPro())return;
+  const rows=[["date","bed","wake","hours","quality"]];
+  for(const e of S.log.slice().sort((a,b)=>a.d<b.d?-1:1))
+    rows.push([e.d,fmt(e.bed),fmt(e.wake),(logDuration(e)/60).toFixed(2),e.q||""]);
+  const blob=new Blob([rows.map(r=>r.join(",")).join("\n")],{type:"text/csv"});
+  downloadBlob(blob,"sleep-mo-log.csv");
+}
+function exportJSON(){
+  if(!needPro())return;
+  const blob=new Blob([JSON.stringify({app:"sleep-mo",exported:dkey(new Date()),log:S.log},null,2)],{type:"application/json"});
+  downloadBlob(blob,"sleep-mo-log.json");
+}
+function shareLink(){
+  if(!needPro())return;
+  const url=location.origin+location.pathname+"#sleep="+S.wakeMin+","+S.cycles;
+  const done=()=>{$("shareBtn").textContent=T("copied");setTimeout(()=>{$("shareBtn").textContent=T("shareBtn");},1600);};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(done,()=>{prompt("Copy:",url);});
+  else prompt("Copy:",url);
+}
+function loadHash(){
+  try{const m=location.hash.match(/sleep=(\d+),(\d+)/);
+    if(m){S.wakeMin=norm(+m[1]);S.cycles=clamp(+m[2],3,6);
+      S.bedMin=norm(S.wakeMin-S.cycles*CYCLE_MIN-LATENCY);}}catch(e){}
+}
+
+/* ============ tips ============ */
+function renderTip(){
+  const day=new Date().getDate();
+  const n=((day-1)%7)+1;
+  $("tipHead").textContent=T("tipHead"+n);
+  $("tipBody").textContent=T("tipBody"+n);
+}
+
+/* ============ render all / wiring / init ============ */
+function renderAll(){
+  renderDial();renderCycles();renderNow();renderHypo(false);
+  renderLog();renderNapInfo();renderCaffeine();renderTip();
+  document.querySelectorAll("#ageChips .chip").forEach(c=>c.classList.toggle("on",c.dataset.age===S.age));
+  document.querySelectorAll("#napChips .chip").forEach(c=>c.classList.toggle("on",+c.dataset.nap===S.napLen));
+}
+function openDrawer(){$("drawer").classList.add("open");$("scrim").classList.add("open");}
+function closeDrawer(){$("drawer").classList.remove("open");$("scrim").classList.remove("open");}
+
+function init(){
+  loadState();loadHash();
+  $("wakeInput").value=fmt(S.wakeMin);
+  $("logDate").value=dkey(new Date());
+  $("logBed").value=fmt(S.bedMin);$("logWake").value=fmt(S.wakeMin);
+  if(S.coffeeMin!==null)$("cafInput").value=fmt(S.coffeeMin);
+  $("napClock").textContent=pad(S.napLen)+":00";
+  applyTheme();applyLang();
+  const sp=storedPro();if(sp&&sp.key){PRO=true;refreshPro();revalidatePro();}else refreshPro();
+  bindDial();
+  /* top bar */
+  $("drawerBtn").addEventListener("click",openDrawer);
+  $("drawerClose").addEventListener("click",closeDrawer);
+  $("scrim").addEventListener("click",closeDrawer);
+  $("langBtn").addEventListener("click",()=>{LANG=LANG==="en"?"zh":"en";saveState();applyLang();});
+  $("themeBtn").addEventListener("click",()=>{THEME=THEMES[(THEMES.indexOf(THEME)+1)%THEMES.length];saveState();applyTheme();});
+  $("proBtn").addEventListener("click",openProModal);
+  document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>$(b.dataset.close).classList.remove("open")));
+  $("proModal").addEventListener("click",e=>{if(e.target===$("proModal"))closeProModal();});
+  $("validateBtn").addEventListener("click",validateKey);
+  document.querySelectorAll("[data-buy]").forEach(b=>b.addEventListener("click",()=>{
+    window.open(b.dataset.buy==="monthly"?CONFIG.buyMonthly:CONFIG.buyLifetime,"_blank");}));
+  /* mode */
+  $("modeWakeBtn").addEventListener("click",()=>{S.mode="wake";saveState();renderAll();});
+  $("modeNowBtn").addEventListener("click",()=>{S.mode="now";saveState();renderAll();});
+  /* plan */
+  $("wakeInput").addEventListener("change",e=>{const v=parseTime(e.target.value);if(v===null)return;
+    S.wakeMin=v;S.bedMin=norm(S.wakeMin-S.cycles*CYCLE_MIN-LATENCY);$("logWake").value=fmt(S.wakeMin);saveState();renderAll();});
+  document.querySelectorAll("#ageChips .chip").forEach(c=>c.addEventListener("click",()=>{
+    S.age=c.dataset.age;S.targetH=S.age==="teen"?9:S.age==="older"?7.5:8;saveState();renderAll();}));
+  $("shiftBtn").addEventListener("click",()=>{needPro();});
+  /* log */
+  $("logAdd").addEventListener("click",addLog);
+  document.querySelectorAll("#logStars button").forEach(b=>b.addEventListener("click",()=>{
+    logQuality=+b.dataset.q;
+    document.querySelectorAll("#logStars button").forEach(x=>x.classList.toggle("on",+x.dataset.q<=logQuality));}));
+  /* nap */
+  document.querySelectorAll("#napChips .chip").forEach(c=>c.addEventListener("click",()=>{
+    if(c.dataset.nap==="custom"){needPro();return;}
+    S.napLen=+c.dataset.nap;napStop();renderAll();}));
+  $("napStart").addEventListener("click",napStart);
+  $("napStop").addEventListener("click",napStop);
+  $("chimeBtn").addEventListener("click",()=>chime(1));
+  /* caffeine */
+  $("cafInput").addEventListener("change",e=>{const v=parseTime(e.target.value);S.coffeeMin=v;saveState();renderCaffeine();});
+  /* export */
+  $("pngBtn").addEventListener("click",()=>{exportPNG();});
+  $("csvBtn").addEventListener("click",exportCSV);
+  $("jsonBtn").addEventListener("click",exportJSON);
+  $("shareBtn").addEventListener("click",shareLink);
+  /* resize */
+  let rto=null;
+  window.addEventListener("resize",()=>{clearTimeout(rto);rto=setTimeout(()=>{renderDial();renderHypo(false);renderLogChart();drawNapRing(napEnd?1-(napEnd-Date.now())/(napLenMin*60000):0);},120);});
+  drawNapRing(0);
+  renderAll();
+  /* animate hypnogram in on first load */
+  setTimeout(()=>renderHypo(true),150);
+}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>

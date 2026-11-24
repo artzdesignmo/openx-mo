@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Fish Mo — Pocket Aquarium</title>
+<meta name="description" content="Fish Mo — a pocket aquarium. Build a large living fish tank in your browser: add fish by species and colour, shrimp, jellyfish and decorations, feed them and watch them swim. Local-first, no account, no cloud.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eaedef;--panel:#f6f8f9;--line:#d5d9dc;--ink:#1c1e21;--muted:#6b6f73;--icon:#8a867e;
+--accent:#2f6fb2;--gold:#b8860b;--radius:14px}
+body.white{--bg:#ffffff;--panel:#f7f7f5;--line:#e2e2de;--ink:#1c1e21;--muted:#6b6f73}
+body.black{--bg:#141518;--panel:#1e2023;--line:#33363b;--ink:#e8e8e6;--muted:#9a9da2;--icon:#8a867e}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:"Noto Sans TC",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+h1,h2,h3,.dela{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-weight:400}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 11px;width:100%}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px}
+label{font-size:12px;color:var(--muted);display:block;margin:12px 0 5px}
+/* top bar */
+header{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border-bottom:1px solid var(--line)}
+header h1{font-size:19px;letter-spacing:.5px;white-space:nowrap}
+header .sp{flex:1}
+header .stat{font-size:12px;color:var(--muted);white-space:nowrap}
+.iconbtn{background:none;border:1px solid var(--line);border-radius:9px;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;color:var(--icon);font-size:16px;line-height:1;flex:none}
+.iconbtn:hover{border-color:var(--icon)}
+.probtn{background:var(--ink);color:var(--bg);border:none;border-radius:9px;padding:8px 13px;font-weight:700;font-size:13px;flex:none}
+.coffee{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--line);border-radius:9px;flex:none}
+.coffee svg{display:block}
+/* tank */
+#stage{position:fixed;inset:57px 0 0 0}
+#tank{width:100%;height:100%;display:block;touch-action:none;cursor:pointer}
+.hintbar{position:fixed;left:12px;bottom:12px;z-index:30;font-size:12px;color:#fff;background:rgba(0,0,0,.38);border-radius:8px;padding:6px 10px;pointer-events:none;max-width:70vw}
+/* drawer */
+.drawer{position:fixed;top:0;left:0;bottom:0;width:min(360px,88vw);background:var(--panel);border-right:1px solid var(--line);z-index:60;transform:translateX(-102%);transition:transform .28s ease;overflow-y:auto;padding:16px 18px 40px}
+.drawer.open{transform:translateX(0)}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:55;opacity:0;pointer-events:none;transition:opacity .28s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer h2{font-size:17px;margin-bottom:2px}
+.drawer h3{font-size:13px;margin:22px 0 2px}
+.drawer .hint{font-size:12px;color:var(--muted)}
+.closeX{position:absolute;top:12px;right:12px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+.pick{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 4px;text-align:center;font-size:11px;line-height:1.3}
+.pick.sel{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.pick .sw{width:26px;height:26px;border-radius:50%;margin:0 auto 5px;border:2px solid rgba(0,0,0,.15)}
+.pick .ico{font-size:20px;line-height:1.2}
+.swatches{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.swatches .sw{width:28px;height:28px;border-radius:50%;border:2px solid rgba(0,0,0,.15);cursor:pointer;padding:0}
+.swatches .sw.sel{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--ink)}
+.qtyrow{display:flex;align-items:center;gap:10px;margin-top:8px}
+.qtyrow button{width:36px;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--bg);font-size:18px}
+.qtyrow b{font-size:16px;min-width:22px;text-align:center}
+.bigbtn{width:100%;padding:12px;border:none;border-radius:10px;background:var(--ink);color:var(--bg);font-weight:700;font-size:15px;margin-top:16px}
+.ghostbtn{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font-weight:600;font-size:13px;margin-top:8px}
+.ghostbtn:disabled{opacity:.45;cursor:not-allowed}
+.protag{display:inline-block;font-size:10px;font-weight:700;background:var(--gold);color:#fff;border-radius:5px;padding:2px 5px;margin-left:4px;vertical-align:middle}
+.seg{display:flex;gap:6px;margin-top:8px}
+.seg button{flex:1;padding:9px 4px;border-radius:9px;border:1px solid var(--line);background:var(--bg);font-weight:700;font-size:13px}
+.seg button.sel{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.list{list-style:none;margin-top:8px}
+.list li{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:6px;font-size:13px}
+.list .dot{width:14px;height:14px;border-radius:50%;flex:none}
+.list .meta{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list .mini{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px;color:var(--muted)}
+/* selection card */
+.selcard{position:fixed;left:12px;bottom:52px;z-index:35;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;min-width:220px;max-width:82vw;display:none;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.selcard.on{display:block}
+.selcard h3{font-size:14px;margin-bottom:2px}
+.selcard .hint{font-size:12px;color:var(--muted);margin-bottom:6px}
+.selcard .row{display:flex;gap:8px;margin-top:8px}
+.selcard .row button{flex:1;padding:8px;border-radius:9px;border:1px solid var(--line);background:var(--bg);font-weight:700;font-size:13px}
+.selcard .row button.danger{color:#c0392b}
+/* modal */
+.modal{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);padding:16px}
+.modal.open{display:flex}
+.mbox{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:420px;width:100%;padding:22px;position:relative}
+.mbox h2{font-size:18px;margin-bottom:6px}
+.mbox p{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:10px}
+.mbox .plans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.mbox .plan{border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;background:var(--bg)}
+.mbox .plan b{font-size:16px}
+.mbox .plan div{font-size:12px;color:var(--muted);margin-top:3px}
+.mbox .plan button{margin-top:10px;width:100%;padding:9px;border:none;border-radius:8px;background:var(--ink);color:var(--bg);font-weight:700}
+.msg{font-size:13px;min-height:18px;margin-top:8px}
+.msg.err{color:#c0392b} .msg.ok{color:#2e8b57}
+footer{position:fixed;left:0;right:0;bottom:0;z-index:5;text-align:center;font-size:11px;color:rgba(255,255,255,.75);padding:4px;pointer-events:none}
+@media (max-width:720px){
+  header h1{font-size:16px}
+  header .stat{display:none}
+  footer{display:none}
+}
+</style>
+</head>
+<body class="silver">
+<header>
+  <button class="iconbtn" id="menuBtn" aria-label="Menu">☰</button>
+  <h1>Fish Mo</h1>
+  <div class="sp"></div>
+  <span class="stat" id="statLine"></span>
+  <button class="iconbtn" id="feedBtn" title="Feed" aria-label="Feed">🍤</button>
+  <button class="iconbtn" id="themeBtn" title="Theme" aria-label="Theme">◐</button>
+  <button class="iconbtn" id="langBtn" title="Language" aria-label="Language">EN</button>
+  <button class="probtn" id="proBtn">Pro</button>
+  <a class="coffee" href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener" title="Buy Me a Coffee" aria-label="Buy Me a Coffee"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8a867e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg></a>
+</header>
+
+<div id="stage"><canvas id="tank"></canvas></div>
+<div class="hintbar" id="hintBar"></div>
+
+<div class="selcard" id="selCard">
+  <h3 id="selTitle"></h3>
+  <div class="hint" id="selSub"></div>
+  <div class="swatches" id="selColors"></div>
+  <div class="row">
+    <button id="selRemove" class="danger">✕ <span data-i18n="remove">Remove</span></button>
+    <button id="selClose"><span data-i18n="done">Done</span></button>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer">
+  <button class="iconbtn closeX" id="drawerClose" aria-label="Close">✕</button>
+  <h2>Fish Mo</h2>
+  <p class="hint" data-i18n="drawerHint">Build your own living aquarium. Everything is drawn live with code — no photos, no downloads.</p>
+
+  <h3 data-i18n="addFish">Add fish</h3>
+  <p class="hint" data-i18n="addFishHint">Pick a species, a colour and how many.</p>
+  <div class="grid" id="speciesGrid"></div>
+  <label data-i18n="colour">Colour</label>
+  <div class="swatches" id="colorSw"></div>
+  <div class="qtyrow">
+    <span data-i18n="quantity">Quantity</span>
+    <button id="qtyMinus" aria-label="Fewer">−</button><b id="qtyVal">1</b><button id="qtyPlus" aria-label="More">＋</button>
+  </div>
+  <button class="bigbtn" id="addFishBtn">＋ <span data-i18n="addFishBtn">Add fish</span></button>
+  <p class="hint" id="fishLimitNote" style="margin-top:6px"></p>
+
+  <h3 data-i18n="addLife">Other sea life</h3>
+  <div class="grid" id="lifeGrid"></div>
+
+  <h3 data-i18n="decor">Decorations</h3>
+  <p class="hint" data-i18n="decorHint">Tap to add. Drag any decoration in the tank to move it.</p>
+  <div class="grid" id="decorGrid"></div>
+
+  <h3 data-i18n="tank">Tank</h3>
+  <label data-i18n="scene">Scene</label>
+  <div class="seg" id="sceneSeg">
+    <button data-scene="day">☀️ <span data-i18n="day">Day</span></button>
+    <button data-scene="night">🌙 <span data-i18n="night">Night</span><span class="protag">PRO</span></button>
+    <button data-scene="abyss">🕳️ <span data-i18n="abyss">Abyss</span><span class="protag">PRO</span></button>
+  </div>
+  <button class="ghostbtn" id="feedBtn2">🍤 <span data-i18n="feed">Feed the fish</span></button>
+  <button class="ghostbtn" id="shuffleBtn">🎲 <span data-i18n="shuffle">Shuffle tank</span></button>
+  <button class="ghostbtn" id="clearBtn">🧹 <span data-i18n="clear">Clear tank</span></button>
+
+  <h3 data-i18n="myTank">My tank</h3>
+  <ul class="list" id="tankList"></ul>
+
+  <h3 data-i18n="data">Data</h3>
+  <button class="ghostbtn" id="exportBtn">🖼️ <span data-i18n="exportPng">Export PNG snapshot</span></button>
+  <button class="ghostbtn" id="shareBtn">🔗 <span data-i18n="share">Share tank link</span><span class="protag">PRO</span></button>
+  <button class="ghostbtn" id="resetBtn">↺ <span data-i18n="reset">Reset to starter tank</span></button>
+  <p class="hint" style="margin-top:14px" data-i18n="localNote">Local-first: your tank lives in this browser only. No account, no cloud, no tracking.</p>
+</aside>
+
+<div class="modal" id="proModal">
+  <div class="mbox">
+    <button class="iconbtn closeX" id="proClose" aria-label="Close">✕</button>
+    <h2>Fish Mo <span class="protag">PRO</span></h2>
+    <p data-i18n="proPitch">Unlock all 8 fish species, unlimited fish, jellyfish, snails and starfish, every decoration, Night and Abyss scenes, HD PNG (2048px) and shareable tank links.</p>
+    <div class="plans">
+      <div class="plan"><b data-i18n="monthly">Monthly</b><div>US$5.99 / mo</div><button data-buy="monthly" data-i18n="buyMonthly">Get Monthly</button></div>
+      <div class="plan"><b data-i18n="lifetime">Lifetime</b><div>US$59.99 once</div><button data-buy="lifetime" data-i18n="buyLifetime">Get Lifetime</button></div>
+    </div>
+    <label for="proKeyIn" data-i18n="keyLabel">Already have a Pro key? Paste it here:</label>
+    <input id="proKeyIn" type="text" autocomplete="off" placeholder="XXXX-XXXX-XXXX-XXXX">
+    <button class="bigbtn" id="validateBtn" data-i18n="validate">Validate key</button>
+    <div class="msg" id="proMsg"></div>
+  </div>
+</div>
+
+<footer>© 2026 Fish Mo contributors. All rights reserved. · <a href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener">Buy Me a Coffee</a></footer>
+<script>
+"use strict";
+function $(id){return document.getElementById(id);}
+function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+function uid(){return "c"+Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+function clamp(v,a,b){return v<a?a:v>b?b:v;}
+function lerp(a,b,t){return a+(b-a)*t;}
+function rand(a,b){return a+Math.random()*(b-a);}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function angNorm(a){while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a;}
+
+/* ============ Pro (Lemon Squeezy test wiring — same hardened pattern as Budget/Robo/Signal/Cipher/AI Persona) ============ */
+const CONFIG={storeId:508220,licenseValidateUrl:"https://api.lemonsqueezy.com/v1/licenses/validate",instanceName:"fish-mo",
+buyMonthly:"https://openx.lemonsqueezy.com/checkout/buy/934fa5b0-fe63-4707-b9cb-d303de1e127f",
+buyLifetime:"https://openx.lemonsqueezy.com/checkout/buy/d107e805-e8e9-42b0-9c1a-eb89078421be"};
+let PRO=false;
+function storedPro(){try{const s=localStorage.getItem("fishmo_pro");return s?JSON.parse(s):null;}catch(e){return null;}}
+function savePro(k){try{localStorage.setItem("fishmo_pro",JSON.stringify({key:k}));}catch(e){}}
+function clearPro(){try{localStorage.removeItem("fishmo_pro");}catch(e){}}
+function getProInstance(){try{let id=localStorage.getItem("fishmo_instance");if(!id){id="fishmo-"+Date.now().toString(36)+Math.random().toString(36).slice(2,10);localStorage.setItem("fishmo_instance",id);}return id;}catch(e){return CONFIG.instanceName;}}
+function lsValid(d){return !!(d&&d.valid&&d.license_key&&d.license_key.status==="active");}
+function refreshPro(){$("proBtn").textContent=PRO?"Pro ✓":"Pro";}
+function needPro(){if(PRO)return true;openProModal();return false;}
+function openProModal(){$("proModal").classList.add("open");}
+function closeProModal(){$("proModal").classList.remove("open");}
+async function validateKey(){const key=$("proKeyIn").value.trim();const msg=$("proMsg");if(!key){msg.textContent=T("key_bad");msg.className="msg err";return;}msg.textContent=T("key_saved");msg.className="msg";try{const res=await fetch(CONFIG.licenseValidateUrl,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({license_key:key,instance_name:getProInstance()})});let data=null;try{data=await res.json();}catch(e){}if(lsValid(data)){savePro(key);PRO=true;refreshPro();msg.textContent=T("key_ok");msg.className="msg ok";setTimeout(closeProModal,900);renderPanels();}else{msg.textContent=T("key_bad");msg.className="msg err";}}catch(err){msg.textContent=T("key_net");msg.className="msg err";}}
+async function revalidatePro(){const s=storedPro();if(!s||!s.key)return;try{const res=await fetch(CONFIG.licenseValidateUrl,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({license_key:s.key,instance_name:getProInstance()})});let data=null;try{data=await res.json();}catch(e){}if(!lsValid(data)){clearPro();PRO=false;refreshPro();}}catch(err){/* offline grace: keep Pro until a check succeeds */}}
+
+/* ============ i18n ============ */
+const I18N={
+en:{drawerHint:"Build your own living aquarium. Everything is drawn live with code — no photos, no downloads.",
+addFish:"Add fish",addFishHint:"Pick a species, a colour and how many.",colour:"Colour",quantity:"Quantity",addFishBtn:"Add fish",
+addLife:"Other sea life",decor:"Decorations",decorHint:"Tap to add. Drag any decoration in the tank to move it.",
+tank:"Tank",scene:"Scene",day:"Day",night:"Night",abyss:"Abyss",feed:"Feed the fish",shuffle:"Shuffle tank",clear:"Clear tank",
+myTank:"My tank",data:"Data",exportPng:"Export PNG snapshot",share:"Share tank link",reset:"Reset to starter tank",
+localNote:"Local-first: your tank lives in this browser only. No account, no cloud, no tracking.",
+proPitch:"Unlock all 8 fish species, unlimited fish, jellyfish, snails and starfish, every decoration, Night and Abyss scenes, HD PNG (2048px) and shareable tank links.",
+monthly:"Monthly",lifetime:"Lifetime",buyMonthly:"Get Monthly",buyLifetime:"Get Lifetime",
+keyLabel:"Already have a Pro key? Paste it here:",validate:"Validate key",
+key_ok:"Pro unlocked — welcome!",key_bad:"That key did not validate. Check it and try again.",key_saved:"Checking your key…",key_net:"Could not reach the license server. Check your connection and try again.",
+remove:"Remove",done:"Done",free:"Free",fish:"fish",shrimp:"shrimp",jellyfish:"jellyfish",snail:"snail",starfish:"starfish",
+freeLimit:"Free plan allows 6 fish and 3 shrimp. Upgrade to Pro for unlimited fish, jellyfish and more.",
+proOnly:"Pro feature — unlock with a Pro key.",
+hintBar:"Tap a fish to select it · Drag decorations to move them · 🍤 feeds the tank",
+shared:"Tank link copied — share it and the tank opens exactly as you left it.",
+sharedFail:"Could not copy the link. Your browser blocked clipboard access.",
+exported:"Snapshot saved.",
+emptyTank:"Tank is empty. Add a fish from the menu ☰.",
+confirmClear:"Clear the whole tank?",
+confirmReset:"Reset to the starter tank?",
+species:{goldfish:"Goldfish",guppy:"Guppy",tetra:"Neon Tetra",clownfish:"Clownfish",angelfish:"Angelfish",betta:"Betta",koi:"Koi",tang:"Blue Tang"},
+life:{shrimp:"Shrimp",jellyfish:"Jellyfish",snail:"Snail",starfish:"Starfish"},
+decorN:{seaweed:"Seaweed",rock:"Rock",pebbles:"Pebbles",coral:"Coral",castle:"Castle",chest:"Treasure chest",driftwood:"Driftwood",shell:"Shell",anemone:"Anemone",airstone:"Airstone"}},
+zh:{drawerHint:"打造你自己嘅活生生魚缸。所有嘢都係即時用程式畫出嚟——冇相、冇下載。",
+addFish:"加魚",addFishHint:"揀品種、顏色同數量。",colour:"顏色",quantity:"數量",addFishBtn:"加魚",
+addLife:"其他水生生物",decor:"裝飾物",decorHint:"撳一下加入。喺缸入面拖曳裝飾物可以搬位。",
+tank:"魚缸",scene:"場景",day:"日間",night:"夜晚",abyss:"深海",feed:"餵魚",shuffle:"隨機換缸",clear:"清空魚缸",
+myTank:"我嘅魚缸",data:"資料",exportPng:"匯出 PNG 快照",share:"分享魚缸連結",reset:"還原新手魚缸",
+localNote:"本地優先：你嘅魚缸只存喺呢個瀏覽器。冇帳號、冇雲端、冇追蹤。",
+proPitch:"解鎖全部 8 種魚、無限養魚、水母、蝸牛同海星、所有裝飾、夜晚同深海場景、HD PNG（2048px）同可分享嘅魚缸連結。",
+monthly:"月費",lifetime:"終身",buyMonthly:"買月費",buyLifetime:"買終身",
+keyLabel:"已有 Pro 密鑰？喺呢度貼上：",validate:"驗證密鑰",
+key_ok:"Pro 已解鎖，歡迎！",key_bad:"呢條密鑰驗證唔到，請再檢查一次。",key_saved:"驗證緊密鑰…",key_net:"連唔到授權伺服器，請檢查網絡再試。",
+remove:"移除",done:"完成",free:"免費",fish:"條魚",shrimp:"隻蝦",jellyfish:"隻水母",snail:"隻蝸牛",starfish:"隻海星",
+freeLimit:"免費版最多養 6 條魚、3 隻蝦。升級 Pro 可以無限養魚、加水母等等。",
+proOnly:"Pro 功能——用 Pro 密鑰解鎖。",
+hintBar:"撳一條魚可以選取佢 · 拖曳裝飾物搬位 · 🍤 餵魚",
+shared:"魚缸連結已複製——分享出去，對方打開就係你而家呢個缸。",
+sharedFail:"複製唔到連結，瀏覽器擋咗剪貼簿。",
+exported:"快照已儲存。",
+emptyTank:"魚缸係空嘅，喺選單 ☰ 加條魚啦。",
+confirmClear:"清空成個魚缸？",
+confirmReset:"還原做新手魚缸？",
+species:{goldfish:"金魚",guppy:"孔雀魚",tetra:"霓虹燈魚",clownfish:"小丑魚",angelfish:"神仙魚",betta:"鬥魚",koi:"錦鯉",tang:"藍吊"},
+life:{shrimp:"蝦",jellyfish:"水母",snail:"蝸牛",starfish:"海星"},
+decorN:{seaweed:"海草",rock:"石頭",pebbles:"小石",coral:"珊瑚",castle:"城堡",chest:"寶箱",driftwood:"流木",shell:"貝殼",anemone:"海葵",airstone:"氣石"}}};
+let LANG="en";
+function T(k){const d=I18N[LANG]||I18N.en;return d[k]!=null?d[k]:I18N.en[k];}
+function Tn(kind,id){const d=I18N[LANG]||I18N.en;return (d[kind]&&d[kind][id])||I18N.en[kind][id]||id;}
+function applyLang(){document.querySelectorAll("[data-i18n]").forEach(n=>{const k=n.getAttribute("data-i18n");if(I18N[LANG]&&I18N[LANG][k]!=null)n.textContent=I18N[LANG][k];});$("langBtn").textContent=LANG==="en"?"EN":"繁";$("hintBar").textContent=T("hintBar");renderPanels();}
+
+/* ============ catalogues ============ */
+const COLORS=["#f5a623","#e74c3c","#ff6b81","#ffd23f","#2ecc71","#3aa0ff","#9b59b6","#f5f0e6"];
+const SPECIES={
+goldfish:{free:true,base:"#f5a623",size:1.15,shape:"goldfish"},
+guppy:{free:true,base:"#ff6b81",size:0.6,shape:"guppy"},
+tetra:{free:true,base:"#3aa0ff",size:0.55,shape:"tetra"},
+clownfish:{free:false,base:"#ff7f2a",size:0.8,shape:"clownfish"},
+angelfish:{free:false,base:"#e8e8e8",size:1.0,shape:"angelfish"},
+betta:{free:false,base:"#c0392b",size:0.9,shape:"betta"},
+koi:{free:false,base:"#f5f0e6",size:1.5,shape:"koi"},
+tang:{free:false,base:"#1f6fd6",size:1.0,shape:"tang"}};
+const LIFE={
+shrimp:{free:true,emoji:"🦐"},
+jellyfish:{free:false,emoji:"🪼"},
+snail:{free:false,emoji:"🐌"},
+starfish:{free:false,emoji:"⭐"}};
+const DECOR={
+seaweed:{free:true,emoji:"🌿"},
+rock:{free:true,emoji:"🪨"},
+pebbles:{free:true,emoji:"🟤"},
+coral:{free:false,emoji:"🪸"},
+castle:{free:false,emoji:"🏰"},
+chest:{free:false,emoji:"🧰"},
+driftwood:{free:false,emoji:"🪵"},
+shell:{free:false,emoji:"🐚"},
+anemone:{free:false,emoji:"🌸"},
+airstone:{free:false,emoji:"🫧"}};
+const FREE_FISH_MAX=6,FREE_SHRIMP_MAX=3,PRO_FISH_MAX=40;
+
+/* ============ state ============ */
+/* ============ 3D tank state (fractions in state, tank units in sim) ============ */
+const TANK={x0:-7,x1:7,yFloor:-3.2,ySurf:3.2,zBack:-4.2,zFront:0.6};
+const SWIM={x0:-6.4,x1:6.4,y0:-2.6,y1:2.6,z0:-3.6,z1:0.0};
+function fx2x(fx){return SWIM.x0+fx*(SWIM.x1-SWIM.x0);}
+function fy2y(fy){return SWIM.y0+fy*(SWIM.y1-SWIM.y0);}
+function fz2z(fz){return SWIM.z0+fz*(SWIM.z1-SWIM.z0);}
+function x2fx(x){return clamp((x-SWIM.x0)/(SWIM.x1-SWIM.x0),0,1);}
+function y2fy(y){return clamp((y-SWIM.y0)/(SWIM.y1-SWIM.y0),0,1);}
+function z2fz(z){return clamp((z-SWIM.z0)/(SWIM.z1-SWIM.z0),0,1);}
+let S=null; /* {scene, fish:[], life:[], decor:[], food:[]} */
+let selId=null, selKind=null;
+let selSpecies="goldfish", selColor=COLORS[0], qty=1;
+let drag=null; /* {id} */
+let view={cssW:0,cssH:0,dpr:1,aspect:1.6};
+let saveTimer=0;
+function starterTank(){
+  return {scene:"day",
+  fish:[
+    mkFish("goldfish","#f5a623",.22,.42,.55),mkFish("goldfish","#ff8c42",.55,.6,.4),
+    mkFish("guppy","#ff6b81",.35,.3,.7),mkFish("tetra","#3aa0ff",.68,.35,.5)],
+  life:[mkLife("shrimp",.8,.06,.5)],
+  decor:[
+    {id:uid(),kind:"seaweed",fx:0.06,y:1,sc:1.1,seed:rand(0,9)},
+    {id:uid(),kind:"seaweed",fx:0.13,y:1,sc:.9,seed:rand(0,9)},
+    {id:uid(),kind:"seaweed",fx:0.9,y:1,sc:1.05,seed:rand(0,9)},
+    {id:uid(),kind:"rock",fx:0.3,y:1,sc:1,seed:rand(0,9)},
+    {id:uid(),kind:"rock",fx:0.78,y:1,sc:.8,seed:rand(0,9)},
+    {id:uid(),kind:"pebbles",fx:0.48,y:1,sc:1,seed:rand(0,9)}],
+  food:[]};
+}
+function mkFish(sp,color,fx,fy,fz){
+  const def=SPECIES[sp];
+  const x=fx2x(fx==null?rand(.15,.85):fx), y=fy2y(fy==null?rand(.25,.75):fy), z=fz2z(fz==null?rand(.3,.8):fz);
+  const a=rand(0,6.283);
+  return {id:uid(),kind:"fish",sp:sp,color:color||def.base,
+    x:x,y:y,z:z,vx:Math.cos(a)*.3,vy:0,vz:Math.sin(a)*.3,
+    yaw:a,pitch:0,tx:x,ty:y,tz:z,retarget:rand(1,3),
+    speed:def.size>1.2?rand(.5,.8):rand(.7,1.1),wag:rand(0,6.28),dart:0,hunger:rand(0,1)};
+}
+function mkLife(kind,fx,fy,fz){
+  const x=fx2x(fx==null?rand(.2,.8):fx), y=fy2y(fy==null?.9:.9), z=fz2z(fz==null?rand(.3,.8):fz);
+  return {id:uid(),kind:"life",sp:kind,
+    x:x,y:kind==="jellyfish"?fy2y(fy==null?rand(.3,.5):fy):TANK.yFloor+0.25,z:z,
+    vx:0,vy:0,vz:0,yaw:rand(0,6.283),pitch:0,
+    tx:x,ty:y,tz:z,retarget:rand(1,3),
+    speed:kind==="jellyfish"?rand(.12,.2):rand(.15,.3),
+    wag:rand(0,6.28),pulse:rand(0,6.28),hop:0,hopT:rand(.5,2),hopDx:0,hopDz:0,turnT:rand(2,4)};
+}
+function decorX(d){return (d.fx-0.5)*(TANK.x1-TANK.x0)*0.96;}
+function decorZ(d){return -2.4-((d.seed||0)%1)*1.4;}
+function saveState(){try{localStorage.setItem("fishmo_state",JSON.stringify(S));}catch(e){}}
+function loadState(){try{const s=localStorage.getItem("fishmo_state");if(!s)return null;const o=JSON.parse(s);if(!o||!Array.isArray(o.fish)||!Array.isArray(o.decor))return null;return o;}catch(e){return null;}}
+function normalizeLoaded(o){
+  /* fill in sim fields for fish/life loaded from storage or a share link */
+  for(const f of o.fish){if(f.x==null){const n=mkFish(f.sp,f.color,f.fx!=null?f.fx:.5,f.fy!=null?f.fy:.5,f.fz!=null?f.fz:.5);Object.assign(f,n,{id:f.id,color:f.color,sp:f.sp});}}
+  for(const c of o.life){if(c.x==null){const n=mkLife(c.sp,c.fx!=null?c.fx:.5,c.fy!=null?c.fy:.5,c.fz!=null?c.fz:.5);Object.assign(c,n,{id:c.id,sp:c.sp});}}
+  for(const d of o.decor){if(d.fx==null)d.fx=.5;if(d.sc==null)d.sc=1;if(d.seed==null)d.seed=rand(0,9);}
+  if(!Array.isArray(o.food))o.food=[];
+  return o;
+}
+/* __ENGINE_START__ */
+/* ============ WebGPU engine: shaders (own code; technique studied from abyssal-garden) ============ */
+const W_ALL = /*wgsl*/`
+struct U {
+  vp: mat4x4f,
+  cam: vec4f,
+  camR: vec4f,
+  camU: vec4f,
+  sun: vec4f,
+  tm: vec4f,
+  fog: vec4f,
+  amb: vec4f,
+  deep: vec4f,
+};
+@group(0) @binding(0) var<uniform> u: U;
+
+fn hash1(n: f32) -> f32 { return fract(sin(n) * 43758.5453123); }
+fn hash3(p: vec3f) -> f32 {
+  let q = fract(p * vec3f(0.1031, 0.1030, 0.0973));
+  let qq = q + dot(q, q.yzx + 33.33);
+  return fract((qq.x + qq.y) * qq.z);
+}
+fn caustic(uv: vec2f, t: f32) -> f32 {
+  var p = uv;
+  var c = 0.0;
+  var tt = t * 0.6;
+  for (var i = 0; i < 5; i++) {
+    p = p + vec2f(cos(tt - p.x) + sin(tt + p.y), sin(tt - p.y) + cos(tt + p.x));
+    let sx = sin(p.x);
+    let sy = cos(p.y);
+    c += abs(sx * sy) / (1.25 * sqrt(sx * sx + sy * sy + 0.05) + 0.0001);
+    tt += 0.4;
+  }
+  c = 1.17 - pow(c / 5.0, 1.4);
+  return pow(abs(c), 8.0);
+}
+fn fogMix(col: vec3f, wp: vec3f) -> vec3f {
+  let d = distance(wp, u.cam.xyz);
+  let f = 1.0 - exp(-d * u.fog.w);
+  var c = mix(col, u.fog.xyz, clamp(f, 0.0, 1.0));
+  let dd = clamp((-wp.y - 0.5) * 0.05, 0.0, 0.25);
+  c = mix(c, u.deep.xyz, dd);
+  return c;
+}
+fn tone(c: vec3f) -> vec3f {
+  let x = c * u.amb.w;
+  return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), vec3f(0.0), vec3f(1.0));
+}
+
+/* ---------- solid meshes (sand, rocks, decor, fish, shrimp, snail, starfish, pellets) ---------- */
+struct VIn {
+  @location(0) pos: vec3f,
+  @location(1) nrm: vec3f,
+  @location(2) col: vec3f,
+  @location(3) m0: vec4f,
+  @location(4) m1: vec4f,
+  @location(5) m2: vec4f,
+  @location(6) m3: vec4f,
+  @location(7) tint: vec4f,
+  @location(8) prm: vec4f,
+};
+struct VOut {
+  @builtin(position) pos: vec4f,
+  @location(0) wp: vec3f,
+  @location(1) nrm: vec3f,
+  @location(2) col: vec3f,
+  @location(3) tint: vec4f,
+  @location(4) prm: vec4f,
+  @location(5) loc: vec3f,
+};
+@vertex fn vsSolid(in: VIn) -> VOut {
+  var p = in.pos;
+  let size = length(in.m0.xyz);
+  if (in.prm.x > 0.5 && in.prm.x < 5.5) {
+    // tail wag: lateral offset grows toward the tail (local -x)
+    let w = sin(u.tm.x * (9.0 / (0.4 + size)) + in.prm.w + p.x * 4.0) * 0.22 * clamp(-p.x, 0.0, 0.7);
+    p.z += w;
+  } else if (in.prm.x > 5.5) {
+    // jellyfish bell pulse
+    let pu = 1.0 + 0.09 * sin(u.tm.x * 2.4 + in.prm.w);
+    p.x *= pu;
+    p.z *= pu;
+    p.y *= (2.0 - pu);
+  }
+  let m = mat4x4f(in.m0, in.m1, in.m2, in.m3);
+  let wp4 = m * vec4f(p, 1.0);
+  var o: VOut;
+  o.pos = u.vp * wp4;
+  o.wp = wp4.xyz;
+  o.nrm = normalize((m * vec4f(in.nrm, 0.0)).xyz);
+  o.col = in.col;
+  o.tint = in.tint;
+  o.prm = in.prm;
+  o.loc = in.pos;
+  return o;
+}
+fn applyPattern(col: vec3f, v: VOut) -> vec3f {
+  var c = col;
+  let p = v.prm.x;
+  let lx = v.loc.x;
+  let ly = v.loc.y;
+  if (p > 0.5 && p < 1.5) {
+    // clownfish: white bands
+    let fr = fract(lx * 2.2 + 0.1);
+    let b = smoothstep(0.32, 0.45, fr) * smoothstep(0.68, 0.55, fr);
+    c = mix(c, vec3f(0.96), b * 0.9);
+  } else if (p > 1.5 && p < 2.5) {
+    // koi: orange patches
+    let s = step(0.72, hash3(floor(v.loc * vec3f(7.0, 4.0, 4.0))));
+    c = mix(c, vec3f(0.95, 0.45, 0.12), s * 0.8);
+  } else if (p > 2.5 && p < 3.5) {
+    // blue tang: yellow tail
+    let t = smoothstep(-0.18, -0.34, lx);
+    c = mix(c, vec3f(0.95, 0.8, 0.1), t);
+  } else if (p > 3.5 && p < 4.5) {
+    // neon tetra: bright lateral line
+    let b = 1.0 - smoothstep(0.0, 0.09, abs(ly - 0.03));
+    c = mix(c, vec3f(0.2, 0.95, 0.85), b * 0.9);
+  } else if (p > 4.5 && p < 5.5) {
+    // betta: glowing fins
+    let f = smoothstep(0.12, 0.3, ly) + smoothstep(-0.3, -0.45, lx);
+    c = mix(c, vec3f(0.9, 0.25, 0.55), clamp(f, 0.0, 1.0) * 0.55);
+  }
+  return c;
+}
+@fragment fn fsSolid(in: VOut) -> @location(0) vec4f {
+  let n = normalize(in.nrm);
+  let sunDir = normalize(u.sun.xyz);
+  let dif = max(dot(n, sunDir), 0.0);
+  var col = in.col * in.tint.rgb * (u.amb.xyz + vec3f(1.1, 1.05, 0.95) * u.sun.w * dif);
+  if (in.prm.x > 0.5) {
+    col = applyPattern(col, in);
+  }
+  let cm = clamp(n.y, 0.0, 1.0) * (1.0 - smoothstep(-3.4, -1.6, in.wp.y));
+  if (cm > 0.001) {
+    col += vec3f(1.1, 1.05, 0.95) * u.sun.w * caustic(in.wp.xz * 0.55, u.tm.x) * cm * u.tm.y;
+  }
+  if (in.prm.z > 0.5) {
+    col += vec3f(0.25, 0.28, 0.3) * (0.6 + 0.4 * sin(u.tm.x * 4.0));
+  }
+  col += in.col * in.tint.a;
+  col = fogMix(col, in.wp);
+  return vec4f(tone(col), 1.0);
+}
+@fragment fn fsJelly(in: VOut) -> @location(0) vec4f {
+  let n = normalize(in.nrm);
+  let fres = pow(1.0 - abs(dot(n, normalize(u.cam.xyz - in.wp))), 2.0);
+  var col = in.col * in.tint.rgb * (u.amb.xyz * 1.4 + vec3f(1.0, 0.8, 0.9) * fres);
+  col += in.col * in.tint.a;
+  col = fogMix(col, in.wp);
+  let a = 0.45 + 0.4 * fres;
+  return vec4f(tone(col), a);
+}
+
+/* ---------- kelp ribbons (generated in the vertex shader) ---------- */
+struct KIn {
+  @location(0) a: vec4f,
+  @location(1) b: vec4f,
+  @location(2) c: vec4f,
+};
+struct KOut {
+  @builtin(position) pos: vec4f,
+  @location(0) wp: vec3f,
+  @location(1) vv: f32,
+  @location(2) uu: f32,
+  @location(3) typ: f32,
+  @location(4) seed: f32,
+  @location(5) nrm: vec3f,
+};
+const ROWS: u32 = 8u;
+@vertex fn vsKelp(@builtin(vertex_index) vi: u32, in: KIn) -> KOut {
+  let edge = select(-1.0, 1.0, (vi & 1u) == 1u);
+  let row = f32(vi >> 1u);
+  let v = row / f32(ROWS);
+  let vv = sin(v * 1.5707963);
+  let yaw = in.b.x;
+  let tilt = in.b.y;
+  let width = in.b.z;
+  let typ = in.b.w;
+  let len = in.a.w;
+  let d = normalize(vec3f(sin(yaw) * tilt, 1.0, cos(yaw) * tilt));
+  let sd = vec3f(cos(yaw), 0.0, -sin(yaw));
+  let pe = vec3f(sin(yaw), 0.0, cos(yaw));
+  let kk = clamp(0.15 + in.c.y * 0.5 + 0.1 * sin(u.tm.x * 0.8 + in.c.x * 17.0), 0.06, 1.0);
+  let kv = kk * vv;
+  let wv = sin(vv * 3.0 + in.c.x * 30.0 + u.tm.x * 1.1) * 0.12;
+  var cen = in.a.xyz + len * (d * (sin(kv) / kk) + pe * ((1.0 - cos(kv)) / kk + wv * vv));
+  let sw = vec2f(sin(u.tm.x * 0.5 + in.c.x * 12.0), cos(u.tm.x * 0.37 + in.c.x * 9.0)) * 0.15 * vv * vv * len * 0.3;
+  cen.x += sw.x;
+  cen.z += sw.y;
+  let wdt = width * pow(max(sin(3.14159 * pow(vv, 0.75)), 0.0), 0.7);
+  let p = cen + sd * (edge * wdt * 0.5);
+  var o: KOut;
+  o.pos = u.vp * vec4f(p, 1.0);
+  o.wp = p;
+  o.vv = vv;
+  o.uu = (edge + 1.0) * 0.5;
+  o.typ = typ;
+  o.seed = in.c.x;
+  o.nrm = normalize(cross(d, sd));
+  return o;
+}
+fn kelpColor(typ: f32, seed: f32) -> vec3f {
+  if (typ < 0.5) { return mix(vec3f(0.10, 0.45, 0.22), vec3f(0.16, 0.6, 0.3), fract(seed * 0.37)); }
+  if (typ < 1.5) { return vec3f(0.15, 0.65, 0.35); }
+  if (typ < 2.5) { return vec3f(0.05, 0.5, 0.5); }
+  if (typ < 3.5) { return vec3f(0.45, 0.25, 0.6); }
+  if (typ < 4.5) { return vec3f(0.85, 0.45, 0.15); }
+  if (typ < 5.5) { return vec3f(0.7, 0.2, 0.45); }
+  return vec3f(0.1, 0.55, 0.6);
+}
+@fragment fn fsKelp(in: KOut) -> @location(0) vec4f {
+  var col = kelpColor(in.typ, in.seed);
+  col *= 0.55 + 0.45 * in.vv;
+  col *= 0.75 + 0.25 * (1.0 - abs(in.uu * 2.0 - 1.0));
+  let n = normalize(in.nrm);
+  let dif = max(dot(n, normalize(u.sun.xyz)), 0.0);
+  col *= u.amb.xyz * 1.2 + vec3f(1.1, 1.05, 0.95) * u.sun.w * (0.35 + 0.65 * dif);
+  let sp = step(0.965, hash3(vec3f(floor(in.vv * 24.0), floor(in.uu * 6.0), in.seed * 7.0)));
+  col += vec3f(1.0, 0.8, 0.3) * sp * 0.8 * u.sun.w;
+  col = fogMix(col, in.wp);
+  return vec4f(tone(col), 1.0);
+}
+
+/* ---------- bubbles (billboards, shader-driven rise) ---------- */
+struct BIn {
+  @location(0) a: vec4f,
+  @location(1) b: vec4f,
+};
+struct BOut {
+  @builtin(position) pos: vec4f,
+  @location(0) uv: vec2f,
+  @location(1) wp: vec3f,
+  @location(2) life: f32,
+};
+@vertex fn vsBub(@builtin(vertex_index) vi: u32, in: BIn) -> BOut {
+  let corner = vec2f(select(-1.0, 1.0, (vi & 1u) == 1u), select(-1.0, 1.0, (vi & 2u) == 2u));
+  let life = fract(u.tm.x * in.b.y / in.b.z + in.b.x);
+  let h = life * in.b.z;
+  var p = in.a.xyz + vec3f(0.0, h, 0.0);
+  let wob = in.b.w * (0.3 + h * 0.05);
+  p.x += sin(u.tm.x * 1.7 + in.b.x * 50.0 + h * 0.6) * wob;
+  p.z += cos(u.tm.x * 1.5 + in.b.x * 40.0 + h * 0.5) * wob;
+  let sz = in.a.w * (0.55 + 0.7 * life) * smoothstep(0.0, 0.06, life);
+  let wp = p + (u.camR.xyz * corner.x + u.camU.xyz * corner.y) * sz;
+  var o: BOut;
+  o.pos = u.vp * vec4f(wp, 1.0);
+  o.uv = corner;
+  o.wp = wp;
+  o.life = life;
+  return o;
+}
+@fragment fn fsBub(in: BOut) -> @location(0) vec4f {
+  let r = length(in.uv);
+  let rim = smoothstep(0.55, 0.98, r);
+  let disc = 1.0 - smoothstep(0.85, 1.0, r);
+  let hl = smoothstep(0.25, 0.0, distance(in.uv, vec2f(-0.35, 0.4))) * 0.9;
+  let a = disc * clamp(0.10 + rim * rim * rim * 0.85 + hl, 0.0, 1.0) * (1.0 - smoothstep(0.85, 1.0, in.life));
+  var col = vec3f(0.75, 0.9, 1.0) * (0.5 + 0.5 * rim) + vec3f(1.0) * hl;
+  col = fogMix(col, in.wp);
+  return vec4f(tone(col), a * 0.85);
+}
+
+/* ---------- drifting particles (marine snow) ---------- */
+struct PIn {
+  @location(0) a: vec4f,
+};
+struct POut {
+  @builtin(position) pos: vec4f,
+  @location(0) uv: vec2f,
+  @location(1) wp: vec3f,
+  @location(2) tw: f32,
+};
+@vertex fn vsPart(@builtin(vertex_index) vi: u32, in: PIn) -> POut {
+  let corner = vec2f(select(-1.0, 1.0, (vi & 1u) == 1u), select(-1.0, 1.0, (vi & 2u) == 2u));
+  var p = vec3f(
+    -7.0 + fract(in.a.x + u.tm.x * 0.008) * 14.0,
+    -3.0 + fract(in.a.y + u.tm.x * 0.004 + in.a.w * 0.13) * 6.0,
+    -4.0 + fract(in.a.z + u.tm.x * 0.006) * 4.5);
+  p.x += 0.3 * sin(u.tm.x * 0.3 + in.a.w * 40.0);
+  let sz = 0.02 + 0.05 * in.a.w * in.a.w;
+  let wp = p + (u.camR.xyz * corner.x + u.camU.xyz * corner.y) * sz;
+  var o: POut;
+  o.pos = u.vp * vec4f(wp, 1.0);
+  o.uv = corner;
+  o.wp = wp;
+  o.tw = 0.6 + 0.4 * sin(u.tm.x * (1.0 + in.a.w * 2.0) + in.a.w * 100.0);
+  return o;
+}
+@fragment fn fsPart(in: POut) -> @location(0) vec4f {
+  let r = length(in.uv);
+  let disc = 1.0 - smoothstep(0.4, 1.0, r);
+  let a = disc * in.tw * 0.4;
+  var col = vec3f(0.8, 0.9, 1.0);
+  col = fogMix(col, in.wp);
+  return vec4f(tone(col), a);
+}
+
+/* ---------- water surface (seen from below) ---------- */
+struct SIn {
+  @location(0) pos: vec3f,
+};
+struct SOut {
+  @builtin(position) pos: vec4f,
+  @location(0) wp: vec3f,
+  @location(1) nrm: vec3f,
+};
+@vertex fn vsSurf(in: SIn) -> SOut {
+  var p = in.pos;
+  p.y += 0.12 * sin(p.x * 1.3 + u.tm.x * 0.9) + 0.09 * sin(p.z * 2.1 + u.tm.x * 1.3);
+  let nx = 0.12 * 1.3 * cos(p.x * 1.3 + u.tm.x * 0.9);
+  let nz = 0.09 * 2.1 * cos(p.z * 2.1 + u.tm.x * 1.3);
+  var o: SOut;
+  o.pos = u.vp * vec4f(p, 1.0);
+  o.wp = p;
+  o.nrm = normalize(vec3f(-nx, 1.0, -nz));
+  return o;
+}
+@fragment fn fsSurf(in: SOut) -> @location(0) vec4f {
+  let vdir = normalize(u.cam.xyz - in.wp);
+  let fres = pow(1.0 - max(dot(normalize(in.nrm), vdir), 0.0), 2.0);
+  var col = mix(vec3f(0.35, 0.75, 0.95), vec3f(0.9, 1.0, 1.0), 0.4 + 0.6 * fres);
+  let glint = pow(max(dot(reflect(-normalize(u.sun.xyz), normalize(in.nrm)), vdir), 0.0), 60.0);
+  col += vec3f(1.7, 1.6, 1.3) * glint * 1.5 * u.sun.w;
+  col = fogMix(col, in.wp);
+  let ef = (1.0 - smoothstep(5.5, 7.0, abs(in.wp.x))) * (1.0 - smoothstep(1.6, 2.4, abs(in.wp.z + 1.8)));
+  return vec4f(tone(col), 0.7 * (0.4 + 0.6 * ef));
+}
+
+/* ---------- background (fullscreen triangle: gradient + god rays) + vignette ---------- */
+struct BgOut {
+  @builtin(position) pos: vec4f,
+  @location(0) uv: vec2f,
+};
+@vertex fn vsBg(@builtin(vertex_index) vi: u32) -> BgOut {
+  var p = vec2f(0.0);
+  if (vi == 0u) { p = vec2f(-1.0, -1.0); } else if (vi == 1u) { p = vec2f(3.0, -1.0); } else { p = vec2f(-1.0, 3.0); }
+  var o: BgOut;
+  o.pos = vec4f(p, 0.0, 1.0);
+  o.uv = p * 0.5 + 0.5;
+  return o;
+}
+@fragment fn fsBg(in: BgOut) -> @location(0) vec4f {
+  let uv = in.uv;
+  let sc = u.tm.w;
+  var top = mix(vec3f(0.45, 0.8, 0.95), vec3f(0.05, 0.15, 0.3), clamp(sc, 0.0, 1.0));
+  top = mix(top, vec3f(0.02, 0.05, 0.15), clamp(sc - 1.0, 0.0, 1.0));
+  var bot = mix(vec3f(0.02, 0.2, 0.4), vec3f(0.0, 0.03, 0.1), clamp(sc, 0.0, 1.0));
+  bot = mix(bot, vec3f(0.0, 0.0, 0.05), clamp(sc - 1.0, 0.0, 1.0));
+  var col = mix(bot, top, pow(1.0 - uv.y, 1.4));
+  var ray = 0.0;
+  for (var i = 0; i < 3; i++) {
+    let fi = f32(i);
+    let c = 0.28 + fi * 0.22 + 0.05 * sin(u.tm.x * 0.06 + fi * 2.1);
+    let w = 0.05 + 0.025 * sin(u.tm.x * 0.11 + fi * 3.0);
+    let d = abs(uv.x - c - (1.0 - uv.y) * 0.18);
+    ray += smoothstep(w, 0.0, d) * (1.0 - uv.y);
+  }
+  col += vec3f(1.0, 0.95, 0.8) * ray * 0.45 * u.tm.z;
+  col += vec3f(1.0, 0.95, 0.8) * pow(max(0.0, 1.0 - distance(uv, vec2f(0.5, -0.05)) * 1.1), 3.0) * 0.7 * u.sun.w;
+  return vec4f(tone(col), 1.0);
+}
+@fragment fn fsVig(in: BgOut) -> @location(0) vec4f {
+  let d = distance(in.uv, vec2f(0.5));
+  let a = smoothstep(0.55, 0.95, d) * 0.38;
+  return vec4f(vec3f(0.0, 0.02, 0.05), a);
+}
+`;
+/* ============ WebGPU engine: math, meshes (own code) ============ */
+function ihash(x,y,z){let h=(x*374761393+y*668265263+z*1274126177)|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296;}
+function vnoise(x,y,z){
+  const xi=Math.floor(x),yi=Math.floor(y),zi=Math.floor(z);
+  const xf=x-xi,yf=y-yi,zf=z-zi;
+  const u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf),w=zf*zf*(3-2*zf);
+  const L=(a,b,t)=>a+(b-a)*t;
+  const c000=ihash(xi,yi,zi),c100=ihash(xi+1,yi,zi),c010=ihash(xi,yi+1,zi),c110=ihash(xi+1,yi+1,zi);
+  const c001=ihash(xi,yi,zi+1),c101=ihash(xi+1,yi,zi+1),c011=ihash(xi,yi+1,zi+1),c111=ihash(xi+1,yi+1,zi+1);
+  return L(L(L(c000,c100,u),L(c010,c110,u),v),L(L(c001,c101,u),L(c011,c111,u),v),w);
+}
+function fbm(x,y,z,oct){let a=0.5,f=1,s=0,n=0;for(let o=0;o<oct;o++){s+=a*vnoise(x*f,y*f,z*f);n+=a;a*=0.5;f*=2.03;}return s/n;}
+function sandY(x,z){
+  let y=-3.2+(fbm(x*0.35+7.3,0,z*0.35+2.1,3)-0.5)*0.55;
+  const rim=Math.max(0,(Math.abs(x)-6.2)/0.8)+Math.max(0,(-3.6-z)/0.6)+Math.max(0,(z-0.2)/0.4);
+  y+=Math.min(rim,1.2)*0.9;
+  return y;
+}
+function hexRgb(h){const n=parseInt(h.slice(1),16);return[(n>>16&255)/255,(n>>8&255)/255,(n&255)/255];}
+function mat4Persp(fovy,aspect,near,far){
+  const f=1/Math.tan(fovy/2),nf=1/(near-far);
+  return new Float32Array([f/aspect,0,0,0, 0,f,0,0, 0,0,(far+near)*nf,-1, 0,0,2*far*near*nf,0]);
+}
+function mat4LookAt(ex,ey,ez,cx,cy,cz,ux,uy,uz){
+  let zx=ex-cx,zy=ey-cy,zz=ez-cz;let l=Math.hypot(zx,zy,zz);zx/=l;zy/=l;zz/=l;
+  let xx=uy*zz-uz*zy,xy=uz*zx-ux*zz,xz=ux*zy-uy*zx;l=Math.hypot(xx,xy,xz);xx/=l;xy/=l;xz/=l;
+  const yx=zy*xz-zz*xy,yy=zz*xx-zx*xz,yz=zx*xy-zy*xx;
+  return new Float32Array([xx,yx,zx,0, xy,yy,zy,0, xz,yz,zz,0, -(xx*ex+xy*ey+xz*ez),-(yx*ex+yy*ey+yz*ez),-(zx*ex+zy*ey+zz*ez),1]);
+}
+function mat4Mul(a,b){
+  const o=new Float32Array(16);
+  for(let c=0;c<4;c++)for(let r=0;r<4;r++){
+    o[c*4+r]=a[r]*b[c*4]+a[4+r]*b[c*4+1]+a[8+r]*b[c*4+2]+a[12+r]*b[c*4+3];
+  }
+  return o;
+}
+function basisMatrix(fx,fy,fz,size,px,py,pz){
+  let fl=Math.hypot(fx,fy,fz)||1;fx/=fl;fy/=fl;fz/=fl;
+  let rx=fz,ry=0,rz=-fx;
+  let rl=Math.hypot(rx,ry,rz)||1;rx/=rl;ry/=rl;rz/=rl;
+  const ux=fy*rz-fz*ry,uy=fz*rx-fx*rz,uz=fx*ry-fy*rx;
+  return new Float32Array([
+    fx*size,fy*size,fz*size,0,
+    ux*size,uy*size,uz*size,0,
+    rx*size,ry*size,rz*size,0,
+    px,py,pz,1]);
+}
+function yawPitchMatrix(yaw,pitch,size,px,py,pz){
+  const cp=Math.cos(pitch);
+  return basisMatrix(Math.sin(yaw)*cp,Math.sin(pitch),Math.cos(yaw)*cp,size,px,py,pz);
+}
+
+/* ---------- mesh builders ---------- */
+function M(){return{p:[],n:[],c:[],i:[]};}
+function computeNormals(m){
+  m.n=new Array(m.p.length).fill(0);
+  for(let k=0;k<m.i.length;k+=3){
+    const a=m.i[k]*3,b=m.i[k+1]*3,c=m.i[k+2]*3;
+    const ux=m.p[b]-m.p[a],uy=m.p[b+1]-m.p[a+1],uz=m.p[b+2]-m.p[a+2];
+    const vx=m.p[c]-m.p[a],vy=m.p[c+1]-m.p[a+1],vz=m.p[c+2]-m.p[a+2];
+    const nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx;
+    for(const q of [a,b,c]){m.n[q]+=nx;m.n[q+1]+=ny;m.n[q+2]+=nz;}
+  }
+  for(let k=0;k<m.n.length;k+=3){
+    const l=Math.hypot(m.n[k],m.n[k+1],m.n[k+2])||1;
+    m.n[k]/=l;m.n[k+1]/=l;m.n[k+2]/=l;
+  }
+}
+function interleave(m){
+  const out=new Float32Array(m.p.length*3);
+  for(let k=0;k<m.p.length/3;k++){
+    out[k*9]=m.p[k*3];out[k*9+1]=m.p[k*3+1];out[k*9+2]=m.p[k*3+2];
+    out[k*9+3]=m.n[k*3];out[k*9+4]=m.n[k*3+1];out[k*9+5]=m.n[k*3+2];
+    out[k*9+6]=m.c[k*3];out[k*9+7]=m.c[k*3+1];out[k*9+8]=m.c[k*3+2];
+  }
+  return out;
+}
+function finishMesh(m){
+  computeNormals(m);
+  return {v:new Float32Array(interleave(m)),idx:new Uint32Array(m.i),count:m.i.length};
+}
+function mergeFinished(parts){
+  const m=M();
+  for(const f of parts){
+    const base=m.p.length/3;
+    for(let k=0;k<f.v.length/9;k++){
+      m.p.push(f.v[k*9],f.v[k*9+1],f.v[k*9+2]);
+      m.c.push(f.v[k*9+6],f.v[k*9+7],f.v[k*9+8]);
+    }
+    for(const ix of f.idx)m.i.push(ix+base);
+  }
+  computeNormals(m);
+  return {v:new Float32Array(interleave(m)),idx:new Uint32Array(m.i),count:m.i.length};
+}
+function movedFinished(f,x,y,z,s,ry){
+  // translate + uniform/non-uniform scale + optional Y rotation; returns a new finished mesh
+  const v=new Float32Array(f.v);
+  const sx=Array.isArray(s)?s[0]:s, sy=Array.isArray(s)?s[1]:s, sz=Array.isArray(s)?s[2]:s;
+  const c=Math.cos(ry||0), sn=Math.sin(ry||0);
+  for(let k=0;k<v.length/9;k++){
+    let px=v[k*9]*sx, py=v[k*9+1]*sy, pz=v[k*9+2]*sz;
+    const rx=px*c+pz*sn, rz=-px*sn+pz*c;
+    v[k*9]=rx+x; v[k*9+1]=py+y; v[k*9+2]=rz+z;
+  }
+  return {v:v,idx:f.idx,count:f.count};
+}
+function boxMesh(w,h,d,col){
+  const m=M();const x=w/2,y=h/2,z=d/2;
+  const F=[
+    [[-x,-y,z],[x,-y,z],[x,y,z],[-x,y,z]],
+    [[x,-y,-z],[-x,-y,-z],[-x,y,-z],[x,y,-z]],
+    [[-x,-y,-z],[-x,-y,z],[-x,y,z],[-x,y,-z]],
+    [[x,-y,z],[x,-y,-z],[x,y,-z],[x,y,z]],
+    [[-x,y,z],[x,y,z],[x,y,-z],[-x,y,-z]],
+    [[-x,-y,-z],[x,-y,-z],[x,-y,z],[-x,-y,z]]];
+  for(const f of F){
+    const b=m.p.length/3;
+    for(const v of f){m.p.push(v[0],v[1],v[2]);m.c.push(col[0],col[1],col[2]);}
+    m.i.push(b,b+1,b+2,b,b+2,b+3);
+  }
+  return finishMesh(m);
+}
+function cylMesh(rt,rb,h,seg,col){
+  const m=M();
+  const ring=(y,r)=>{
+    const b=m.p.length/3;
+    for(let s=0;s<seg;s++){const a=s/seg*Math.PI*2;m.p.push(Math.cos(a)*r,y,Math.sin(a)*r);m.c.push(col[0],col[1],col[2]);}
+    return b;
+  };
+  const t0=ring(h/2,rt),b0=ring(-h/2,rb);
+  for(let s=0;s<seg;s++){const s2=(s+1)%seg;m.i.push(t0+s,b0+s2,t0+s2,t0+s,b0+s,b0+s2);}
+  const tc=m.p.length/3;m.p.push(0,h/2,0);m.c.push(col[0],col[1],col[2]);
+  const bc=m.p.length/3;m.p.push(0,-h/2,0);m.c.push(col[0],col[1],col[2]);
+  for(let s=0;s<seg;s++){const s2=(s+1)%seg;m.i.push(tc,t0+s,t0+s2);m.i.push(bc,b0+s2,b0+s);}
+  return finishMesh(m);
+}
+function latheMesh(profile,seg,col){
+  const m=M();
+  const rings=[];
+  for(const pr of profile){
+    const b=m.p.length/3;rings.push(b);
+    for(let s=0;s<seg;s++){const a=s/seg*Math.PI*2;m.p.push(Math.cos(a)*pr[0],pr[1],Math.sin(a)*pr[0]);m.c.push(col[0],col[1],col[2]);}
+  }
+  for(let r=0;r<rings.length-1;r++){
+    for(let s=0;s<seg;s++){const s2=(s+1)%seg;
+      const a=rings[r]+s,b2=rings[r]+s2,c=rings[r+1]+s2,d=rings[r+1]+s;
+      m.i.push(a,b2,d,b2,c,d);}
+  }
+  return finishMesh(m);
+}
+function tubeMesh(points,rFn,sides,col){
+  const m=M();
+  const rings=[];
+  for(let k=0;k<points.length;k++){
+    const p=points[k];
+    const pn=points[Math.min(k+1,points.length-1)],pp=points[Math.max(k-1,0)];
+    let tx=pn[0]-pp[0],ty=pn[1]-pp[1],tz=pn[2]-pp[2];
+    const tl=Math.hypot(tx,ty,tz)||1;tx/=tl;ty/=tl;tz/=tl;
+    let ax=Math.abs(tx)<0.9?1:0,ay=0,az=0;
+    let nx=ay*tz-az*ty,ny=az*tx-ax*tz,nz=ax*ty-ay*tx;
+    const nl=Math.hypot(nx,ny,nz)||1;nx/=nl;ny/=nl;nz/=nl;
+    const bx=ty*nz-tz*ny,by=tz*nx-tx*nz,bz=tx*ny-ty*nx;
+    const r=rFn(k/(points.length-1));
+    const b=m.p.length/3;rings.push(b);
+    for(let s=0;s<sides;s++){
+      const a=s/sides*Math.PI*2;
+      const ox=Math.cos(a)*nx+Math.sin(a)*bx,oy=Math.cos(a)*ny+Math.sin(a)*by,oz=Math.cos(a)*nz+Math.sin(a)*bz;
+      m.p.push(p[0]+ox*r,p[1]+oy*r,p[2]+oz*r);m.c.push(col[0],col[1],col[2]);
+    }
+  }
+  for(let r=0;r<rings.length-1;r++){
+    for(let s=0;s<sides;s++){const s2=(s+1)%sides;
+      const a=rings[r]+s,b2=rings[r]+s2,c=rings[r+1]+s2,d=rings[r+1]+s;
+      m.i.push(a,b2,d,b2,c,d);}
+  }
+  return finishMesh(m);
+}
+function icosphereMesh(sub,deform,col){
+  const t=(1+Math.sqrt(5))/2;
+  let verts=[[-1,t,0],[1,t,0],[-1,-t,0],[1,-t,0],[0,-1,t],[0,1,t],[0,-1,-t],[0,1,-t],[t,0,-1],[t,0,1],[-t,0,-1],[-t,0,1]];
+  let faces=[[0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],[1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],[3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],[4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]];
+  verts=verts.map(v=>{const l=Math.hypot(v[0],v[1],v[2]);return[v[0]/l,v[1]/l,v[2]/l];});
+  const cache=new Map();
+  function mid(a,b){
+    const key=a<b?a+","+b:b+","+a;
+    if(cache.has(key))return cache.get(key);
+    const mx=(verts[a][0]+verts[b][0])/2,my=(verts[a][1]+verts[b][1])/2,mz=(verts[a][2]+verts[b][2])/2;
+    const l=Math.hypot(mx,my,mz);
+    verts.push([mx/l,my/l,mz/l]);cache.set(key,verts.length-1);return verts.length-1;
+  }
+  for(let s=0;s<sub;s++){
+    const nf=[];
+    for(const f of faces){const ab=mid(f[0],f[1]),bc=mid(f[1],f[2]),ca=mid(f[2],f[0]);
+      nf.push([f[0],ab,ca],[f[1],bc,ab],[f[2],ca,bc],[ab,bc,ca]);}
+    faces=nf;
+  }
+  const m=M();
+  for(const v of verts){const d=deform?deform(v):1;m.p.push(v[0]*d,v[1]*d,v[2]*d);m.c.push(col[0],col[1],col[2]);}
+  for(const f of faces)m.i.push(f[0],f[1],f[2]);
+  computeNormals(m);
+  return {v:new Float32Array(interleave(m)),idx:new Uint32Array(m.i),count:m.i.length};
+}
+function gridMesh(nx,nz,x0,x1,z0,z1,yFn,colFn){
+  const m=M();
+  for(let j=0;j<=nz;j++){
+    for(let i=0;i<=nx;i++){
+      const x=x0+(x1-x0)*i/nx,z=z0+(z1-z0)*j/nz;
+      m.p.push(x,yFn(x,z),z);
+      const c=colFn(x,z);m.c.push(c[0],c[1],c[2]);
+    }
+  }
+  for(let j=0;j<nz;j++)for(let i=0;i<nx;i++){
+    const a=j*(nx+1)+i,b=a+1,c=a+nx+1,d=c+1;
+    m.i.push(a,c,b,b,c,d);
+  }
+  return finishMesh(m);
+}
+function starMesh(rOut,rIn,thick,col){
+  const m=M();
+  const top=[],bot=[];
+  for(let k=0;k<10;k++){
+    const a=k/10*Math.PI*2-Math.PI/2;
+    const r=k%2===0?rOut:rIn;
+    top.push(m.p.length/3);m.p.push(Math.cos(a)*r,thick/2,Math.sin(a)*r);m.c.push(col[0],col[1],col[2]);
+    bot.push(m.p.length/3);m.p.push(Math.cos(a)*r,-thick/2,Math.sin(a)*r);m.c.push(col[0]*0.8,col[1]*0.8,col[2]*0.8);
+  }
+  const tc=m.p.length/3;m.p.push(0,thick/2,0);m.c.push(col[0],col[1],col[2]);
+  const bc=m.p.length/3;m.p.push(0,-thick/2,0);m.c.push(col[0]*0.8,col[1]*0.8,col[2]*0.8);
+  for(let k=0;k<10;k++){
+    const k2=(k+1)%10;
+    m.i.push(tc,top[k],top[k2]);
+    m.i.push(bc,bot[k2],bot[k]);
+    m.i.push(top[k],bot[k],bot[k2],top[k],bot[k2],top[k2]);
+  }
+  return finishMesh(m);
+}
+function fishMesh(tall,longFin){
+  const m=M();
+  const H=tall?1.8:1.0;
+  const prof=[[0.50,0.03,0.03],[0.38,0.14*H,0.09],[0.12,0.22*H,0.15],[-0.12,0.19*H,0.13],[-0.30,0.08*H,0.06],[-0.36,0.02,0.02]];
+  const SEG=6,rings=[];
+  for(const pr of prof){
+    rings.push(m.p.length/3);
+    for(let s=0;s<SEG;s++){
+      const a=s/SEG*Math.PI*2;
+      m.p.push(pr[0],Math.cos(a)*pr[1],Math.sin(a)*pr[2]);m.c.push(1,1,1);
+    }
+  }
+  for(let r=0;r<prof.length-1;r++){
+    for(let s=0;s<SEG;s++){const s2=(s+1)%SEG;
+      const a=rings[r]+s,b=rings[r]+s2,c=rings[r+1]+s2,d=rings[r+1]+s;
+      m.i.push(a,b,d,b,c,d);}
+  }
+  const nose=m.p.length/3;m.p.push(0.56,0,0);m.c.push(1,1,1);
+  for(let s=0;s<SEG;s++){const s2=(s+1)%SEG;m.i.push(nose,rings[0]+s2,rings[0]+s);}
+  const tailLen=longFin?-0.95:-0.62,tailW=longFin?0.34:0.26;
+  const tb=m.p.length/3;
+  m.p.push(-0.34,0.02,0, tailLen,tailW,0, tailLen*0.92,0,0, -0.34,-0.02,0, tailLen,-tailW,0);
+  for(let k=0;k<5;k++)m.c.push(0.9,0.9,0.95);
+  m.i.push(tb,tb+1,tb+2, tb+3,tb+2,tb+4);
+  const db=m.p.length/3;
+  const dh=tall?0.55:0.34;
+  m.p.push(0.10,0.20*H,0, -0.18,0.19*H,0, -0.05,0.20*H+dh,0);
+  for(let k=0;k<3;k++)m.c.push(0.9,0.9,0.95);
+  m.i.push(db,db+1,db+2);
+  if(tall){
+    const ab=m.p.length/3;
+    m.p.push(0.05,-0.20*H,0, -0.18,-0.19*H,0, -0.08,-0.20*H-0.45,0);
+    for(let k=0;k<3;k++)m.c.push(0.9,0.9,0.95);
+    m.i.push(ab,ab+2,ab+1);
+  }
+  computeNormals(m);
+  return {v:new Float32Array(interleave(m)),idx:new Uint32Array(m.i),count:m.i.length};
+}
+function jellyMesh(){
+  const prof=[[0.001,0.55],[0.25,0.5],[0.42,0.32],[0.48,0.1],[0.45,-0.05],[0.3,-0.12],[0.001,-0.14]];
+  const parts=[latheMesh(prof,12,[1,0.85,0.9])];
+  for(let k=0;k<6;k++){
+    const a=k/6*Math.PI*2;
+    const bx=Math.cos(a)*0.35,bz=Math.sin(a)*0.35;
+    parts.push(tubeMesh([[bx,-0.08,bz],[bx*1.05,-0.4,bz*1.05],[bx*1.1,-0.75,bz*1.1]],t=>0.035*(1-t*0.5),5,[1,0.8,0.85]));
+  }
+  return mergeFinished(parts);
+}
+function buildMeshes(){
+  const meshes={};
+  meshes.sand=gridMesh(56,28,-7,7,-4.2,0.6,(x,z)=>sandY(x,z),(x,z)=>{
+    const n=fbm(x*1.3+2.7,0,z*1.3+8.1,2);
+    return [0.85*(0.88+n*0.24),0.68*(0.88+n*0.24),0.32*(0.88+n*0.24)];
+  });
+  meshes.surf=gridMesh(20,8,-7,7,-4.2,0.6,()=>3.15,()=>[1,1,1]);
+  meshes.rock=icosphereMesh(1,v=>1+(fbm(v[0]*1.5+3,v[1]*1.5,v[2]*1.5,3)-0.5)*0.7,[0.42,0.4,0.38]);
+  meshes.pebbles=(()=>{
+    const m=M();
+    const offs=[[0,0,0,0.2],[0.35,0,0.15,0.14],[-0.3,0,0.2,0.16],[0.1,0,-0.3,0.13],[-0.15,0,-0.25,0.11]];
+    for(const o of offs){
+      const s=icosphereMesh(0,null,[0.5,0.47,0.44]);
+      const base=m.p.length/3;
+      for(let q=0;q<s.v.length/9;q++){
+        m.p.push(s.v[q*9]*o[3]+o[0],s.v[q*9+1]*o[3]+o[1]+o[3]*0.55,s.v[q*9+2]*o[3]+o[2]);
+        m.c.push(0.5,0.47,0.44);
+      }
+      for(const ix of s.idx)m.i.push(ix+base);
+    }
+    computeNormals(m);
+    return {v:new Float32Array(interleave(m)),idx:new Uint32Array(m.i),count:m.i.length};
+  })();
+  meshes.coral=(()=>{
+    const parts=[];
+    const dirs=[[0,1,0],[0.5,0.9,0.2],[-0.4,0.95,-0.3],[0.2,0.85,-0.5],[-0.2,0.9,0.45]];
+    const cols=[[1,0.55,0.65],[1,0.6,0.4],[0.95,0.5,0.6],[1,0.65,0.5],[0.9,0.55,0.7]];
+    for(let k=0;k<dirs.length;k++){
+      const d=dirs[k],len=0.9+((k*37)%10)/10*0.5;
+      parts.push(tubeMesh([[0,0,0],[d[0]*0.4*len,d[1]*0.5*len,d[2]*0.4*len],[d[0]*len,d[1]*len,d[2]*len]],t=>0.09*(1-t*0.6),6,cols[k]));
+      parts.push(movedFinished(icosphereMesh(0,null,cols[k]),d[0]*len,d[1]*len,d[2]*len,0.16));
+    }
+    return mergeFinished(parts);
+  })();
+  meshes.castle=(()=>{
+    const stone=[0.62,0.6,0.58],dark=[0.32,0.30,0.29],roof=[0.55,0.25,0.25];
+    const parts=[];
+    parts.push(movedFinished(boxMesh(1.2,0.5,1.0,stone),0,0.25,0,1));
+    parts.push(movedFinished(boxMesh(0.5,0.9,0.5,stone),0,0.7,0,1));
+    parts.push(movedFinished(boxMesh(0.24,0.4,0.06,dark),0,0.2,0.51,1));
+    for(const sx of [-0.5,0.5])for(const sz of [-0.4,0.4]){
+      parts.push(movedFinished(cylMesh(0.16,0.18,1.1,8,stone),sx,0.55,sz,1));
+      parts.push(movedFinished(cylMesh(0.02,0.24,0.42,8,roof),sx,1.31,sz,1));
+    }
+    parts.push(movedFinished(cylMesh(0.02,0.36,0.5,8,roof),0,1.4,0,1));
+    return mergeFinished(parts);
+  })();
+  meshes.chest=(()=>{
+    const brown=[0.45,0.28,0.12],gold=[0.85,0.65,0.2];
+    const parts=[];
+    parts.push(movedFinished(boxMesh(0.7,0.35,0.45,brown),0,0.18,0,1));
+    parts.push(movedFinished(icosphereMesh(0,null,brown),0,0.35,0,[0.36,0.16,0.23]));
+    parts.push(movedFinished(boxMesh(0.72,0.06,0.47,gold),-0.2,0.3,0,1));
+    parts.push(movedFinished(boxMesh(0.72,0.06,0.47,gold),0.2,0.3,0,1));
+    return mergeFinished(parts);
+  })();
+  meshes.driftwood=(()=>{
+    const parts=[];
+    parts.push(tubeMesh([[-0.7,0.05,0],[-0.3,0.18,0.1],[0.1,0.12,-0.05],[0.5,0.25,0.05]],t=>0.12-0.07*t,6,[0.32,0.22,0.14]));
+    parts.push(tubeMesh([[-0.1,0.15,0],[0.05,0.45,0.15],[0.25,0.6,0.1]],t=>0.06-0.04*t,5,[0.36,0.25,0.16]));
+    return mergeFinished(parts);
+  })();
+  meshes.shell=latheMesh([[0.001,0],[0.25,0.05],[0.45,0.12],[0.55,0.06]],12,[0.95,0.8,0.75]);
+  meshes.anemone=(()=>{
+    const parts=[];
+    parts.push(movedFinished(cylMesh(0.32,0.36,0.1,10,[0.5,0.3,0.6]),0,0.05,0,1));
+    for(let k=0;k<14;k++){
+      const a=k/14*Math.PI*2, r=0.06+(k%3)*0.08;
+      const col=k%2?[1,0.6,0.7]:[0.7,0.4,0.8];
+      parts.push(movedFinished(cylMesh(0.005,0.035,0.42+(k%3)*0.07,5,col),Math.cos(a)*r,0.28,Math.sin(a)*r,1));
+    }
+    return mergeFinished(parts);
+  })();
+  meshes.airstone=movedFinished(cylMesh(0.14,0.14,0.22,10,[0.45,0.45,0.46]),0,0.11,0,1);
+  meshes.fishStd=fishMesh(false,false);
+  meshes.fishTall=fishMesh(true,false);
+  meshes.fishBetta=fishMesh(false,true);
+  meshes.jelly=jellyMesh();
+  meshes.shrimp=(()=>{
+    const parts=[];
+    parts.push(tubeMesh([[0.32,0,0],[0.18,0.09,0],[0,0.13,0],[-0.18,0.09,0],[-0.3,-0.02,0]],t=>0.09-0.04*t,6,[1,0.72,0.6]));
+    parts.push(movedFinished(boxMesh(0.14,0.02,0.22,[1,0.65,0.55]),-0.34,0,0,1));
+    return mergeFinished(parts);
+  })();
+  meshes.snail=(()=>{
+    const parts=[];
+    parts.push(movedFinished(icosphereMesh(1,null,[0.55,0.35,0.5]),0,0.22,0,[1,0.8,0.85]));
+    parts.push(movedFinished(boxMesh(0.5,0.08,0.2,[0.85,0.75,0.65]),0,0.04,0.05,1));
+    return mergeFinished(parts);
+  })();
+  meshes.star=starMesh(0.42,0.18,0.1,[0.95,0.55,0.2]);
+  meshes.pellet=icosphereMesh(0,null,[0.6,0.4,0.2]);
+  return meshes;
+}
+/* ============ WebGPU engine: renderer ============ */
+const SCENES={
+  day:{sun:[0.25,1.0,0.35],sunW:1.0,amb:[0.25,0.30,0.38],fog:[0.08,0.38,0.55],den:0.015,deep:[0.03,0.10,0.20],exp:0.85,caus:1.0,ray:1.0,id:0},
+  night:{sun:[0.25,1.0,0.35],sunW:0.25,amb:[0.08,0.11,0.2],fog:[0.02,0.10,0.22],den:0.025,deep:[0.0,0.03,0.10],exp:0.85,caus:0.35,ray:0.25,id:1},
+  abyss:{sun:[0.25,1.0,0.35],sunW:0.08,amb:[0.04,0.07,0.16],fog:[0.0,0.05,0.16],den:0.03,deep:[0.0,0.01,0.06],exp:0.9,caus:0.1,ray:0.05,id:2}
+};
+const Engine=(()=>{
+  const MAXINST=160, MAXKELP=48, MAXBUB=240, MAXPART=600;
+  const INST_FLOATS=24, INST_BYTES=96;
+  function fail(m){throw new Error(m);}
+  async function create(canvas,gpu){
+    if(!gpu)fail("This tank needs WebGPU. Open it in a current Chrome or Edge on a desktop computer.");
+    const adapter=await gpu.requestAdapter({powerPreference:"high-performance"});
+    if(!adapter)fail("No WebGPU adapter found on this device.");
+    const device=await adapter.requestDevice();
+    const format=(gpu.getPreferredCanvasFormat?gpu.getPreferredCanvasFormat():"bgra8unorm");
+    const ctx=canvas.getContext("webgpu");
+    if(!ctx)fail("This browser exposes WebGPU but the canvas context failed.");
+    ctx.configure({device:device,format:format,alphaMode:"opaque"});
+    const mod=device.createShaderModule({code:W_ALL});
+    const cinfo=await mod.getCompilationInfo();
+    const errs=cinfo.messages.filter(m=>m.type==="error");
+    if(errs.length)fail("Shader error: "+errs.map(e=>e.message).join(" | "));
+    const bgl=device.createBindGroupLayout({entries:[{binding:0,visibility:7,buffer:{type:"uniform"}}]});
+    const pl=device.createPipelineLayout({bindGroupLayouts:[bgl]});
+    const ubo=device.createBuffer({size:256,usage:0x40|0x08}); // UNIFORM|COPY_DST
+    const bg=device.createBindGroup({layout:bgl,entries:[{binding:0,resource:{buffer:ubo}}]});
+    const vbSolid={arrayStride:36,attributes:[
+      {shaderLocation:0,offset:0,format:"float32x3"},
+      {shaderLocation:1,offset:12,format:"float32x3"},
+      {shaderLocation:2,offset:24,format:"float32x3"}]};
+    const vbInst={arrayStride:96,stepMode:"instance",attributes:[
+      {shaderLocation:3,offset:0,format:"float32x4"},
+      {shaderLocation:4,offset:16,format:"float32x4"},
+      {shaderLocation:5,offset:32,format:"float32x4"},
+      {shaderLocation:6,offset:48,format:"float32x4"},
+      {shaderLocation:7,offset:64,format:"float32x4"},
+      {shaderLocation:8,offset:80,format:"float32x4"}]};
+    const vbKelp={arrayStride:48,stepMode:"instance",attributes:[
+      {shaderLocation:0,offset:0,format:"float32x4"},
+      {shaderLocation:1,offset:16,format:"float32x4"},
+      {shaderLocation:2,offset:32,format:"float32x4"}]};
+    const vbBub={arrayStride:32,stepMode:"instance",attributes:[
+      {shaderLocation:0,offset:0,format:"float32x4"},
+      {shaderLocation:1,offset:16,format:"float32x4"}]};
+    const vbPart={arrayStride:16,stepMode:"instance",attributes:[
+      {shaderLocation:0,offset:0,format:"float32x4"}]};
+    const vbPos={arrayStride:36,attributes:[{shaderLocation:0,offset:0,format:"float32x3"}]};
+    function solidPipe(fs,blend,depthWrite){
+      return device.createRenderPipeline({layout:pl,
+        vertex:{module:mod,entryPoint:"vsSolid",buffers:[vbSolid,vbInst]},
+        fragment:{module:mod,entryPoint:fs,targets:[{format:format,blend:blend}]},
+        primitive:{topology:"triangle-list",cullMode:"none"},
+        depthStencil:{format:"depth24plus",depthWriteEnabled:depthWrite,depthCompare:"less"}});
+    }
+    const pSolid=solidPipe("fsSolid",undefined,true);
+    const pJelly=solidPipe("fsJelly",{color:{srcFactor:"src-alpha",dstFactor:"one-minus-src-alpha"},alpha:{srcFactor:"one",dstFactor:"one-minus-src-alpha"}},false);
+    const pKelp=device.createRenderPipeline({layout:pl,
+      vertex:{module:mod,entryPoint:"vsKelp",buffers:[vbKelp]},
+      fragment:{module:mod,entryPoint:"fsKelp",targets:[{format:format}]},
+      primitive:{topology:"triangle-strip",cullMode:"none"},
+      depthStencil:{format:"depth24plus",depthWriteEnabled:true,depthCompare:"less"}});
+    const pBub=device.createRenderPipeline({layout:pl,
+      vertex:{module:mod,entryPoint:"vsBub",buffers:[vbBub]},
+      fragment:{module:mod,entryPoint:"fsBub",targets:[{format:format,blend:{color:{srcFactor:"src-alpha",dstFactor:"one-minus-src-alpha"},alpha:{srcFactor:"one",dstFactor:"one-minus-src-alpha"}}}]},
+      primitive:{topology:"triangle-strip",cullMode:"none"},
+      depthStencil:{format:"depth24plus",depthWriteEnabled:false,depthCompare:"less"}});
+    const pPart=device.createRenderPipeline({layout:pl,
+      vertex:{module:mod,entryPoint:"vsPart",buffers:[vbPart]},
+      fragment:{module:mod,entryPoint:"fsPart",targets:[{format:format,blend:{color:{srcFactor:"src-alpha",dstFactor:"one"},alpha:{srcFactor:"one",dstFactor:"one"}}}]},
+      primitive:{topology:"triangle-strip",cullMode:"none"},
+      depthStencil:{format:"depth24plus",depthWriteEnabled:false,depthCompare:"less"}});
+    const pSurf=device.createRenderPipeline({layout:pl,
+      vertex:{module:mod,entryPoint:"vsSurf",buffers:[vbPos]},
+      fragment:{module:mod,entryPoint:"fsSurf",targets:[{format:format,blend:{color:{srcFactor:"src-alpha",dstFactor:"one-minus-src-alpha"},alpha:{srcFactor:"one",dstFactor:"one-minus-src-alpha"}}}]},
+      primitive:{topology:"triangle-list",cullMode:"none"},
+      depthStencil:{format:"depth24plus",depthWriteEnabled:false,depthCompare:"less"}});
+    const pBg=device.createRenderPipeline({layout:pl,
+      vertex:{module:mod,entryPoint:"vsBg",buffers:[]},
+      fragment:{module:mod,entryPoint:"fsBg",targets:[{format:format}]},
+      primitive:{topology:"triangle-list",cullMode:"none"},
+      depthStencil:{format:"depth24plus",depthWriteEnabled:false,depthCompare:"always"}});
+    const pVig=device.createRenderPipeline({layout:pl,
+      vertex:{module:mod,entryPoint:"vsBg",buffers:[]},
+      fragment:{module:mod,entryPoint:"fsVig",targets:[{format:format,blend:{color:{srcFactor:"src-alpha",dstFactor:"one-minus-src-alpha"},alpha:{srcFactor:"one",dstFactor:"one-minus-src-alpha"}}}]},
+      primitive:{topology:"triangle-list",cullMode:"none"},
+      depthStencil:{format:"depth24plus",depthWriteEnabled:false,depthCompare:"always"}});
+    const meshes=buildMeshes();
+    const gpuMesh={};
+    for(const k of Object.keys(meshes)){
+      const m=meshes[k];
+      const vb=device.createBuffer({size:m.v.byteLength,usage:0x20|0x08}); // VERTEX|COPY_DST
+      device.queue.writeBuffer(vb,0,m.v);
+      const ib=device.createBuffer({size:m.idx.byteLength,usage:0x10|0x08}); // INDEX|COPY_DST
+      device.queue.writeBuffer(ib,0,m.idx);
+      gpuMesh[k]={vb:vb,ib:ib,count:m.count};
+    }
+    const instBuf=device.createBuffer({size:MAXINST*INST_BYTES,usage:0x20|0x08});
+    const kelpBuf=device.createBuffer({size:MAXKELP*48,usage:0x20|0x08});
+    const bubBuf=device.createBuffer({size:MAXBUB*32,usage:0x20|0x08});
+    const partBuf=device.createBuffer({size:MAXPART*16,usage:0x20|0x08});
+    {
+      const pd=new Float32Array(MAXPART*4);
+      for(let i=0;i<MAXPART;i++){pd[i*4]=Math.random();pd[i*4+1]=Math.random();pd[i*4+2]=Math.random();pd[i*4+3]=Math.random();}
+      device.queue.writeBuffer(partBuf,0,pd);
+    }
+    const instData=new Float32Array(MAXINST*INST_FLOATS);
+    const kelpData=new Float32Array(MAXKELP*12);
+    const bubData=new Float32Array(MAXBUB*8);
+    const uni=new Float32Array(48);
+    let depthTex=null, cw=0, ch=0, aspect=1.6, cssW=0, cssH=0;
+    let lastVp=null, lastEye=[0,0.4,11], lastFwd=[0,0,-1], lastRight=[1,0,0], lastUp=[0,1,0];
+    const parallax={x:0,y:0,tx:0,ty:0};
+    function makeDepth(w,h){
+      if(depthTex)depthTex.destroy();
+      depthTex=device.createTexture({size:[w,h],format:"depth24plus",usage:0x10});
+    }
+    function resize(w,h,cssw,cssh){
+      cw=w;ch=h;cssW=cssw;cssH=cssh;aspect=cssw/cssh;
+      canvas.width=w;canvas.height=h;
+      makeDepth(w,h);
+    }
+    function camBasis(){
+      const ex=parallax.x*0.8, ey=0.4+parallax.y*0.35, ez=11;
+      const cx=0, cy=-0.1, cz=-2;
+      let fx=cx-ex, fy=cy-ey, fz=cz-ez;
+      let fl=Math.hypot(fx,fy,fz);fx/=fl;fy/=fl;fz/=fl;
+      let rx=-fz, ry=0, rz=fx; // right = cross(fwd, up), up = (0,1,0)
+      let rl=Math.hypot(rx,ry,rz)||1;rx/=rl;ry/=rl;rz/=rl;
+      const ux=ry*fz-rz*fy, uy=rz*fx-rx*fz, uz=rx*fy-ry*fx;
+      return {eye:[ex,ey,ez],fwd:[fx,fy,fz],right:[rx,ry,rz],up:[ux,uy,uz]};
+    }
+    function writeUniforms(now,scene){
+      const sc=SCENES[scene]||SCENES.day;
+      parallax.x+=(parallax.tx-parallax.x)*0.06;
+      parallax.y+=(parallax.ty-parallax.y)*0.06;
+      const b=camBasis();
+      const view=mat4LookAt(b.eye[0],b.eye[1],b.eye[2],0,-0.1,-2,0,1,0);
+      const proj=mat4Persp(46*Math.PI/180,aspect,0.1,60);
+      const vp=mat4Mul(proj,view);
+      lastVp=vp;lastEye=b.eye;lastFwd=b.fwd;lastRight=b.right;lastUp=b.up;
+      uni.set(vp,0);
+      uni[16]=b.eye[0];uni[17]=b.eye[1];uni[18]=b.eye[2];uni[19]=0;
+      uni[20]=b.right[0];uni[21]=b.right[1];uni[22]=b.right[2];uni[23]=0;
+      uni[24]=b.up[0];uni[25]=b.up[1];uni[26]=b.up[2];uni[27]=0;
+      const sl=Math.hypot(sc.sun[0],sc.sun[1],sc.sun[2]);
+      uni[28]=sc.sun[0]/sl;uni[29]=sc.sun[1]/sl;uni[30]=sc.sun[2]/sl;uni[31]=sc.sunW;
+      uni[32]=now;uni[33]=sc.caus;uni[34]=sc.ray;uni[35]=sc.id;
+      uni[36]=sc.fog[0];uni[37]=sc.fog[1];uni[38]=sc.fog[2];uni[39]=sc.den;
+      uni[40]=sc.amb[0];uni[41]=sc.amb[1];uni[42]=sc.amb[2];uni[43]=sc.exp;
+      uni[44]=sc.deep[0];uni[45]=sc.deep[1];uni[46]=sc.deep[2];uni[47]=0;
+      device.queue.writeBuffer(ubo,0,uni);
+    }
+    function putInst(cursor,mat,tint,prm){
+      const o=cursor*INST_FLOATS;
+      instData.set(mat,o);
+      instData[o+16]=tint[0];instData[o+17]=tint[1];instData[o+18]=tint[2];instData[o+19]=tint[3]||0;
+      instData[o+20]=prm[0];instData[o+21]=prm[1];instData[o+22]=prm[2];instData[o+23]=prm[3]||0;
+      return cursor+1;
+    }
+    function decorPos(d){
+      const x=(d.fx-0.5)*14*0.96;
+      const z=-2.4-((d.seed||0)%1)*1.4;
+      return [x,z];
+    }
+    const FISH_PAT={goldfish:0,guppy:0,tetra:4,clownfish:1,angelfish:0,betta:5,koi:2,tang:3};
+    const FISH_MESH={goldfish:"fishStd",guppy:"fishStd",tetra:"fishStd",clownfish:"fishStd",angelfish:"fishTall",betta:"fishBetta",koi:"fishStd",tang:"fishStd"};
+    const FISH_SIZE={goldfish:1.15,guppy:0.6,tetra:0.55,clownfish:0.8,angelfish:1.0,betta:0.9,koi:1.5,tang:1.0};
+    function buildInstances(S,now,selId){
+      const scene=S.scene||"day";
+      const abyss=scene==="abyss";
+      let cursor=0;
+      const groups={};
+      function pack(list,fill){
+        const off=cursor;
+        for(const it of list){const fi=fill(it);cursor=putInst(cursor,fi.mat,fi.tint,fi.prm);}
+        return {off:off,n:list.length};
+      }
+      // fish, grouped by mesh
+      const byMesh={fishStd:[],fishTall:[],fishBetta:[]};
+      for(const f of S.fish||[])byMesh[FISH_MESH[f.sp]||"fishStd"].push(f);
+      for(const mk of ["fishStd","fishTall","fishBetta"]){
+        groups[mk]=pack(byMesh[mk],f=>{
+          const rgb=hexRgb(f.color||"#f5a623");
+          const glow=(f.sp==="tetra"&&abyss)?0.35:0;
+          return {mat:yawPitchMatrix(f.yaw||0,f.pitch||0,(FISH_SIZE[f.sp]||1)*1.1,f.x,f.y,f.z),
+            tint:[rgb[0],rgb[1],rgb[2],glow],
+            prm:[FISH_PAT[f.sp]||0,1,(selId&&f.id===selId)?1:0,f.wag||0]};
+        });
+      }
+      // life by kind
+      const kinds=["jellyfish","shrimp","snail","starfish"];
+      const meshFor={jellyfish:"jelly",shrimp:"shrimp",snail:"snail",starfish:"star"};
+      for(const kd of kinds){
+        const list=(S.life||[]).filter(c=>c.sp===kd);
+        groups[kd]=pack(list,c=>{
+          if(kd==="jellyfish"){
+            const cols=[[1,0.62,0.75],[0.72,0.6,1],[0.6,0.85,1]];
+            const col=cols[Math.floor((c.wag||0))%3];
+            return {mat:yawPitchMatrix(c.yaw||0,0,1.0,c.x,c.y,c.z),
+              tint:[col[0],col[1],col[2],abyss?0.55:0.25],
+              prm:[6,1,(selId&&c.id===selId)?1:0,c.pulse||0]};
+          }
+          if(kd==="shrimp")return {mat:yawPitchMatrix(c.yaw||0,c.pitch||0,1.0,c.x,c.y,c.z),tint:[1,1,1,0],prm:[0,1,(selId&&c.id===selId)?1:0,0]};
+          if(kd==="snail")return {mat:yawPitchMatrix(c.yaw||0,0,1.0,c.x,c.y,c.z),tint:[1,1,1,0],prm:[0,1,(selId&&c.id===selId)?1:0,0]};
+          return {mat:yawPitchMatrix(c.yaw||0,0,0.9,c.x,c.y,c.z),tint:[1,1,1,0],prm:[0,1,(selId&&c.id===selId)?1:0,0]};
+        });
+      }
+      // pellets
+      groups.pellet=pack(S.food||[],p=>{
+        return {mat:yawPitchMatrix(0,0,0.09,p.x,p.y,p.z),tint:[1,1,1,0],prm:[0,1,0,0]};
+      });
+      // decor by kind (solid kinds only)
+      const decorKinds=["rock","pebbles","coral","castle","chest","driftwood","shell","anemone","airstone"];
+      const decorBase={rock:0.9,pebbles:1,coral:1,castle:1,chest:1,driftwood:1,shell:1,anemone:1,airstone:1};
+      const decorLift={rock:0.25,pebbles:0.05,coral:0,castle:0,chest:0.02,driftwood:0.03,shell:0.02,anemone:0, airstone:0};
+      for(const kd of decorKinds){
+        const list=(S.decor||[]).filter(d=>d.kind===kd);
+        groups[kd]=pack(list,d=>{
+          const pos=decorPos(d);
+          const sy=sandY(pos[0],pos[1]);
+          return {mat:yawPitchMatrix((d.seed||0)*1.7,0,(d.sc||1)*(decorBase[kd]||1),pos[0],sy+(decorLift[kd]||0),pos[1]),
+            tint:[1,1,1,0],prm:[0,1,(selId&&d.id===selId)?1:0,0]};
+        });
+      }
+      device.queue.writeBuffer(instBuf,0,instData.slice(0,cursor*INST_FLOATS));
+      // kelp
+      let kc=0;
+      for(const d of S.decor||[]){
+        if(d.kind!=="seaweed"||kc>=MAXKELP)continue;
+        const pos=decorPos(d);
+        const sy=sandY(pos[0],pos[1]);
+        const sd=(d.seed||0)%1;
+        const typ=[0,0,0,2,1,3,5][Math.floor(sd*7)%7];
+        const o=kc*12;
+        kelpData[o]=pos[0];kelpData[o+1]=sy;kelpData[o+2]=pos[1];kelpData[o+3]=2.0+sd*1.6;
+        kelpData[o+4]=(d.seed||0)*1.3;kelpData[o+5]=sd*0.35;kelpData[o+6]=0.32+sd*0.14;kelpData[o+7]=typ;
+        kelpData[o+8]=d.seed||0;kelpData[o+9]=0.3+sd*0.5;kelpData[o+10]=0;kelpData[o+11]=0;
+        kc++;
+      }
+      device.queue.writeBuffer(kelpBuf,0,kelpData.slice(0,kc*12));
+      // bubbles: vents = airstones + 2 fixed vents
+      const vents=[];
+      for(const d of S.decor||[])if(d.kind==="airstone"){const pos=decorPos(d);vents.push([pos[0],sandY(pos[0],pos[1])+0.2,pos[1]]);}
+      vents.push([-5,sandY(-5,-3)+0.15,-3],[5.5,sandY(5.5,-2.5)+0.15,-2.5]);
+      let bc=0;
+      const per=Math.max(1,Math.floor(MAXBUB/Math.max(1,vents.length)));
+      for(let vi=0;vi<vents.length&&bc<MAXBUB;vi++){
+        const v=vents[vi];
+        for(let k=0;k<per&&bc<MAXBUB;k++){
+          const seed=(vi*0.37+k*0.13)%1;
+          const o=bc*8;
+          bubData[o]=v[0];bubData[o+1]=v[1];bubData[o+2]=v[2];bubData[o+3]=0.05+((k*7)%10)/10*0.07;
+          bubData[o+4]=seed;bubData[o+5]=0.5+((k*3)%10)/10*0.7;bubData[o+6]=3.15-v[1];bubData[o+7]=0.1+((k*5)%10)/10*0.15;
+          bc++;
+        }
+      }
+      device.queue.writeBuffer(bubBuf,0,bubData.slice(0,bc*8));
+      return {groups:groups,kelpCount:kc,bubCount:bc};
+    }
+    function drawSolid(pass,meshKey,g){
+      if(!g||!g.n)return;
+      const gm=gpuMesh[meshKey];
+      pass.setPipeline(pSolid);
+      pass.setBindGroup(0,bg);
+      pass.setVertexBuffer(0,gm.vb);
+      pass.setVertexBuffer(1,instBuf,g.off*INST_BYTES);
+      pass.setIndexBuffer(gm.ib,"uint32");
+      pass.drawIndexed(gm.count,g.n);
+    }
+    function drawScene(colorView,depthView,S,now,selId){
+      writeUniforms(now,S.scene||"day");
+      const built=buildInstances(S,now,selId);
+      const g=built.groups;
+      const enc=device.createCommandEncoder();
+      const pass=enc.beginRenderPass({
+        colorAttachments:[{view:colorView,loadOp:"clear",storeOp:"store",clearValue:[0.01,0.08,0.16,1]}],
+        depthStencilAttachment:{view:depthView,depthClearValue:1.0,depthLoadOp:"clear",depthStoreOp:"store"}});
+      pass.setPipeline(pBg);pass.setBindGroup(0,bg);pass.draw(3);
+      // sand: single identity instance in reserved slot 159
+      {
+        const ident=new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1, 1,1,1,0, 0,1,0,0]);
+        device.queue.writeBuffer(instBuf,159*INST_BYTES,ident);
+        pass.setPipeline(pSolid);pass.setBindGroup(0,bg);
+        pass.setVertexBuffer(0,gpuMesh.sand.vb);
+        pass.setVertexBuffer(1,instBuf,159*INST_BYTES);
+        pass.setIndexBuffer(gpuMesh.sand.ib,"uint32");
+        pass.drawIndexed(gpuMesh.sand.count,1);
+      }
+      drawSolid(pass,"rock",g.rock);
+      drawSolid(pass,"pebbles",g.pebbles);
+      drawSolid(pass,"coral",g.coral);
+      drawSolid(pass,"castle",g.castle);
+      drawSolid(pass,"chest",g.chest);
+      drawSolid(pass,"driftwood",g.driftwood);
+      drawSolid(pass,"shell",g.shell);
+      drawSolid(pass,"anemone",g.anemone);
+      drawSolid(pass,"airstone",g.airstone);
+      drawSolid(pass,"fishStd",g.fishStd);
+      drawSolid(pass,"fishTall",g.fishTall);
+      drawSolid(pass,"fishBetta",g.fishBetta);
+      drawSolid(pass,"shrimp",g.shrimp);
+      drawSolid(pass,"snail",g.snail);
+      drawSolid(pass,"star",g.starfish);
+      drawSolid(pass,"pellet",g.pellet);
+      // kelp
+      if(built.kelpCount>0){
+        pass.setPipeline(pKelp);pass.setBindGroup(0,bg);
+        pass.setVertexBuffer(0,kelpBuf);
+        pass.draw(18,built.kelpCount);
+      }
+      // surface
+      pass.setPipeline(pSurf);pass.setBindGroup(0,bg);
+      pass.setVertexBuffer(0,gpuMesh.surf.vb);
+      pass.setIndexBuffer(gpuMesh.surf.ib,"uint32");
+      pass.drawIndexed(gpuMesh.surf.count,1);
+      // jellyfish (transparent)
+      if(g.jellyfish&&g.jellyfish.n){
+        const gm=gpuMesh.jelly;
+        pass.setPipeline(pJelly);pass.setBindGroup(0,bg);
+        pass.setVertexBuffer(0,gm.vb);
+        pass.setVertexBuffer(1,instBuf,g.jellyfish.off*INST_BYTES);
+        pass.setIndexBuffer(gm.ib,"uint32");
+        pass.drawIndexed(gm.count,g.jellyfish.n);
+      }
+      // bubbles
+      if(built.bubCount>0){
+        pass.setPipeline(pBub);pass.setBindGroup(0,bg);
+        pass.setVertexBuffer(0,bubBuf);
+        pass.draw(4,built.bubCount);
+      }
+      // particles (additive)
+      pass.setPipeline(pPart);pass.setBindGroup(0,bg);
+      pass.setVertexBuffer(0,partBuf);
+      pass.draw(4,MAXPART);
+      // vignette
+      pass.setPipeline(pVig);pass.setBindGroup(0,bg);pass.draw(3);
+      pass.end();
+      return enc;
+    }
+    function render(S,now,selId){
+      const enc=drawScene(ctx.getCurrentTexture().createView(),depthTex.createView(),S,now,selId);
+      device.queue.submit([enc.finish()]);
+    }
+    async function exportFrame(S,w,h){
+      const tex=device.createTexture({size:[w,h],format:format,usage:0x10|0x01}); // RENDER_ATTACHMENT|COPY_SRC
+      const dt=device.createTexture({size:[w,h],format:"depth24plus",usage:0x10});
+      const enc=drawScene(tex.createView(),dt.createView(),S,performance.now()/1000,null);
+      device.queue.submit([enc.finish()]);
+      await device.queue.onSubmittedWorkDone();
+      const rowBytes=w*4, padded=Math.ceil(rowBytes/256)*256;
+      const rb=device.createBuffer({size:padded*h,usage:0x01|0x08}); // MAP_READ|COPY_DST
+      const enc2=device.createCommandEncoder();
+      enc2.copyTextureToBuffer({texture:tex},{buffer:rb,bytesPerRow:padded},[w,h]);
+      device.queue.submit([enc2.finish()]);
+      await rb.mapAsync(1);
+      const src=new Uint8Array(rb.getMappedRange());
+      const out=new Uint8Array(rowBytes*h);
+      for(let y=0;y<h;y++)out.set(src.subarray(y*padded,y*padded+rowBytes),y*rowBytes);
+      rb.unmap();
+      if(format.indexOf("bgra")===0){
+        // offscreen texture is BGRA; exported PNGs need RGBA order
+        for(let i=0;i<out.length;i+=4){const t=out[i];out[i]=out[i+2];out[i+2]=t;}
+      }
+      return {data:out,w:w,h:h};
+    }
+    function project(x,y,z){
+      if(!lastVp)return null;
+      const m=lastVp;
+      const cx=m[0]*x+m[4]*y+m[8]*z+m[12];
+      const cy=m[1]*x+m[5]*y+m[9]*z+m[13];
+      const cw2=m[3]*x+m[7]*y+m[11]*z+m[15];
+      if(cw2<=0)return null;
+      return {x:(cx/cw2*0.5+0.5)*cssW,y:(1-(cy/cw2*0.5+0.5))*cssH};
+    }
+    function ray(ndcX,ndcY){
+      const tan=Math.tan(46*Math.PI/180/2)*aspect;
+      const dx=lastFwd[0]+lastRight[0]*ndcX*tan+lastUp[0]*ndcY*tan;
+      const dy=lastFwd[1]+lastRight[1]*ndcX*tan+lastUp[1]*ndcY*tan;
+      const dz=lastFwd[2]+lastRight[2]*ndcX*tan+lastUp[2]*ndcY*tan;
+      const l=Math.hypot(dx,dy,dz)||1;
+      return {ox:lastEye[0],oy:lastEye[1],oz:lastEye[2],dx:dx/l,dy:dy/l,dz:dz/l};
+    }
+    return {
+      device:device,format:format,
+      resize:resize,render:render,exportFrame:exportFrame,project:project,ray:ray,sandY:sandY,
+      setParallax:function(x,y){parallax.tx=x;parallax.ty=y;},
+      destroy:function(){device.destroy();}
+    };
+  }
+  return {create:create,sandY:sandY,__wgsl:W_ALL};
+})();
+/* __ENGINE_END__ */
+/* ============ 3D simulation + picking ============ */
+const cv=$("tank");
+let lastT=0;
+function step(dt,t){
+  const dts=Math.min(dt/1000,0.05);
+  for(const f of S.fish){
+    f.retarget-=dts;
+    let tx=f.tx, ty=f.ty, tz=f.tz;
+    if(S.food.length&&f.hunger>0.2){
+      let best=null,bd=1e9;
+      for(const p of S.food){const dd=(p.x-f.x)*(p.x-f.x)+(p.y-f.y)*(p.y-f.y)+(p.z-f.z)*(p.z-f.z);if(dd<bd){bd=dd;best=p;}}
+      if(best&&bd<25){tx=best.x;ty=best.y;tz=best.z;if(bd<0.16){S.food.splice(S.food.indexOf(best),1);f.dart=0.4;f.hunger=0;}}
+    }
+    if(f.retarget<=0){
+      f.tx=rand(SWIM.x0,SWIM.x1);f.ty=rand(SWIM.y0,SWIM.y1);f.tz=rand(SWIM.z0,SWIM.z1);
+      f.retarget=rand(2,5);
+      tx=f.tx;ty=f.ty;tz=f.tz;
+    }
+    const dx=tx-f.x,dy=ty-f.y,dz=tz-f.z;
+    const dl=Math.hypot(dx,dy,dz)||1;
+    const sp=f.speed*(f.dart>0?3:1);
+    const k=1-Math.exp(-dts*2);
+    f.vx+=(dx/dl*sp-f.vx)*k;f.vy+=(dy/dl*sp-f.vy)*k;f.vz+=(dz/dl*sp-f.vz)*k;
+    f.x+=f.vx*dts;f.y+=f.vy*dts;f.z+=f.vz*dts;
+    if(f.x<SWIM.x0+0.3){f.vx+=dts*2;f.tx=0;}
+    if(f.x>SWIM.x1-0.3){f.vx-=dts*2;f.tx=0;}
+    if(f.y<SWIM.y0+0.3){f.vy+=dts*2;f.ty=0;}
+    if(f.y>SWIM.y1-0.3){f.vy-=dts*2;f.ty=0;}
+    if(f.z<SWIM.z0+0.3){f.vz+=dts*2;f.tz=0;}
+    if(f.z>SWIM.z1-0.3){f.vz-=dts*2;f.tz=0;}
+    f.x=clamp(f.x,SWIM.x0-0.2,SWIM.x1+0.2);
+    f.y=clamp(f.y,SWIM.y0-0.2,SWIM.y1+0.2);
+    f.z=clamp(f.z,SWIM.z0-0.2,SWIM.z1+0.2);
+    const vl=Math.hypot(f.vx,f.vy,f.vz);
+    if(vl>0.05){
+      const tyaw=Math.atan2(f.vx,f.vz),tpitch=Math.asin(clamp(f.vy/vl,-1,1));
+      f.yaw+=angNorm(tyaw-f.yaw)*Math.min(1,dts*4);
+      f.pitch+=(tpitch-f.pitch)*Math.min(1,dts*4);
+    }
+    if(f.dart>0)f.dart-=dts;
+    f.hunger=Math.min(1,f.hunger+dts*0.01);
+  }
+  for(let i=S.food.length-1;i>=0;i--){
+    const p=S.food[i];
+    if(p.rest){p.ttl-=dts;if(p.ttl<=0)S.food.splice(i,1);continue;}
+    p.y-=0.8*dts;
+    p.x+=Math.sin(t/900+p.seed)*0.3*dts;
+    const fl=sandY(p.x,p.z)+0.1;
+    if(p.y<=fl){p.y=fl;p.rest=true;p.ttl=10;}
+  }
+  for(const c of S.life){
+    if(c.sp==="jellyfish"){
+      if(c.homeY==null)c.homeY=c.y;
+      c.y=c.homeY+Math.sin(t/1000*0.3+c.pulse)*0.4;
+      c.x+=Math.sin(t/3000+c.wag)*0.03*dts;
+      c.z+=Math.cos(t/3500+c.wag)*0.03*dts;
+      c.x=clamp(c.x,SWIM.x0,SWIM.x1);c.z=clamp(c.z,SWIM.z0,SWIM.z1);
+      c.yaw+=dts*0.05;
+    }else if(c.sp==="shrimp"){
+      c.hopT-=dts;
+      if(c.hop>0){
+        c.hop-=dts;
+        const pr=1-c.hop/0.5;
+        c.x+=c.hopDx*dts*2;c.z+=c.hopDz*dts*2;
+        c.y=sandY(c.x,c.z)+0.12+Math.sin(pr*Math.PI)*0.25;
+        if(c.hop<=0)c.y=sandY(c.x,c.z)+0.12;
+      }else if(c.hopT<=0){
+        c.hop=0.5;c.hopT=rand(1,2.5);
+        const a=rand(0,6.283);c.hopDx=Math.cos(a)*0.8;c.hopDz=Math.sin(a)*0.8;
+        c.yaw=Math.atan2(c.hopDx,c.hopDz);
+      }
+      c.x=clamp(c.x,SWIM.x0,SWIM.x1);c.z=clamp(c.z,SWIM.z0,SWIM.z1);
+    }else if(c.sp==="snail"){
+      c.turnT-=dts;
+      if(c.turnT<=0){c.turnT=rand(2,4);c.yaw+=rand(-1,1);}
+      c.x+=Math.sin(c.yaw)*0.05*dts;c.z+=Math.cos(c.yaw)*0.05*dts;
+      c.x=clamp(c.x,SWIM.x0,SWIM.x1);c.z=clamp(c.z,SWIM.z0,SWIM.z1);
+      c.y=sandY(c.x,c.z)+0.1;
+    }else if(c.sp==="starfish"){
+      c.y=sandY(c.x,c.z)+0.06;
+    }
+  }
+  saveTimer+=dts;
+  if(saveTimer>2){saveTimer=0;saveState();}
+}
+
+/* ============ interaction (3D picking) ============ */
+function canvasPos(e){
+  const r=cv.getBoundingClientRect();
+  return {x:(e.clientX-r.left),y:(e.clientY-r.top)};
+}
+function hitCreature(p){
+  if(!Tank)return null;
+  let best=null,bd=1e9;
+  for(const f of S.fish){const s=Tank.project(f.x,f.y,f.z);if(!s)continue;const d=Math.hypot(p.x-s.x,p.y-s.y);if(d<34&&d<bd){bd=d;best=f;}}
+  for(const c of S.life){const rr=c.sp==="jellyfish"?34:c.sp==="shrimp"?22:26;const s=Tank.project(c.x,c.y,c.z);if(!s)continue;const d=Math.hypot(p.x-s.x,p.y-s.y);if(d<rr&&d<bd){bd=d;best=c;}}
+  return best;
+}
+function hitDecor(p){
+  if(!Tank)return null;
+  let best=null,bd=1e9;
+  for(const d of S.decor){
+    const pos=decorPos3(d);
+    const s=Tank.project(pos[0],pos[1]+0.5,pos[2]);if(!s)continue;
+    const dd=Math.hypot(p.x-s.x,(p.y-s.y)*1.6);
+    if(dd<46&&dd<bd){bd=dd;best=d;}
+  }
+  return best;
+}
+function decorPos3(d){
+  const x=(d.fx-0.5)*14*0.96;
+  const z=-2.4-((d.seed||0)%1)*1.4;
+  return [x,sandY(x,z),z];
+}
+let pDown=null,pMoved=false;
+cv.addEventListener("pointerdown",e=>{
+  const p=canvasPos(e);pDown=p;pMoved=false;
+  const d=hitDecor(p);
+  if(d){drag={id:d.id};select(d.id,"decor");cv.setPointerCapture(e.pointerId);return;}
+  const c=hitCreature(p);
+  if(c){select(c.id,c.kind==="fish"?"fish":"life");if(c.kind==="fish")c.dart=1;return;}
+  select(null,null);
+});
+cv.addEventListener("pointermove",e=>{
+  const p=canvasPos(e);
+  if(drag&&pDown){
+    if(Math.hypot(p.x-pDown.x,p.y-pDown.y)>6)pMoved=true;
+    if(pMoved){
+      const d=S.decor.find(o=>o.id===drag.id);
+      if(d&&Tank){
+        const ndcX=(p.x/view.cssW)*2-1, ndcY=-((p.y/view.cssH)*2-1);
+        const r=Tank.ray(ndcX,ndcY);
+        const dz=decorPos3(d)[2];
+        if(Math.abs(r.dz)>0.001){
+          const t=(dz-r.oz)/r.dz;
+          const hx=r.ox+r.dx*t;
+          d.fx=clamp(hx/(14*0.96)+0.5,0.03,0.97);
+        }
+      }
+    }
+    return;
+  }
+  if(Tank&&e.pointerType==="mouse"){
+    Tank.setParallax((p.x/view.cssW)*2-1,-((p.y/view.cssH)*2-1));
+  }
+});
+cv.addEventListener("pointerup",()=>{
+  if(drag&&pMoved)saveState();
+  drag=null;pDown=null;
+});
+function select(id,kind){
+  selId=id;selKind=kind;
+  const card=$("selCard");
+  if(!id){card.classList.remove("on");return;}
+  const o=[...S.fish,...S.life,...S.decor].find(x=>x.id===id);
+  if(!o){card.classList.remove("on");return;}
+  if(o.kind==="fish"){$("selTitle").textContent=Tn("species",o.sp);$("selSub").textContent=T("fish");}
+  else if(o.kind==="life"){$("selTitle").textContent=Tn("life",o.sp);$("selSub").textContent=T(o.sp);}
+  else{$("selTitle").textContent=Tn("decorN",o.kind);$("selSub").textContent=T("decor");}
+  const sw=$("selColors");sw.innerHTML="";
+  if(o.kind==="fish"){
+    for(const c of COLORS){
+      const b=document.createElement("button");b.className="sw"+(o.color===c?" sel":"");b.style.background=c;
+      b.setAttribute("aria-label",c);
+      b.addEventListener("click",()=>{o.color=c;saveState();select(id,kind);});
+      sw.appendChild(b);
+    }
+  }
+  card.classList.add("on");
+}
+$("selRemove").addEventListener("click",()=>{
+  if(!selId)return;
+  S.fish=S.fish.filter(o=>o.id!==selId);
+  S.life=S.life.filter(o=>o.id!==selId);
+  S.decor=S.decor.filter(o=>o.id!==selId);
+  select(null,null);saveState();renderPanels();
+});
+$("selClose").addEventListener("click",()=>select(null,null));
+
+/* ============ drawer panels ============ */
+function renderPanels(){
+  /* species */
+  const sg=$("speciesGrid");sg.innerHTML="";
+  for(const id of Object.keys(SPECIES)){
+    const def=SPECIES[id];
+    const b=document.createElement("button");
+    b.className="pick"+(selSpecies===id?" sel":"");
+    b.innerHTML='<span class="sw" style="background:'+def.base+'"></span>'+Tn("species",id)+(def.free?"":'<span class="protag">PRO</span>');
+    b.addEventListener("click",()=>{selSpecies=id;selColor=def.base;renderPanels();});
+    sg.appendChild(b);
+  }
+  /* colours */
+  const cs=$("colorSw");cs.innerHTML="";
+  for(const c of COLORS){
+    const b=document.createElement("button");b.className="sw"+(selColor===c?" sel":"");b.style.background=c;b.setAttribute("aria-label",c);
+    b.addEventListener("click",()=>{selColor=c;renderPanels();});
+    cs.appendChild(b);
+  }
+  $("qtyVal").textContent=qty;
+  /* life */
+  const lg=$("lifeGrid");lg.innerHTML="";
+  for(const id of Object.keys(LIFE)){
+    const def=LIFE[id];
+    const b=document.createElement("button");b.className="pick";
+    b.innerHTML='<span class="ico">'+def.emoji+'</span>'+Tn("life",id)+(def.free?"":'<span class="protag">PRO</span>');
+    b.addEventListener("click",()=>addLife(id));
+    lg.appendChild(b);
+  }
+  /* decor */
+  const dg=$("decorGrid");dg.innerHTML="";
+  for(const id of Object.keys(DECOR)){
+    const def=DECOR[id];
+    const b=document.createElement("button");b.className="pick";
+    b.innerHTML='<span class="ico">'+def.emoji+'</span>'+Tn("decorN",id)+(def.free?"":'<span class="protag">PRO</span>');
+    b.addEventListener("click",()=>addDecor(id));
+    dg.appendChild(b);
+  }
+  /* scene */
+  document.querySelectorAll("#sceneSeg button").forEach(b=>{
+    b.classList.toggle("sel",b.getAttribute("data-scene")===S.scene);
+  });
+  /* stats + limits */
+  const nf=S.fish.length, ns=S.life.filter(c=>c.sp==="shrimp").length, nj=S.life.filter(c=>c.sp==="jellyfish").length;
+  $("statLine").textContent=nf+" "+T("fish")+(ns?" · "+ns+" "+T("shrimp"):"")+(nj?" · "+nj+" "+T("jellyfish"):"");
+  $("fishLimitNote").textContent=PRO?"":T("freeLimit");
+  /* tank list */
+  const tl=$("tankList");tl.innerHTML="";
+  const all=[...S.fish.map(o=>({o:o,label:Tn("species",o.sp),dot:o.color})),
+    ...S.life.map(o=>({o:o,label:Tn("life",o.sp),dot:"#ff9ecf"})),
+    ...S.decor.map(o=>({o:o,label:Tn("decorN",o.kind),dot:"#8a867e"}))];
+  if(!all.length){const li=el("li",null,T("emptyTank"));tl.appendChild(li);}
+  for(const it of all){
+    const li=el("li");
+    const dot=el("span","dot");dot.style.background=it.dot;li.appendChild(dot);
+    li.appendChild(el("span","meta",it.label));
+    const rm=el("button","mini","✕");
+    rm.addEventListener("click",()=>{S.fish=S.fish.filter(o=>o.id!==it.o.id);S.life=S.life.filter(o=>o.id!==it.o.id);S.decor=S.decor.filter(o=>o.id!==it.o.id);saveState();renderPanels();});
+    li.appendChild(rm);tl.appendChild(li);
+  }
+}
+/* ============ actions (3D) ============ */
+function addFish(){
+  const def=SPECIES[selSpecies];
+  if(!def.free&&!PRO&&!needPro())return;
+  if(!PRO&&S.fish.length+qty>FREE_FISH_MAX){needPro();return;}
+  const n=Math.min(qty,PRO?PRO_FISH_MAX-S.fish.length:FREE_FISH_MAX-S.fish.length);
+  for(let i=0;i<n;i++)S.fish.push(mkFish(selSpecies,selColor,rand(.15,.85),rand(.25,.75),rand(.3,.8)));
+  saveState();renderPanels();
+}
+function addLife(kind){
+  const def=LIFE[kind];
+  if(!def.free&&!PRO&&!needPro())return;
+  if(kind==="shrimp"&&!PRO&&S.life.filter(c=>c.sp==="shrimp").length>=FREE_SHRIMP_MAX){needPro();return;}
+  S.life.push(mkLife(kind,rand(.2,.8),kind==="jellyfish"?rand(.3,.5):.06,rand(.3,.8)));
+  saveState();renderPanels();
+}
+function addDecor(kind){
+  const def=DECOR[kind];
+  if(!def.free&&!PRO&&!needPro())return;
+  S.decor.push({id:uid(),kind:kind,fx:rand(.08,.92),y:1,sc:rand(.85,1.15),seed:rand(0,9)});
+  saveState();renderPanels();
+}
+function feed(){
+  for(let i=0;i<8;i++)S.food.push({x:rand(-5,5),y:2.8,z:rand(-3,-0.2),seed:rand(0,9),rest:false,ttl:0});
+}
+function shuffleTank(){
+  for(const d of S.decor)d.fx=rand(.05,.95);
+  for(const f of S.fish){
+    f.color=pick(COLORS);
+    f.x=fx2x(rand(.15,.85));f.y=fy2y(rand(.25,.75));f.z=fz2z(rand(.3,.8));
+    f.vx=0;f.vy=0;f.vz=0;f.tx=f.x;f.ty=f.y;f.tz=f.z;f.retarget=rand(1,3);
+  }
+  saveState();renderPanels();
+}
+
+/* ============ share link ============ */
+function encodeTank(){
+  const o={s:S.scene,
+    f:S.fish.map(f=>[f.sp,COLORS.indexOf(f.color),Math.round(x2fx(f.x)*1000)/1000,Math.round(y2fy(f.y)*1000)/1000,Math.round(z2fz(f.z)*1000)/1000]),
+    l:S.life.map(c=>[c.sp,Math.round(x2fx(c.x)*1000)/1000,Math.round(y2fy(c.y)*1000)/1000,Math.round(z2fz(c.z)*1000)/1000]),
+    d:S.decor.map(d=>[d.kind,Math.round(d.fx*1000)/1000,Math.round((d.sc||1)*100)/100])};
+  return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function decodeTank(str){
+  try{
+    const o=JSON.parse(decodeURIComponent(escape(atob(str.replace(/-/g,"+").replace(/_/g,"/")))));
+    if(!o||!Array.isArray(o.f)||!Array.isArray(o.d))return null;
+    const st={scene:["day","night","abyss"].includes(o.s)?o.s:"day",fish:[],life:[],decor:[],food:[]};
+    for(const a of o.f.slice(0,PRO_FISH_MAX)){
+      if(!SPECIES[a[0]])continue;
+      st.fish.push(mkFish(a[0],COLORS[a[1]]||SPECIES[a[0]].base,a[2]!=null?a[2]:.5,a[3]!=null?a[3]:.5,a[4]!=null?a[4]:.5));
+    }
+    for(const a of o.l||[]){
+      if(!LIFE[a[0]])continue;
+      st.life.push(mkLife(a[0],a[1]!=null?a[1]:.5,a[2]!=null?a[2]:.5,a[3]!=null?a[3]:.5));
+    }
+    for(const a of o.d){
+      if(!DECOR[a[0]])continue;
+      st.decor.push({id:uid(),kind:a[0],fx:a[1]!=null?a[1]:.5,y:1,sc:clamp(a[2]/100||1,.5,2),seed:rand(0,9)});
+    }
+    return st;
+  }catch(e){return null;}
+}
+
+/* ============ export (WebGPU offscreen render) ============ */
+async function exportPNG(){
+  if(!Tank)return;
+  const S2=PRO?2048:1024, H2=Math.round(S2/(view.cssW/view.cssH));
+  const img=await Tank.exportFrame(S,S2,H2);
+  const c=document.createElement("canvas");c.width=S2;c.height=H2;
+  const c2=c.getContext("2d");
+  const id=c2.createImageData(S2,H2);
+  id.data.set(img.data);
+  c2.putImageData(id,0,0);
+  c.toBlob(b=>{
+    if(!b)return;
+    const a=document.createElement("a");a.href=URL.createObjectURL(b);
+    a.download="fish-mo-tank-"+S2+".png";a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  },"image/png");
+}
+function closeDrawer(){$("drawer").classList.remove("open");$("scrim").classList.remove("on");}
+$("qtyMinus").addEventListener("click",()=>{qty=Math.max(1,qty-1);$("qtyVal").textContent=qty;});
+$("qtyPlus").addEventListener("click",()=>{qty=Math.min(5,qty+1);$("qtyVal").textContent=qty;});
+$("addFishBtn").addEventListener("click",addFish);
+$("feedBtn").addEventListener("click",feed);
+$("feedBtn2").addEventListener("click",feed);
+$("shuffleBtn").addEventListener("click",shuffleTank);
+$("clearBtn").addEventListener("click",()=>{if(confirm(T("confirmClear"))){S.fish=[];S.life=[];S.decor=[];S.food=[];select(null,null);saveState();renderPanels();}});
+$("resetBtn").addEventListener("click",()=>{if(confirm(T("confirmReset"))){S=starterTank();select(null,null);saveState();renderPanels();}});
+$("exportBtn").addEventListener("click",exportPNG);
+$("shareBtn").addEventListener("click",async()=>{
+  if(!PRO&&!needPro())return;
+  const url=location.origin+location.pathname+"#tank="+encodeTank();
+  try{await navigator.clipboard.writeText(url);alert(T("shared"));}
+  catch(e){prompt(T("shared"),url);}
+});
+document.querySelectorAll("#sceneSeg button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    const sc=b.getAttribute("data-scene");
+    if(sc!=="day"&&!PRO&&!needPro())return;
+    S.scene=sc;saveState();renderPanels();
+  });
+});
+$("themeBtn").addEventListener("click",()=>{
+  const order=["silver","white","black"];
+  const cur=document.body.className||"silver";
+  const next=order[(order.indexOf(cur)+1)%3];
+  document.body.className=next;
+  try{localStorage.setItem("fishmo_theme",next);}catch(e){}
+});
+$("langBtn").addEventListener("click",()=>{
+  LANG=LANG==="en"?"zh":"en";
+  try{localStorage.setItem("fishmo_lang",LANG);}catch(e){}
+  applyLang();
+});
+$("proBtn").addEventListener("click",()=>{
+  if(PRO){if(confirm("Pro is active. Sign out of Pro on this device?")){clearPro();PRO=false;refreshPro();renderPanels();}}
+  else openProModal();
+});
+$("proClose").addEventListener("click",closeProModal);
+$("proModal").addEventListener("click",e=>{if(e.target===$("proModal"))closeProModal();});
+$("validateBtn").addEventListener("click",validateKey);
+document.querySelectorAll("[data-buy]").forEach(b=>{
+  b.addEventListener("click",()=>{
+    window.open(b.getAttribute("data-buy")==="monthly"?CONFIG.buyMonthly:CONFIG.buyLifetime,"_blank","noopener");
+  });
+});
+
+/* ============ init ============ */
+/* ============ init (WebGPU) ============ */
+let Tank=null, gpuReady=false;
+function resize(){
+  const r=$("stage").getBoundingClientRect();
+  view.dpr=Math.min(window.devicePixelRatio||1,2);
+  view.cssW=r.width;view.cssH=r.height;view.aspect=r.width/r.height;
+  if(Tank)Tank.resize(Math.round(r.width*view.dpr),Math.round(r.height*view.dpr),r.width,r.height);
+}
+window.addEventListener("resize",resize);
+function showGpuMsg(msg){
+  let m=$("gpuMsg");
+  if(!m){
+    m=document.createElement("div");m.id="gpuMsg";
+    m.style.cssText="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;color:#eaf6ff;background:rgba(4,20,36,.92);font:14px/1.7 system-ui;z-index:5;";
+    $("stage").appendChild(m);
+  }
+  m.innerHTML=msg;
+}
+function loop(ts){
+  const dt=Math.min(50,ts-(lastT||ts));lastT=ts;
+  step(dt,ts);
+  if(Tank&&gpuReady)Tank.render(S,ts/1000,selId);
+  requestAnimationFrame(loop);
+}
+async function init(){
+  resize();
+  try{const th=localStorage.getItem("fishmo_theme");if(th)document.body.className=th;}catch(e){}
+  try{const lg=localStorage.getItem("fishmo_lang");if(lg)LANG=lg;}catch(e){}
+  let fromHash=null;
+  if(location.hash.indexOf("#tank=")===0)fromHash=decodeTank(location.hash.slice(6));
+  S=fromHash||normalizeLoaded(loadState()||starterTank());
+  PRO=!!storedPro();refreshPro();revalidatePro();
+  applyLang();
+  try{
+    Tank=await Engine.create(cv,navigator.gpu);
+    Tank.resize(Math.round(view.cssW*view.dpr),Math.round(view.cssH*view.dpr),view.cssW,view.cssH);
+    gpuReady=true;
+  }catch(err){
+    const msg=err&&err.message?err.message:String(err);
+    showGpuMsg("This 3D tank needs WebGPU.<br>Open it in a current Chrome or Edge on a desktop computer.<br><span style='opacity:.75'>"+msg.replace(/</g,"&lt;")+"</span>");
+  }
+  requestAnimationFrame(loop);
+}
+init();
+</script>
+</body>
+</html>
