@@ -41,6 +41,11 @@ a{color:inherit}
 /* ============ stage ============ */
 .stage{height:calc(100% - 56px);display:grid;grid-template-columns:minmax(360px,440px) minmax(0,1fr)}
 .editorcol{display:flex;flex-direction:column;border-right:1px solid var(--line);background:var(--panel);min-height:0}
+/* collapsible editor pane */
+body.ed-hidden .stage{grid-template-columns:minmax(0,1fr)}
+body.ed-hidden .editorcol{display:none}
+#expandRail{position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:30;width:26px;height:96px;border-radius:0 10px 10px 0;border:1px solid var(--line);border-left:none;background:var(--panel);color:var(--accent);font-size:20px;display:none;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+body.ed-hidden #expandRail{display:flex}
 .toolbar{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line)}
 .toolbtn{height:32px;min-width:34px;padding:0 9px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);font-size:13px;font-weight:700}
 .toolbtn:hover{border-color:var(--accent)}
@@ -150,11 +155,13 @@ a{color:inherit}
   body[data-tab="preview"] .editorcol{display:none}
   .brand small{display:none}
   .countpill{display:none}
+  #collapseBtn,#expandRail{display:none !important}
+  body.ed-hidden[data-tab="edit"] .editorcol{display:flex}
 }
 
 @media print{
   body{background:#fff;overflow:visible}
-  .topbar,.drawer,.mobiletabs,.editorcol,.previewbar,.pvtoolbar,.toast,.modal,.editorfoot{display:none !important}
+  .topbar,.drawer,.mobiletabs,.editorcol,.previewbar,.pvtoolbar,.toast,.modal,.editorfoot,#expandRail{display:none !important}
   .pb [data-bi]{outline:none !important}
   .stage{display:block;height:auto}
   .previewcol{display:block;overflow:visible}
@@ -168,6 +175,7 @@ a{color:inherit}
 <body data-theme="silver" data-tab="edit">
 <header class="topbar">
   <button class="iconbtn" id="drawerBtn" aria-label="Menu">☰</button>
+  <button class="iconbtn" id="collapseBtn" aria-label="Hide editor" title="Hide editor">«</button>
   <div class="brand"><span class="dela">Letter Mo</span><small data-i18n="tagline">POCKET DOCUMENT STUDIO</small></div>
   <div class="spacer"></div>
   <span class="countpill" id="pageCount">1 page</span>
@@ -181,6 +189,7 @@ a{color:inherit}
   <button id="tabPreview" data-i18n="preview">Preview</button>
 </nav>
 <main class="stage">
+  <button id="expandRail" aria-label="Show editor" title="Show editor">›</button>
   <section class="editorcol" id="editorCol">
     <div class="toolbar" id="toolbar">
       <span class="adv-label" data-i18n="advLabel">Advanced · Markup</span>
@@ -344,7 +353,7 @@ needPro:"Pro feature — unlock OpenX Pro to use it.",proOn:"Pro ✓",proActive:
 copied:"Copied",imgLoaded:"Letterhead image loaded",imgFail:"That file could not be read as an image.",
 lhRemoved:"Letterhead removed",profileSaved:"Profile saved",profileDeleted:"Profile deleted",profileCap:"Free keeps 1 letterhead profile — Pro keeps them all.",
 expDone:"Exported",expFail:"Export failed — try again.",
-advLabel:"Advanced · Markup",pvHint:"Click into a page to edit directly — no markup needed.",pvClickFirst:"Click into the preview first.",pvClear:"Clear",
+advLabel:"Advanced · Markup",collapseEditor:"Hide editor",expandEditor:"Show editor",pvHint:"Click into a page to edit directly — no markup needed.",pvClickFirst:"Click into the preview first.",pvClear:"Clear",
 howText:"Write in the mini-markup on the left; the A4 pages on the right update live. <code>#</code> <code>##</code> <code>###</code> headings, <code>*bold*</code>, <code>_italic_</code>, lists <code>-</code> and <code>1.</code>, tables <code>| a | b |</code>, quotes <code>&gt;</code>, <code>---</code> for a rule, <code>[pagebreak]</code> for a new page. You can also click straight into the A4 preview on the right and type — no markup needed. The preview toolbar above the pages formats whatever your cursor is on.",
 footCopy:"© 2026 OpenX Mo — a pocket document studio. Mini-markup inspired by Typst (Apache-2.0)."},
 zh:{tagline:"口袋文書工作室",edit:"編輯",preview:"預覽",zoom:"縮放",zoomFit:"適應",
@@ -370,7 +379,7 @@ needPro:"Pro 功能——解鎖 OpenX Pro 先用到。",proOn:"Pro ✓",proActiv
 copied:"已複製",imgLoaded:"信頭圖片已載入",imgFail:"讀唔到呢個圖片檔。",
 lhRemoved:"信頭信尾已清除",profileSaved:"檔案已儲存",profileDeleted:"檔案已刪除",profileCap:"免費版只 keep 1 個信頭檔案——Pro 無上限。",
 expDone:"已匯出",expFail:"匯出失敗——再試一次。",
-advLabel:"進階 · Markup",pvHint:"撳入頁面直接改——唔使識標記。",pvClickFirst:"先撳入預覽。",pvClear:"清除格式",
+advLabel:"進階 · Markup",collapseEditor:"收起編輯器",expandEditor:"展開編輯器",pvHint:"撳入頁面直接改——唔使識標記。",pvClickFirst:"先撳入預覽。",pvClear:"清除格式",
 howText:"左邊用迷你標記寫，右邊 A4 即時更新。<code>#</code> <code>##</code> <code>###</code> 標題、<code>*粗體*</code>、<code>_斜體_</code>、清單 <code>-</code> 同 <code>1.</code>、表格 <code>| a | b |</code>、引言 <code>&gt;</code>、<code>---</code> 分隔線、<code>[pagebreak]</code> 換頁。亦可以直接撳入右邊 A4 預覽打字——唔使識標記。預覽上面嘅工具列可以幫游標位置嘅文字加格式。",
 footCopy:"© 2026 OpenX Mo — 口袋文書工作室。迷你標記靈感來自 Typst（Apache-2.0）。"}};
 let LANG="en";
@@ -1256,12 +1265,27 @@ function applyZoom(){
   pages.style.zoom=String(s);
 }
 
+/* ================= collapsible editor pane ================= */
+let ED_HIDDEN=false;
+function setEditorHidden(v){
+  ED_HIDDEN=!!v;
+  document.body.classList.toggle("ed-hidden",ED_HIDDEN);
+  const t=ED_HIDDEN?T("expandEditor"):T("collapseEditor");
+  const cb=$("collapseBtn");
+  cb.textContent=ED_HIDDEN?"»":"«";
+  cb.title=t;cb.setAttribute("aria-label",t);
+  const er=$("expandRail");
+  er.title=T("expandEditor");er.setAttribute("aria-label",T("expandEditor"));
+  applyZoom();
+  saveState();
+}
+
 /* ================= state ================= */
 let saveT=null;
 function saveState(){
   clearTimeout(saveT);
   saveT=setTimeout(()=>{
-    try{localStorage.setItem("lettermo_state",JSON.stringify({doc:$("editor").value,lang:LANG,theme:THEME,zoom:ZOOM,font:FONT}));}catch(e){}
+    try{localStorage.setItem("lettermo_state",JSON.stringify({doc:$("editor").value,lang:LANG,theme:THEME,zoom:ZOOM,font:FONT,edHidden:ED_HIDDEN}));}catch(e){}
   },200);
 }
 function loadState(){
@@ -1623,6 +1647,7 @@ function init(){
     if(THEMES.includes(st.theme))THEME=st.theme;
     if(st.zoom)ZOOM=st.zoom;
     if(st.font)FONT=st.font;
+    if(st.edHidden)ED_HIDDEN=true;
     if(typeof st.doc==="string")$("editor").value=st.doc;
   }else{
     $("editor").value=TEMPLATES.business.en;
@@ -1633,15 +1658,18 @@ function init(){
   refreshPro();
   refreshLHUI();
   applyLang(); // also calls renderAll
+  setEditorHidden(ED_HIDDEN);
   const s=storedPro();if(s&&s.key){PRO=true;refreshPro();revalidatePro();}
 
   $("drawerBtn").onclick=openDrawer;
+  $("collapseBtn").onclick=()=>setEditorHidden(!ED_HIDDEN);
+  $("expandRail").onclick=()=>setEditorHidden(false);
   document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>{const id=b.dataset.close;if(id==="drawer")closeDrawer();else if(id==="proModal")closeProModal();});
   $("drawer").addEventListener("click",e=>{if(e.target===$("drawer"))closeDrawer();});
   $("proModal").addEventListener("click",e=>{if(e.target===$("proModal"))closeProModal();});
   $("proBtn").onclick=()=>{if(PRO){toast(T("proActive"));}else openProModal();};
   $("themeBtn").onclick=()=>{THEME=THEMES[(THEMES.indexOf(THEME)+1)%THEMES.length];applyTheme();saveState();};
-  $("langBtn").onclick=()=>{LANG=LANG==="en"?"zh":"en";applyLang();saveState();};
+  $("langBtn").onclick=()=>{LANG=LANG==="en"?"zh":"en";applyLang();setEditorHidden(ED_HIDDEN);saveState();};
   $("tabEdit").onclick=()=>{document.body.dataset.tab="edit";$("tabEdit").classList.add("sel");$("tabPreview").classList.remove("sel");};
   $("tabPreview").onclick=()=>{document.body.dataset.tab="preview";$("tabPreview").classList.add("sel");$("tabEdit").classList.remove("sel");applyZoom();};
   $("editor").addEventListener("input",onDocInput);
