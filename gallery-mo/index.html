@@ -119,6 +119,27 @@ a{color:inherit}
 .foot a{color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#1d2126;color:#fff;padding:10px 16px;border-radius:999px;font-size:13.5px;z-index:90;opacity:0;pointer-events:none;transition:all .25s;max-width:90vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* online museum */
+.modetabs{display:flex;gap:6px;margin-bottom:14px}
+.mtab{flex:1;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;padding:9px 6px;font-size:13.5px;font-weight:700}
+.mtab.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.srclist{display:flex;flex-wrap:wrap;gap:6px}
+.srcbtn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:6px 11px;font-size:12.5px}
+.srcbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.ogrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.oitem{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel);cursor:pointer;padding:0;text-align:left;color:var(--text)}
+.oitem img{width:100%;height:118px;object-fit:cover;display:block;background:#ccc}
+.oitem .gi{padding:8px 10px}
+.oitem .gi b{display:block;font-size:13px;line-height:1.3}
+.oitem .gi span{font-size:11.5px;color:var(--muted)}
+.oitem.cur{outline:2px solid var(--accent);outline-offset:1px}
+.pager{display:flex;align-items:center;gap:8px;margin-top:10px}
+.pager .info{flex:1;font-size:12.5px;color:var(--muted);text-align:center}
+.ostat{font-size:13.5px;color:var(--muted);text-align:center;padding:18px 8px;line-height:1.6}
+.ostat .spin{display:inline-block;width:18px;height:18px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite;vertical-align:-4px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.attr{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:10px}
+.palwarn{font-size:12.5px;color:var(--muted);margin-top:8px;display:none}
 @media (max-width:900px){
   .stage{grid-template-columns:1fr;padding:14px}
   .frame img{max-height:52vh}
@@ -163,12 +184,13 @@ a{color:inherit}
     <div class="card">
       <h3 data-i18n="secAbout">About this painting</h3>
       <dl class="facts" id="facts"></dl>
+      <div class="attr" id="detailAttr" style="display:none"></div>
     </div>
-    <div class="card">
+    <div class="card" id="storyCard">
       <h3 data-i18n="secStory">The story</h3>
       <p id="story"></p>
     </div>
-    <div class="card look">
+    <div class="card look" id="lookCard">
       <h3 data-i18n="secLook">Look closely</h3>
       <p id="look"></p>
     </div>
@@ -176,6 +198,7 @@ a{color:inherit}
       <h3><span data-i18n="secPalette">Palette — extracted live from the pixels</span><span id="proTagPalette"></span></h3>
       <div class="palette" id="palette"></div>
       <div class="palnote" data-i18n="paletteNote">Tap a swatch to copy its hex code. The palette is read from the real painting with a median-cut pass over a small sample — no preset colours.</div>
+      <div class="palwarn" id="palWarn"></div>
     </div>
     <div class="card">
       <h3 data-i18n="secDo">Do more with it</h3>
@@ -193,8 +216,13 @@ a{color:inherit}
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-label="Gallery desk">
   <h2 data-i18n="drawerTitle">Gallery desk</h2>
-  <p class="sub" data-i18n="drawerSub">Ten masterpieces, five centuries — all public domain, all in your pocket.</p>
+  <p class="sub" id="drawerSubEl" data-i18n="drawerSub">Ten masterpieces, five centuries — all public domain, all in your pocket.</p>
 
+  <div class="modetabs">
+    <button class="mtab on" id="tabCurated" data-i18n="tabCurated">Curated</button>
+    <button class="mtab" id="tabOnline" data-i18n="tabOnline">Online Museum</button>
+  </div>
+  <div id="curatedPane">
   <section>
     <input class="search" id="search" type="search" placeholder="Search title or artist…">
   </section>
@@ -212,6 +240,31 @@ a{color:inherit}
     <div class="tl" id="timeline"><div class="track"></div></div>
     <div id="tlLbl" style="margin-top:6px;font-size:12px;color:var(--muted);text-align:center"></div>
   </section>
+  </div>
+  <div id="onlinePane" style="display:none">
+    <section>
+      <h3 data-i18n="secSrc">Source</h3>
+      <div class="srclist" id="srcList"></div>
+    </section>
+    <section>
+      <input class="search" id="onlineSearch" type="search" placeholder="Search artist or title…">
+    </section>
+    <section>
+      <h3 data-i18n="secTry">Try</h3>
+      <div class="chips" id="onlineChips"></div>
+    </section>
+    <section>
+      <h3><span data-i18n="secOnline">Online museum</span> <span id="onlineCount" style="color:var(--muted);font-size:12px"></span></h3>
+      <div class="ostat" id="onlineStatus" style="display:none"></div>
+      <div class="ogrid" id="onlineGrid"></div>
+      <div class="pager" id="onlinePager" style="display:none">
+        <button class="btn" id="onlinePrev">← <span data-i18n="prev">Previous</span></button>
+        <span class="info" id="onlinePageInfo"></span>
+        <button class="btn" id="onlineNext"><span data-i18n="next">Next</span> →</button>
+      </div>
+      <p class="attr" id="onlineAttr"></p>
+    </section>
+  </div>
   <section>
     <h3 data-i18n="secQuiz">Quiz</h3>
     <p style="font-size:13.5px;color:var(--muted);margin:0 0 10px" data-i18n="quizNote">Ten rounds, one painting each — guess the painter. Your best score stays on this device.</p>
@@ -275,9 +328,11 @@ const $=id=>document.getElementById(id);
 /* ---------- i18n ---------- */
 const I18N={
 en:{tagline:"POCKET ART GALLERY",prev:"Previous",next:"Next",secAbout:"About this painting",secStory:"The story",secLook:"Look closely",secPalette:"Palette — extracted live from the pixels",paletteNote:"Tap a swatch to copy its hex code. The palette is read from the real painting with a median-cut pass over a small sample — no preset colours.",secDo:"Do more with it",fav:"Favourite",faved:"Favourited",zoom:"Inspect detail",poster:"Poster PNG",share:"Copy share link",quiz:"Quiz — guess the painter",drawerTitle:"Gallery desk",drawerSub:"Ten masterpieces, five centuries — all public domain, all in your pocket.",secMove:"Movement",secGallery:"The collection",favOnly:"Favourites only",secTime:"Five centuries — tap a dot",secQuiz:"Quiz",quizNote:"Ten rounds, one painting each — guess the painter. Your best score stays on this device.",quizStart:"Start the quiz",secPro:"OpenX Pro",proNote:"Pro unlocks the last four paintings, the detail inspector, HD 2048px posters and unlimited favourites.",unlock:"Unlock",secHow:"How the palette works",howText:"When a painting loads, Gallery Mo samples it down to a small grid and runs a median-cut pass — splitting the colour space until five dominant colours remain. The five swatches are the painting's own colours, not a preset. If the image cannot load, the palette saved in advance is shown instead.",quizTitle:"Guess the painter",quizAgain:"Play again",close:"Close",zoomHint:"Drag to pan · scroll or pinch to zoom · double-click to reset",proTitle:"This one is Pro",proBody:"OpenX Pro unlocks the last four paintings, the detail inspector, HD 2048px posters and unlimited favourites. One key unlocks every OpenX tool.",proLi1:"Monthly US$9.99 · Yearly US$88 · Lifetime US$166",proLi2:"Keys are validated per device; offline checks are honoured for a while.",footCopy:"© 2026 OpenX Mo — a pocket gallery. All ten paintings are public domain; images via Wikimedia Commons. Nothing here is a reproduction for sale — look, learn, enjoy.",footCredit:"Paintings: Botticelli · Leonardo · Vermeer · Hokusai · Seurat · Van Gogh · Munch · Klimt · Monet — via Wikimedia Commons (public domain).",
-year:"Year",medium:"Medium",size:"Size",museum:"Museum",movement:"Movement",copied:"Copied ",linkCopied:"Share link copied",favCap:"Free favourites are capped at 3 — Pro is unlimited.",imgFail:"This painting could not be loaded — check your connection. The palette below was extracted in advance.",posterSaved:"Poster PNG saved",posterFail:"Poster export failed — the image could not be read.",key_ok:"Pro unlocked — welcome aboard.",key_bad:"That key did not check out. Try again.",key_net:"Could not reach the license server. Check your connection and try again.",key_saved:"Checking…",best:"Best",round:"Round",of:"of",score:"Score",streak:"streak",correct:"Correct — ",wrong:"Not quite — it is ",quizDone:"You scored",quizGrade:"",free:"Free",pro:"Pro"},
+year:"Year",medium:"Medium",size:"Size",museum:"Museum",movement:"Movement",copied:"Copied ",linkCopied:"Share link copied",favCap:"Free favourites are capped at 3 — Pro is unlimited.",imgFail:"This painting could not be loaded — check your connection. The palette below was extracted in advance.",posterSaved:"Poster PNG saved",posterFail:"Poster export failed — the image could not be read.",key_ok:"Pro unlocked — welcome aboard.",key_bad:"That key did not check out. Try again.",key_net:"Could not reach the license server. Check your connection and try again.",key_saved:"Checking…",best:"Best",round:"Round",of:"of",score:"Score",streak:"streak",correct:"Correct — ",wrong:"Not quite — it is ",quizDone:"You scored",quizGrade:"",free:"Free",pro:"Pro",
+tabCurated:"Curated",tabOnline:"Online Museum",drawerSubOnline:"Live from the world's open museums — The Met, Wikimedia Commons, Cleveland and the Art Institute of Chicago. All public domain.",secSrc:"Source",secTry:"Try",secOnline:"Online museum",onlinePh:"Search artist or title…",loading:"Loading…",onlineErr:"Could not load — check your connection and try again.",retry:"Retry",onlineEmpty:"No results — try another artist or title.",onlineOff:"You are offline — the online museum needs a connection.",results:"results",page:"Page",palUnavail:"Palette unavailable for this image — this museum does not allow pixel reads.",unknown:"Unknown artist"},
 zh:{tagline:"口袋名畫館",prev:"上一幅",next:"下一幅",secAbout:"關於呢幅畫",secStory:"背後嘅故事",secLook:"睇真啲",secPalette:"配色——即時由畫面像素抽出",paletteNote:"撳色塊複製 hex 碼。配色係由真畫用 median-cut 喺細樣本上面抽出嚟，唔係預設色。",secDo:"再玩多啲",fav:"收藏",faved:"已收藏",zoom:"放大細睇",poster:"海報 PNG",share:"複製分享連結",quiz:"測驗——估下邊個畫家",drawerTitle:"畫廊工作台",drawerSub:"十幅名畫，五百年——全部公有領域，全部喺你袋入面。",secMove:"流派",secGallery:"館藏",favOnly:"只睇收藏",secTime:"五百年——撳個點跳去",secQuiz:"測驗",quizNote:"十回合，每回合一幅畫——估下係邊個畫家。最高分會留喺呢部機。",quizStart:"開始測驗",secPro:"OpenX Pro",proNote:"Pro 解鎖最後四幅畫、細節放大鏡、2048px 高清海報同無上限收藏。",unlock:"解鎖",secHow:"配色點抽出嚟",howText:"每幅畫載入嗰陣，Gallery Mo 會將佢縮做細格，再做一次 median-cut——不斷將色彩空間劈開，直至剩低五隻主色。五隻色係幅畫本身嘅色，唔係預設。如果幅畫載入唔到，就會顯示預先抽好嘅配色。",quizTitle:"估下邊個畫家",quizAgain:"再玩一次",close:"關閉",zoomHint:"拖曳平移 · 捲動或雙指縮放 · 撳兩下還原",proTitle:"呢個係 Pro 功能",proBody:"OpenX Pro 解鎖最後四幅畫、細節放大鏡、2048px 高清海報同無上限收藏。一條 key 解鎖全部 OpenX 工具。",proLi1:"月費 US$9.99 · 年費 US$88 · 終身 US$166",proLi2:"每部裝置驗證一次 key；離線嗰陣會寬限一段時間。",footCopy:"© 2026 OpenX Mo — 口袋畫廊。十幅畫全部係公有領域，圖片來自 Wikimedia Commons。呢度唔係賣複製品——睇、學、享受就得。",footCredit:"畫作：波提切利 · 達文西 · 維梅爾 · 葛飾北齋 · 修拉 · 梵高 · 孟克 · 克林姆 · 莫奈——來自 Wikimedia Commons（公有領域）。",
-year:"年份",medium:"媒介",size:"尺寸",museum:"收藏地",movement:"流派",copied:"已複製 ",linkCopied:"分享連結已複製",favCap:"免費收藏上限 3 幅——Pro 無上限。",imgFail:"呢幅畫載入唔到——檢查下網絡。下面嘅配色係預先抽好嘅。",posterSaved:"海報 PNG 已儲存",posterFail:"海報匯出失敗——讀唔到幅畫。",key_ok:"Pro 已解鎖——歡迎。",key_bad:"呢條 key 驗唔到。再試一次。",key_net:"連唔到授權伺服器。檢查網絡再試。",key_saved:"驗證緊…",best:"最高分",round:"第",of:"／",score:"分數",streak:"連勝",correct:"啱晒——",wrong:"唔係——係 ",quizDone:"你攞到",quizGrade:"",free:"免費",pro:"Pro"}
+year:"年份",medium:"媒介",size:"尺寸",museum:"收藏地",movement:"流派",copied:"已複製 ",linkCopied:"分享連結已複製",favCap:"免費收藏上限 3 幅——Pro 無上限。",imgFail:"呢幅畫載入唔到——檢查下網絡。下面嘅配色係預先抽好嘅。",posterSaved:"海報 PNG 已儲存",posterFail:"海報匯出失敗——讀唔到幅畫。",key_ok:"Pro 已解鎖——歡迎。",key_bad:"呢條 key 驗唔到。再試一次。",key_net:"連唔到授權伺服器。檢查網絡再試。",key_saved:"驗證緊…",best:"最高分",round:"第",of:"／",score:"分數",streak:"連勝",correct:"啱晒——",wrong:"唔係——係 ",quizDone:"你攞到",quizGrade:"",free:"免費",pro:"Pro",
+tabCurated:"精選館",tabOnline:"線上藝術館",drawerSubOnline:"即時連接全球開放博物館——大都會、Wikimedia Commons、克利夫蘭、芝加哥藝術學院。全部公有領域。",secSrc:"來源",secTry:"試下",secOnline:"線上藝術館",onlinePh:"搜畫家或畫名…",loading:"載入緊…",onlineErr:"載入唔到——檢查網絡再試。",retry:"再試",onlineEmpty:"冇結果——試下另一個畫家或畫名。",onlineOff:"你而家離線——線上藝術館要上網先用到。",results:"個結果",page:"第",palUnavail:"呢幅畫抽唔到配色——呢間博物館唔畀讀像素。",unknown:"未知畫家"}
 };
 let LANG=localStorage.getItem("gallery-mo-lang")||"en";
 function T(k){return (I18N[LANG]&&I18N[LANG][k])||I18N.en[k]||k;}
@@ -463,29 +518,43 @@ function renderPalette(hexes){
 function renderPainting(p,skipImg){
   CUR=p;
   $("artTitle").textContent=L(p.title);
-  $("artArtist").innerHTML="<b>"+L(p.artist)+"</b> · "+p.yearLbl+" · "+L(p.movement);
-  $("facts").innerHTML=
-    "<dt>"+T("year")+"</dt><dd>"+p.yearLbl+"</dd>"+
-    "<dt>"+T("medium")+"</dt><dd>"+L(p.medium)+"</dd>"+
-    "<dt>"+T("size")+"</dt><dd>"+p.size+"</dd>"+
-    "<dt>"+T("museum")+"</dt><dd>"+L(p.museum)+"</dd>"+
-    "<dt>"+T("movement")+"</dt><dd>"+L(p.movement)+"</dd>";
-  $("story").textContent=L(p.story);
-  $("look").textContent=L(p.look);
+  $("artArtist").innerHTML="<b>"+escHtml(L(p.artist))+"</b> · "+escHtml(p.yearLbl)+(L(p.movement)?" · "+escHtml(L(p.movement)):"");
+  const rows=[[T("year"),p.yearLbl]];
+  if(p.medium&&L(p.medium)&&L(p.medium)!=="—")rows.push([T("medium"),L(p.medium)]);
+  if(p.size&&p.size!=="—")rows.push([T("size"),p.size]);
+  if(p.museum)rows.push([T("museum"),L(p.museum)]);
+  if(p.movement&&L(p.movement))rows.push([T("movement"),L(p.movement)]);
+  $("facts").innerHTML=rows.map(r=>"<dt>"+r[0]+"</dt><dd>"+escHtml(r[1])+"</dd>").join("");
+  $("storyCard").style.display=p.story?"":"none";
+  $("lookCard").style.display=p.look?"":"none";
+  $("story").textContent=p.story?L(p.story):"";
+  $("look").textContent=p.look?L(p.look):"";
   renderPalette(p.palette);
+  $("palWarn").style.display="none";
+  const da=$("detailAttr");
+  if(p.online){da.textContent=srcAttr(p.source);da.style.display="block";}
+  else da.style.display="none";
   $("wall").style.background="color-mix(in srgb, "+p.dominant+" 12%, var(--bg))";
   $("favBtn").innerHTML=(FAVS.includes(p.id)?"♥ ":"♡ ")+"<span>"+T(FAVS.includes(p.id)?"faved":"fav")+"</span>";
   $("zoomTitle").textContent=L(p.title)+" — "+L(p.artist);
   if(!skipImg){
     const img=$("artImg");$("imgFail").style.display="none";img.style.display="";
-    img.onload=()=>{try{const live=medianCutPalette(img);if(live&&live.length===5)renderPalette(live);}catch(e){/* keep embedded palette */}};
+    /* Met / Cleveland / AIC images send no CORS header: loading them WITH
+       crossorigin would fail outright, so only Wikimedia images keep it. */
+    if(p.online&&p.cors===false)img.removeAttribute("crossorigin");else img.setAttribute("crossorigin","anonymous");
+    img.onload=()=>{try{const live=medianCutPalette(img);
+      if(live&&live.length){p.palette=live;p.paletteLive=true;renderPalette(live);
+        if(p.online){p.dominant=live[0];$("wall").style.background="color-mix(in srgb, "+p.dominant+" 12%, var(--bg))";}}
+      }catch(e){if(p.online){$("palette").innerHTML="";$("palWarn").textContent=T("palUnavail");$("palWarn").style.display="block";}}};
     img.onerror=()=>{img.style.display="none";const f=$("imgFail");f.style.display="flex";f.textContent=T("imgFail");};
     img.src=p.img;img.alt=L(p.title)+" — "+L(p.artist);
   }
   document.querySelectorAll(".gitem").forEach(g=>g.classList.toggle("cur",g.dataset.id===p.id));
   document.querySelectorAll(".tl .dot").forEach(d=>d.classList.toggle("cur",d.dataset.id===p.id));
+  document.querySelectorAll(".oitem").forEach(g=>g.classList.toggle("cur",g.dataset.id===p.id));
   $("tlLbl").textContent=L(p.title)+" · "+p.yearLbl;
-  if(location.hash!=="#painting="+p.id){history.replaceState(null,"","#painting="+p.id);}
+  const h=p.online?"#online="+p.id:"#painting="+p.id;
+  if(location.hash!==h){history.replaceState(null,"",h);}
 }
 function openPainting(id){
   const p=BY_ID[id];if(!p)return;
@@ -513,7 +582,17 @@ function renderGrid(){
     b.innerHTML=(p.pro&&!PRO?'<span class="lock">🔒 Pro</span>':"")+'<img loading="lazy" crossorigin="anonymous" src="'+p.img+'" alt="">'+
       '<span class="gi"><b>'+L(p.title)+'</b><span>'+L(p.artist)+' · '+p.yearLbl+'</span></span>';
     b.onclick=()=>openPainting(p.id);el.appendChild(b);});
-  if(!list.length)el.innerHTML='<p style="font-size:13.5px;color:var(--muted)">—</p>';
+  if(favOnly){
+    /* online favourites live in fav metadata, not in the curated list */
+    Object.values(OFAVMETA).forEach(m=>{
+      if(!FAVS.includes(m.id))return;
+      const b=document.createElement("button");b.className="gitem";b.dataset.id=m.id;
+      const co=m.cors?' crossorigin="anonymous"':"";
+      b.innerHTML='<img loading="lazy"'+co+' src="'+m.img+'" alt="">'+
+        '<span class="gi"><b>'+escHtml(m.title)+'</b><span>'+escHtml(m.artist)+' · '+escHtml(m.yearLbl)+'</span></span>';
+      b.onclick=()=>openOnlineWork(m.id);el.appendChild(b);});
+  }
+  if(!el.children.length)el.innerHTML='<p style="font-size:13.5px;color:var(--muted)">—</p>';
 }
 function renderTimeline(){
   const el=$("timeline");el.querySelectorAll(".dot").forEach(d=>d.remove());
@@ -524,7 +603,7 @@ function renderTimeline(){
     d.innerHTML="<span>"+p.year+"</span>";d.title=L(p.title)+" · "+p.yearLbl;
     d.onclick=()=>openPainting(p.id);el.appendChild(d);});
 }
-function renderAll(){applyI18n();renderChips();renderGrid();renderTimeline();renderPainting(CUR,true);refreshPro();
+function renderAll(){applyI18n();applyOnlineI18n();renderChips();renderGrid();renderTimeline();renderPainting(CUR,true);refreshPro();
   $("bestLbl").textContent=T("best")+": "+(parseInt(localStorage.getItem("gallery-mo-best")||"0",10)||0)+"/10";
   $("proTagPalette").innerHTML="";}
 function openDrawer(){$("drawer").classList.add("open");$("scrim").classList.add("open");}
@@ -585,7 +664,11 @@ function exportPoster(){
   x.fillStyle=p.dominant;x.globalAlpha=0.12;x.fillRect(0,0,W2,H2);x.globalAlpha=1;
   const img=$("artImg");
   const iw=img.naturalWidth,ih=img.naturalHeight;
-  if(iw){
+  /* Some museum images send no CORS header: they display fine but taint a
+     canvas, so test before drawing and fall back to the palette card. */
+  let canDraw=false;
+  if(iw){try{const tc=document.createElement("canvas");tc.width=1;tc.height=1;const tx=tc.getContext("2d");tx.drawImage(img,0,0,1,1);tx.getImageData(0,0,1,1);canDraw=true;}catch(e){canDraw=false;}}
+  if(iw&&canDraw){
     const maxW=W2-u(120),maxH=H2-u(470),sc=Math.min(maxW/iw,maxH/ih),dw=iw*sc,dh=ih*sc;
     const dx=(W2-dw)/2,dy=u(70);
     x.fillStyle="#2b2419";x.fillRect(dx-u(18),dy-u(18),dw+u(36),dh+u(36));
@@ -598,9 +681,9 @@ function exportPoster(){
     x.fillStyle=p.dominant;x.globalAlpha=0.9;x.fillRect(u(60),u(70),W2-u(120),H2-u(560));x.globalAlpha=1;
     x.fillStyle="rgba(255,255,255,.85)";x.textAlign="center";
     x.font="700 "+u(40)+"px 'Noto Sans TC', sans-serif";
-    x.fillText(LANG==="en"?"Image unavailable offline":"圖片未能載入",W2/2,u(300));
+    x.fillText((p.online&&iw)?(LANG==="en"?"Image cannot be embedded":"圖片未能嵌入海報"):(LANG==="en"?"Image unavailable offline":"圖片未能載入"),W2/2,u(300));
     x.font=u(28)+"px 'Noto Sans TC', sans-serif";
-    x.fillText(LANG==="en"?"Palette extracted in advance":"配色為預先抽取",W2/2,u(350));
+    x.fillText((p.online&&iw)?(LANG==="en"?"Palette shown instead":"改為顯示配色卡"):(LANG==="en"?"Palette extracted in advance":"配色為預先抽取"),W2/2,u(350));
     var y=H2-u(490);
   }
   try{
@@ -618,7 +701,7 @@ function exportPoster(){
     hexes.forEach((h,i)=>{x.fillText(h,(W2-tot)/2+sw/2+i*(sw+gap),y);});
     y+=u(70);
     x.fillStyle="#8a6d3b";x.font="700 "+u(28)+"px 'Noto Sans TC', sans-serif";
-    x.fillText("GALLERY MO · "+(LANG==="en"?"Public domain via Wikimedia Commons":"公有領域 · Wikimedia Commons"),W2/2,H2-u(46));
+    x.fillText("GALLERY MO · "+(p.online?(LANG==="en"?"Public domain":"公有領域")+" · "+SOURCENAMES[p.source]:(LANG==="en"?"Public domain via Wikimedia Commons":"公有領域 · Wikimedia Commons")),W2/2,H2-u(46));
     const a=document.createElement("a");a.download="gallery-mo-"+p.id+".png";a.href=c.toDataURL("image/png");a.click();
     toast(T("posterSaved")+" ("+W2+"px)");
   }catch(e){toast(T("posterFail"));}
@@ -639,6 +722,215 @@ function openZoom(){
   w.addEventListener("wheel",e=>{e.preventDefault();const f=e.deltaY<0?1.15:1/1.15;Z.s=Math.min(4,Math.max(1,Z.s*f));applyZoom();},{passive:false});
   w.addEventListener("dblclick",zoomReset);
 })();
+/* ---------- online museum (live, public-domain APIs) ---------- */
+const SOURCENAMES={met:"The Metropolitan Museum of Art",commons:"Wikimedia Commons",cleveland:"Cleveland Museum of Art",aic:"Art Institute of Chicago"};
+const ONLINE_SOURCES={met:{name:"The Met"},commons:{name:"Wikimedia"},cleveland:{name:"Cleveland"},aic:{name:"Art Institute"}};
+const ONLINE_CHIPS=["Van Gogh","Monet","Rembrandt","Hokusai","Klimt","Vermeer","Cézanne","Degas"];
+const PER=12;
+let MODE=localStorage.getItem("gallery-mo-mode")||"curated";
+let OSRC="met",OQ="Van Gogh",OPAGE=0,OTOTAL=0,ORESULTS=[],OABORT=null,OLOADED=false;
+let OFAVMETA={};try{OFAVMETA=JSON.parse(localStorage.getItem("gallery-mo-favmeta")||"{}");}catch(e){OFAVMETA={};}
+const OCACHE=new Map(),OPAGECACHE=new Map();
+function escHtml(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function saveFavMeta(){try{localStorage.setItem("gallery-mo-favmeta",JSON.stringify(OFAVMETA));}catch(e){}}
+function stripHtml(s){return String(s||"").replace(/<[^>]*>/g,"").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&nbsp;/g," ").trim();}
+function parseYear(s){const m=String(s||"").match(/(\d{3,4})/);return m?parseInt(m[1],10):null;}
+function srcAttr(src){const nm=SOURCENAMES[src]||src;const lic=src==="commons"?(LANG==="en"?"public domain":"公有領域"):"CC0";return (LANG==="en"?"Images & data: ":"圖片及資料：")+nm+" ("+lic+")";}
+function fallbackPalette(){return ["#8a8578","#6b7280","#c7c2b8","#4a4a45","#a8a29a"];}
+function adaptMet(o){return {id:"met:"+o.objectID,source:"met",cors:false,online:true,pro:false,
+  title:{en:o.title||"Untitled"},artist:{en:o.artistDisplayName||T("unknown")},
+  yearLbl:o.objectDate||"—",year:parseYear(o.objectDate),
+  medium:{en:o.medium||"—"},size:o.dimensions||"—",
+  museum:{en:"The Metropolitan Museum of Art, New York"+(o.department?" · "+o.department:"")},
+  movement:{en:""},story:null,look:null,
+  img:o.primaryImage||o.primaryImageSmall||"",thumb:o.primaryImageSmall||o.primaryImage||"",
+  palette:fallbackPalette(),dominant:"#8a8578",paletteLive:false};}
+function adaptCommons(p){const ii=(p.imageinfo||[])[0]||{};const em=ii.extmetadata||{};
+  const rawTitle=(p.title||"").replace(/^File:/,"").replace(/\.[a-zA-Z0-9]+$/,"").replace(/_/g," ");
+  const artist=stripHtml(em.Artist?em.Artist.value:"")||T("unknown");
+  const date=stripHtml(em.DateTimeOriginal?em.DateTimeOriginal.value:"");
+  return {id:"com:"+p.pageid,source:"commons",cors:true,online:true,pro:false,
+  title:{en:rawTitle||"Untitled"},artist:{en:artist},
+  yearLbl:date||"—",year:parseYear(date),
+  medium:{en:"—"},size:(ii.width&&ii.height)?ii.width+" × "+ii.height+" px":"—",
+  museum:{en:"Wikimedia Commons"},movement:{en:""},story:null,look:null,
+  img:ii.url||ii.thumburl||"",thumb:ii.thumburl||ii.url||"",
+  palette:fallbackPalette(),dominant:"#8a8578",paletteLive:false};}
+function adaptCleveland(a){return {id:"cle:"+a.id,source:"cleveland",cors:false,online:true,pro:false,
+  title:{en:a.title||"Untitled"},artist:{en:(a.creators&&a.creators[0]?a.creators[0].description:T("unknown"))},
+  yearLbl:a.creation_date||"—",year:parseYear(a.creation_date),
+  medium:{en:a.technique||"—"},size:a.measurements||"—",
+  museum:{en:"Cleveland Museum of Art"+(a.department?" · "+a.department:"")},
+  movement:{en:""},story:null,look:null,
+  img:(a.images&&a.images.web?a.images.web.url:""),thumb:(a.images&&a.images.web?a.images.web.url:""),
+  palette:fallbackPalette(),dominant:"#8a8578",paletteLive:false};}
+function adaptAic(a){return {id:"aic:"+a.id,source:"aic",cors:false,online:true,pro:false,
+  title:{en:a.title||"Untitled"},artist:{en:a.artist_title||T("unknown")},
+  yearLbl:a.date_display||"—",year:parseYear(a.date_display),
+  medium:{en:a.medium_display||"—"},size:a.dimensions||"—",
+  museum:{en:"Art Institute of Chicago"},
+  movement:{en:""},story:a.description?stripHtml(a.description).slice(0,600):null,look:null,
+  img:a.image_id?("https://www.artic.edu/iiif/2/"+a.image_id+"/full/843,/0/default.jpg"):"",
+  thumb:a.image_id?("https://www.artic.edu/iiif/2/"+a.image_id+"/full/400,/0/default.jpg"):"",
+  palette:fallbackPalette(),dominant:"#8a8578",paletteLive:false};}
+function adaptFavMeta(m){return {id:m.id,source:m.source,cors:m.cors,online:true,pro:false,
+  title:{en:m.title},artist:{en:m.artist},yearLbl:m.yearLbl,year:null,
+  medium:{en:m.medium||"—"},size:m.size||"—",museum:{en:m.museum},
+  movement:{en:""},story:null,look:null,img:m.img,thumb:m.img,
+  palette:fallbackPalette(),dominant:"#8a8578",paletteLive:false};}
+async function fetchMet(q,page,signal){
+  const off=page*PER;
+  const r=await fetch("https://collectionapi.metmuseum.org/public/collection/v1.1/search?q="+encodeURIComponent(q)+"&hasImages=true&limit="+PER+"&offset="+off,{signal});
+  if(!r.ok)throw new Error("met "+r.status);
+  const d=await r.json();
+  const ids=(d.objectIDs||[]).slice(0,PER);
+  const objs=await Promise.all(ids.map(async id=>{
+    try{const rr=await fetch("https://collectionapi.metmuseum.org/public/collection/v1/objects/"+id,{signal});
+      if(!rr.ok)return null;return await rr.json();}
+    catch(e){if(signal&&signal.aborted)throw e;return null;}}));
+  const works=objs.filter(o=>o&&(o.primaryImageSmall||o.primaryImage)).map(adaptMet);
+  return {total:d.total||0,works};
+}
+async function fetchCommons(q,page,signal){
+  const url="https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrsearch="+encodeURIComponent(q+" painting filetype:bitmap")+"&gsrnamespace=6&gsrlimit="+PER+(page>0?"&gsroffset="+(page*PER):"")+"&prop=imageinfo&iiprop=url%7Csize%7Cextmetadata&iiurlwidth=800";
+  const r=await fetch(url,{signal});
+  if(!r.ok)throw new Error("commons "+r.status);
+  const d=await r.json();
+  /* Commons pages are keyed by numeric pageid, so Object.values() would
+     reorder them numerically — sort by the API's relevance index instead. */
+  const pages=Object.values((d.query||{}).pages||{}).sort((a,b)=>(a.index||0)-(b.index||0));
+  const works=pages.map(adaptCommons).filter(w=>w.img);
+  const total=(d.query&&d.query.searchinfo&&d.query.searchinfo.totalhits)||(works.length<PER?page*PER+works.length:page*PER+works.length+1);
+  return {total,works};
+}
+async function fetchCleveland(q,page,signal){
+  const r=await fetch("https://openaccess-api.clevelandart.org/api/artworks?has_image=1&limit="+PER+"&offset="+(page*PER)+"&search="+encodeURIComponent(q),{signal});
+  if(!r.ok)throw new Error("cle "+r.status);
+  const d=await r.json();
+  const works=(d.data||[]).map(adaptCleveland).filter(w=>w.img);
+  return {total:(d.info&&d.info.total)||0,works};
+}
+async function fetchAic(q,page,signal){
+  const r=await fetch("https://api.artic.edu/api/v1/artworks/search?q="+encodeURIComponent(q)+"&limit="+PER+"&page="+(page+1)+"&fields=id,title,artist_title,date_display,medium_display,dimensions,image_id,description,place_of_origin",{signal});
+  if(!r.ok)throw new Error("aic "+r.status);
+  const d=await r.json();
+  const works=(d.data||[]).map(adaptAic).filter(w=>w.img);
+  return {total:(d.pagination&&d.pagination.total)||0,works};
+}
+const FETCHERS={met:fetchMet,commons:fetchCommons,cleveland:fetchCleveland,aic:fetchAic};
+function setOnlineStatus(kind,msg){
+  const el=$("onlineStatus");
+  if(kind==="hidden"){el.style.display="none";el.innerHTML="";return;}
+  el.style.display="block";
+  if(kind==="loading")el.innerHTML='<span class="spin"></span>'+T("loading");
+  else if(kind==="error")el.innerHTML=escHtml(T("onlineErr"))+'<br><button class="btn" id="onlineRetry" style="margin-top:10px">↻ '+T("retry")+'</button>';
+  else el.textContent=msg||"";
+  const rb=$("onlineRetry");if(rb)rb.onclick=()=>loadOnline(OSRC,OQ,OPAGE,true);
+}
+async function loadOnline(src,q,page,force){
+  OSRC=src;OQ=q;OPAGE=page;
+  const key=src+"|"+q+"|"+page;
+  if(!force&&OPAGECACHE.has(key)){const c=OPAGECACHE.get(key);OTOTAL=c.total;ORESULTS=c.works;renderOnlineGrid();return;}
+  if(OABORT)OABORT.abort();
+  OABORT=new AbortController();
+  setOnlineStatus("loading");$("onlineGrid").innerHTML="";$("onlinePager").style.display="none";
+  renderSrcList();renderOnlineChips();
+  try{
+    const res=await FETCHERS[src](q,page,OABORT.signal);
+    OLOADED=true;
+    OPAGECACHE.set(key,res);
+    OTOTAL=res.total;ORESULTS=res.works;
+    res.works.forEach(w=>OCACHE.set(w.id,w));
+    if(!res.works.length)setOnlineStatus("empty",T("onlineEmpty"));else setOnlineStatus("hidden");
+    renderOnlineGrid();
+  }catch(e){
+    if(e&&e.name==="AbortError")return;
+    /* AIC is unverified (Cloudflare-blocked from the build VM): if it fails,
+       drop the source silently and fall back to The Met. */
+    if(src==="aic"){delete ONLINE_SOURCES.aic;delete FETCHERS.aic;OSRC="met";OPAGE=0;loadOnline("met",OQ,0,true);return;}
+    if(!navigator.onLine)setOnlineStatus("offline",T("onlineOff"));
+    else setOnlineStatus("error");
+    renderOnlineGrid();
+  }
+}
+function renderSrcList(){
+  const el=$("srcList");el.innerHTML="";
+  Object.keys(ONLINE_SOURCES).forEach(k=>{
+    const b=document.createElement("button");b.className="srcbtn"+(OSRC===k?" on":"");
+    b.textContent=ONLINE_SOURCES[k].name;
+    b.onclick=()=>{if(OSRC!==k)loadOnline(k,OQ,0);};
+    el.appendChild(b);});
+}
+function renderOnlineChips(){
+  const el=$("onlineChips");el.innerHTML="";
+  ONLINE_CHIPS.forEach(c=>{
+    const b=document.createElement("button");b.className="chip"+(OQ===c?" on":"");
+    b.textContent=c;b.onclick=()=>{$("onlineSearch").value=c;loadOnline(OSRC,c,0);};
+    el.appendChild(b);});
+}
+function renderOnlineGrid(){
+  const el=$("onlineGrid");if(!el)return;el.innerHTML="";
+  ORESULTS.forEach(w=>{
+    const b=document.createElement("button");b.className="oitem"+(CUR&&CUR.id===w.id?" cur":"");b.dataset.id=w.id;
+    const co=w.cors?' crossorigin="anonymous"':"";
+    b.innerHTML='<img loading="lazy"'+co+' src="'+w.thumb+'" alt="">'+
+      '<span class="gi"><b>'+escHtml(w.title.en)+'</b><span>'+escHtml(w.artist.en)+' · '+escHtml(w.yearLbl)+'</span></span>';
+    b.onclick=()=>openOnlineWork(w.id);el.appendChild(b);});
+  $("onlineCount").textContent=OTOTAL?OTOTAL+" "+T("results"):"";
+  $("onlineAttr").textContent=srcAttr(OSRC);
+  const pg=$("onlinePager");
+  if(ORESULTS.length){
+    pg.style.display="flex";
+    $("onlinePageInfo").textContent=T("page")+" "+(OPAGE+1)+(OTOTAL?" · "+OTOTAL+" "+T("results"):"");
+    $("onlinePrev").disabled=OPAGE===0;
+    const more=OTOTAL?((OPAGE+1)*PER<OTOTAL):(ORESULTS.length===PER);
+    $("onlineNext").disabled=!more;
+  }else pg.style.display="none";
+}
+function openOnlineWork(id){
+  const w=OCACHE.get(id)||(OFAVMETA[id]?adaptFavMeta(OFAVMETA[id]):null);
+  if(!w)return;
+  closeDrawer();renderPainting(w);
+}
+async function openOnlineById(id){
+  const src=id.split(":")[0];
+  if(!FETCHERS[src])return;
+  if(OCACHE.has(id)){renderPainting(OCACHE.get(id));return;}
+  if(OFAVMETA[id]){renderPainting(adaptFavMeta(OFAVMETA[id]));return;}
+  setMode("online");
+  try{
+    if(src==="met"){const r=await fetch("https://collectionapi.metmuseum.org/public/collection/v1/objects/"+id.slice(4));
+      if(r.ok){const w=adaptMet(await r.json());OCACHE.set(w.id,w);renderPainting(w);return;}}
+    if(src==="cle"){const r=await fetch("https://openaccess-api.clevelandart.org/api/artworks/"+id.slice(4));
+      if(r.ok){const d=await r.json();const w=adaptCleveland(d.data||d);OCACHE.set(w.id,w);renderPainting(w);return;}}
+    if(src==="com"){const r=await fetch("https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&prop=imageinfo&iiprop=url%7Csize%7Cextmetadata&iiurlwidth=800&pageids="+id.slice(4));
+      if(r.ok){const d=await r.json();const p=Object.values((d.query||{}).pages||{})[0];if(p){const w=adaptCommons(p);OCACHE.set(w.id,w);renderPainting(w);return;}}}
+    if(src==="aic"){const r=await fetch("https://api.artic.edu/api/v1/artworks/"+id.slice(4)+"?fields=id,title,artist_title,date_display,medium_display,dimensions,image_id,description,place_of_origin");
+      if(r.ok){const d=await r.json();const w=adaptAic(d.data||d);OCACHE.set(w.id,w);renderPainting(w);return;}}
+  }catch(e){}
+  loadOnline(src,"Van Gogh",0);
+}
+function setMode(m){
+  MODE=m;localStorage.setItem("gallery-mo-mode",m);
+  $("tabCurated").classList.toggle("on",m==="curated");
+  $("tabOnline").classList.toggle("on",m==="online");
+  $("curatedPane").style.display=m==="curated"?"":"none";
+  $("onlinePane").style.display=m==="online"?"":"none";
+  $("drawerSubEl").textContent=m==="online"?T("drawerSubOnline"):T("drawerSub");
+  if(m==="online"){renderSrcList();renderOnlineChips();renderOnlineGrid();
+    if(!OLOADED)loadOnline(OSRC,OQ,0);}
+}
+function applyOnlineI18n(){
+  $("onlineSearch").placeholder=T("onlinePh");
+  $("drawerSubEl").textContent=MODE==="online"?T("drawerSubOnline"):T("drawerSub");
+  if(MODE==="online")renderOnlineGrid();
+}
+let oDeb=null;
+$("onlineSearch").addEventListener("input",e=>{clearTimeout(oDeb);oDeb=setTimeout(()=>{const v=e.target.value.trim();if(v)loadOnline(OSRC,v,0);},400);});
+$("onlinePrev").onclick=()=>{if(OPAGE>0)loadOnline(OSRC,OQ,OPAGE-1);};
+$("onlineNext").onclick=()=>{loadOnline(OSRC,OQ,OPAGE+1);};
+$("tabCurated").onclick=()=>setMode("curated");
+$("tabOnline").onclick=()=>setMode("online");
 /* ---------- events ---------- */
 $("menuBtn").onclick=openDrawer;
 $("scrim").onclick=closeDrawer;
@@ -652,12 +944,13 @@ $("prevBtn").onclick=()=>{const i=PAINTINGS.indexOf(CUR);const p=PAINTINGS[(i-1+
 $("nextBtn").onclick=()=>{const i=PAINTINGS.indexOf(CUR);const p=PAINTINGS[(i+1)%PAINTINGS.length];if(p.pro&&!PRO){openPainting(p.id);return;}renderPainting(p);};
 $("favBtn").onclick=()=>{
   const i=FAVS.indexOf(CUR.id);
-  if(i>=0){FAVS.splice(i,1);}
-  else{if(FAVS.length>=3&&!PRO){openModal("proModal");toast(T("favCap"));return;}FAVS.push(CUR.id);}
-  saveFavs();renderPainting(CUR,true);renderGrid();};
+  if(i>=0){FAVS.splice(i,1);delete OFAVMETA[CUR.id];}
+  else{if(FAVS.length>=3&&!PRO){openModal("proModal");toast(T("favCap"));return;}FAVS.push(CUR.id);
+    if(CUR.online)OFAVMETA[CUR.id]={id:CUR.id,source:CUR.source,cors:CUR.cors,title:CUR.title.en,artist:CUR.artist.en,yearLbl:CUR.yearLbl,medium:CUR.medium.en,size:CUR.size,museum:CUR.museum.en,img:CUR.img};}
+  saveFavs();saveFavMeta();renderPainting(CUR,true);renderGrid();};
 $("zoomBtn").onclick=openZoom;
 $("pngBtn").onclick=exportPoster;
-$("shareBtn").onclick=()=>copyText(location.origin+location.pathname+"#painting="+CUR.id,T("linkCopied"));
+$("shareBtn").onclick=()=>copyText(location.origin+location.pathname+(CUR.online?"#online="+CUR.id:"#painting="+CUR.id),T("linkCopied"));
 $("quizBtn").onclick=startQuiz;
 $("quizBtn2").onclick=startQuiz;
 $("quizAgain").onclick=()=>{startQuiz();};
@@ -675,7 +968,10 @@ $("proKeyBtn2").onclick=()=>validateKey(true);
   let start=BY_ID.starry;
   const m=location.hash.match(/#painting=([a-z]+)/);
   if(m&&BY_ID[m[1]]&&(!BY_ID[m[1]].pro||PRO))start=BY_ID[m[1]];
+  const om0=location.hash.match(/#online=([a-z]+:[^&\s]+)/);
   renderAll();renderPainting(start);
+  if(MODE==="online")setMode("online");
+  if(om0)openOnlineById(om0[1]);
   if(PRO)revalidatePro();
 })();
 </script>
