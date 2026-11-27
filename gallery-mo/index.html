@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery Mo — Pocket Art Gallery</title>
+<meta name="description" content="Ten public-domain masterpieces in your pocket — real paintings, live-extracted palettes, stories, a quiz and a 500-year timeline.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EAEDEF; --panel:#f6f8f9; --panel2:#ffffff; --text:#1d2126; --muted:#6b7280;
+  --line:#d5d9dc; --accent:#8a6d3b; --accent2:#c7ad57; --gold:#a5853f;
+  --shadow:0 10px 30px rgba(20,24,28,.12); --radius:14px;
+}
+[data-theme="white"]{ --bg:#ffffff; --panel:#fafafa; --panel2:#ffffff; --text:#141414; --muted:#666; --line:#e4e4e4; --accent:#8a6d3b; --accent2:#c7ad57; --shadow:0 10px 30px rgba(0,0,0,.08); }
+[data-theme="black"]{ --bg:#131313; --panel:#1d1d1d; --panel2:#232323; --text:#efefef; --muted:#a8a8a8; --line:#333; --accent:#c7ad57; --accent2:#8a6d3b; --shadow:0 10px 30px rgba(0,0,0,.45); }
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans TC',system-ui,-apple-system,'Segoe UI',sans-serif;min-height:100vh;transition:background .25s,color .25s}
+h1,h2,h3,.dela{font-family:'Dela Gothic One','Noto Sans TC',sans-serif;font-weight:400;letter-spacing:.01em}
+button{font-family:inherit;cursor:pointer}
+a{color:inherit}
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border-bottom:1px solid var(--line)}
+.topbar .menu{width:38px;height:38px;border:1px solid var(--line);background:var(--panel);border-radius:10px;font-size:18px;color:var(--text)}
+.brand{display:flex;flex-direction:column;line-height:1.05;min-width:0}
+.brand b{font-family:'Dela Gothic One','Noto Sans TC',sans-serif;font-size:19px;font-weight:400}
+.brand span{font-size:11px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase}
+.topbar .spacer{flex:1}
+.iconbtn{width:38px;height:38px;border:1px solid var(--line);background:var(--panel);border-radius:10px;color:var(--text);font-size:15px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.iconbtn:hover{border-color:var(--accent)}
+.probtn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:10px;padding:0 14px;height:38px;font-weight:700;font-size:13px}
+.probtn.on{background:transparent;color:var(--accent)}
+/* stage */
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;padding:18px;max-width:1280px;margin:0 auto;align-items:start}
+.wall{border-radius:var(--radius);padding:22px 22px 14px;text-align:center;transition:background .4s;position:relative}
+.frame{display:inline-block;background:#2b2419;padding:14px;border-radius:6px;box-shadow:0 18px 40px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.08);max-width:100%}
+.frame .mat{background:#f7f3ea;padding:12px;border-radius:2px}
+.frame img{display:block;max-width:100%;max-height:62vh;width:auto;height:auto;margin:0 auto;background:#ddd}
+.frame .imgfail{display:flex;align-items:center;justify-content:center;min-height:280px;min-width:280px;background:#e8e4da;color:#555;font-size:14px;padding:20px;text-align:center}
+.plaque{margin:14px auto 4px;max-width:560px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 16px;box-shadow:var(--shadow)}
+.plaque h2{margin:0 0 2px;font-size:22px}
+.plaque .artist{font-size:14px;color:var(--muted)}
+.plaque .artist b{color:var(--text)}
+.navrow{display:flex;gap:10px;justify-content:center;margin-top:12px}
+.navbtn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;padding:9px 16px;font-size:14px;font-weight:700}
+.navbtn:hover{border-color:var(--accent)}
+.side{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 10px;font-size:15px}
+.card p{margin:0 0 8px;font-size:14px;line-height:1.65}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13.5px}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0}
+.look{border-left:3px solid var(--accent);background:var(--panel2)}
+.look p{font-size:13.5px}
+.palette{display:flex;gap:8px;flex-wrap:wrap}
+.swatch{cursor:pointer;text-align:center}
+.swatch i{display:block;width:52px;height:52px;border-radius:10px;border:1px solid rgba(0,0,0,.15);box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+.swatch span{display:block;font-size:11px;margin-top:4px;color:var(--muted);font-family:ui-monospace,monospace}
+.palnote{font-size:12px;color:var(--muted);margin-top:8px}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:10px;padding:9px 13px;font-size:13.5px;font-weight:700}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+.locktag{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:var(--accent);border-radius:6px;padding:2px 7px;vertical-align:middle;margin-left:6px}
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;left:0;bottom:0;width:min(430px,94vw);background:var(--bg);z-index:60;transform:translateX(-102%);transition:transform .25s;overflow-y:auto;padding:16px;border-right:1px solid var(--line)}
+.drawer.open{transform:none}
+.drawer h2{margin:4px 0 2px;font-size:20px}
+.drawer .sub{font-size:13px;color:var(--muted);margin:0 0 14px}
+.drawer section{margin-bottom:18px}
+.drawer h3{font-size:14px;margin:0 0 8px}
+.search{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:6px 11px;font-size:12.5px}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.gitem{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel);cursor:pointer;padding:0;text-align:left;color:var(--text)}
+.gitem img{width:100%;height:118px;object-fit:cover;display:block;background:#ccc}
+.gitem .gi{padding:8px 10px}
+.gitem .gi b{display:block;font-size:13px;line-height:1.3}
+.gitem .gi span{font-size:11.5px;color:var(--muted)}
+.gitem.cur{outline:2px solid var(--accent);outline-offset:1px}
+.gitem .lock{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px}
+.tl{position:relative;height:64px;margin:6px 4px 0}
+.tl .track{position:absolute;left:0;right:0;top:30px;height:3px;background:var(--line);border-radius:2px}
+.tl .dot{position:absolute;top:22px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:var(--panel2);border:2px solid var(--accent);cursor:pointer;padding:0}
+.tl .dot.cur{background:var(--accent)}
+.tl .dot span{position:absolute;top:22px;left:50%;transform:translateX(-50%);font-size:10.5px;color:var(--muted);white-space:nowrap}
+.tl .lbl{font-size:12px;color:var(--muted);margin-top:34px;text-align:center}
+.keyrow{display:flex;gap:8px}
+.keyrow input{flex:1;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);font-size:14px}
+.msg{font-size:13px;margin:8px 0 0;min-height:18px}
+.msg.ok{color:#2e7d32}.msg.err{color:#c62828}
+.buylinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.buylinks a{display:inline-block;border:1px solid var(--accent);color:var(--accent);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:700;text-decoration:none}
+/* modals */
+.modal{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.55)}
+.modal.open{display:flex}
+.mcard{background:var(--bg);border:1px solid var(--line);border-radius:16px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;padding:20px;box-shadow:var(--shadow)}
+.mcard h2{margin:0 0 4px;font-size:20px}
+.mcard .sub{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+.mclose{float:right;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:9px;width:34px;height:34px;font-size:16px}
+.quizimg{width:100%;max-height:300px;object-fit:contain;background:#222;border-radius:12px;display:block}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.opt{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;padding:12px;font-size:14.5px;font-weight:700;text-align:left}
+.opt.right{background:#2e7d32;border-color:#2e7d32;color:#fff}
+.opt.wrong{background:#c62828;border-color:#c62828;color:#fff}
+.opt:disabled{opacity:.85}
+.quizbar{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:10px 0 4px}
+.zoomwrap{overflow:hidden;border-radius:12px;background:#111;touch-action:none;cursor:grab}
+.zoomwrap img{display:block;width:100%;max-height:62vh;object-fit:contain;transform-origin:0 0;user-select:none;-webkit-user-drag:none}
+.zoomhint{font-size:12.5px;color:var(--muted);margin-top:10px}
+.foot{max-width:1280px;margin:0 auto;padding:8px 18px 26px;font-size:12.5px;color:var(--muted);line-height:1.6}
+.foot a{color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#1d2126;color:#fff;padding:10px 16px;border-radius:999px;font-size:13.5px;z-index:90;opacity:0;pointer-events:none;transition:all .25s;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (max-width:900px){
+  .stage{grid-template-columns:1fr;padding:14px}
+  .frame img{max-height:52vh}
+  .plaque h2{font-size:19px}
+}
+@media (max-width:420px){
+  .opts{grid-template-columns:1fr}
+  .swatch i{width:44px;height:44px}
+  .brand span{font-size:10px;letter-spacing:.14em}
+  .brand b{font-size:17px}
+}
+</style>
+</head>
+<body data-theme="silver">
+<header class="topbar">
+  <button class="menu" id="menuBtn" aria-label="Open gallery desk">☰</button>
+  <div class="brand"><b>Gallery Mo</b><span data-i18n="tagline">Pocket art gallery</span></div>
+  <div class="spacer"></div>
+  <button class="iconbtn" id="langBtn" title="EN / 繁中">EN</button>
+  <button class="iconbtn" id="themeBtn" title="Theme">◐</button>
+  <a class="iconbtn" href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener" title="Buy Me a Coffee">☕</a>
+  <button class="probtn" id="proBtn">Pro</button>
+</header>
+
+<main class="stage">
+  <section class="wall" id="wall">
+    <div class="frame"><div class="mat">
+      <img id="artImg" alt="" crossorigin="anonymous">
+      <div class="imgfail" id="imgFail" style="display:none"></div>
+    </div></div>
+    <div class="plaque">
+      <h2 id="artTitle">—</h2>
+      <div class="artist" id="artArtist">—</div>
+    </div>
+    <div class="navrow">
+      <button class="navbtn" id="prevBtn">← <span data-i18n="prev">Previous</span></button>
+      <button class="navbtn" id="nextBtn"><span data-i18n="next">Next</span> →</button>
+    </div>
+  </section>
+
+  <aside class="side">
+    <div class="card">
+      <h3 data-i18n="secAbout">About this painting</h3>
+      <dl class="facts" id="facts"></dl>
+    </div>
+    <div class="card">
+      <h3 data-i18n="secStory">The story</h3>
+      <p id="story"></p>
+    </div>
+    <div class="card look">
+      <h3 data-i18n="secLook">Look closely</h3>
+      <p id="look"></p>
+    </div>
+    <div class="card">
+      <h3><span data-i18n="secPalette">Palette — extracted live from the pixels</span><span id="proTagPalette"></span></h3>
+      <div class="palette" id="palette"></div>
+      <div class="palnote" data-i18n="paletteNote">Tap a swatch to copy its hex code. The palette is read from the real painting with a median-cut pass over a small sample — no preset colours.</div>
+    </div>
+    <div class="card">
+      <h3 data-i18n="secDo">Do more with it</h3>
+      <div class="actions">
+        <button class="btn" id="favBtn">♡ <span data-i18n="fav">Favourite</span></button>
+        <button class="btn" id="zoomBtn">🔍 <span data-i18n="zoom">Inspect detail</span> 🔒</button>
+        <button class="btn" id="pngBtn">⬇ <span data-i18n="poster">Poster PNG</span></button>
+        <button class="btn" id="shareBtn">🔗 <span data-i18n="share">Copy share link</span></button>
+        <button class="btn primary" id="quizBtn2">❓ <span data-i18n="quiz">Quiz — guess the painter</span></button>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Gallery desk">
+  <h2 data-i18n="drawerTitle">Gallery desk</h2>
+  <p class="sub" data-i18n="drawerSub">Ten masterpieces, five centuries — all public domain, all in your pocket.</p>
+
+  <section>
+    <input class="search" id="search" type="search" placeholder="Search title or artist…">
+  </section>
+  <section>
+    <h3 data-i18n="secMove">Movement</h3>
+    <div class="chips" id="chips"></div>
+  </section>
+  <section>
+    <h3><span data-i18n="secGallery">The collection</span> <span id="countLbl" style="color:var(--muted);font-size:12px"></span></h3>
+    <label style="font-size:13px;display:block;margin-bottom:8px"><input type="checkbox" id="favOnly"> <span data-i18n="favOnly">Favourites only</span></label>
+    <div class="grid" id="grid"></div>
+  </section>
+  <section>
+    <h3 data-i18n="secTime">Five centuries — tap a dot</h3>
+    <div class="tl" id="timeline"><div class="track"></div></div>
+    <div id="tlLbl" style="margin-top:6px;font-size:12px;color:var(--muted);text-align:center"></div>
+  </section>
+  <section>
+    <h3 data-i18n="secQuiz">Quiz</h3>
+    <p style="font-size:13.5px;color:var(--muted);margin:0 0 10px" data-i18n="quizNote">Ten rounds, one painting each — guess the painter. Your best score stays on this device.</p>
+    <button class="btn primary" id="quizBtn">❓ <span data-i18n="quizStart">Start the quiz</span></button>
+    <span id="bestLbl" style="font-size:13px;color:var(--muted);margin-left:8px"></span>
+  </section>
+  <section>
+    <h3 data-i18n="secPro">OpenX Pro</h3>
+    <p style="font-size:13.5px;color:var(--muted);margin:0 0 10px" data-i18n="proNote">Pro unlocks the last four paintings, the detail inspector, HD 2048px posters and unlimited favourites.</p>
+    <div class="keyrow"><input id="proKeyIn" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off"><button class="btn" id="proKeyBtn" data-i18n="unlock">Unlock</button></div>
+    <p class="msg" id="proMsg"></p>
+    <div class="buylinks"><a href="#" id="buyLink1">Monthly US$9.99</a><a href="#" id="buyLink2">Lifetime US$166</a></div>
+  </section>
+  <section>
+    <h3 data-i18n="secHow">How the palette works</h3>
+    <p style="font-size:13.5px;color:var(--muted);margin:0" data-i18n="howText">When a painting loads, Gallery Mo samples it down to a small grid and runs a median-cut pass — splitting the colour space until five dominant colours remain. The five swatches are the painting's own colours, not a preset. If the image cannot load, the palette saved in advance is shown instead.</p>
+  </section>
+</aside>
+
+<div class="modal" id="quizModal"><div class="mcard">
+  <button class="mclose" data-close="quizModal">✕</button>
+  <h2 data-i18n="quizTitle">Guess the painter</h2>
+  <p class="sub" id="quizSub">Round 1 of 10</p>
+  <img class="quizimg" id="quizImg" alt="">
+  <div class="quizbar"><span id="quizScore">Score 0</span><span id="quizStreak"></span></div>
+  <div class="opts" id="quizOpts"></div>
+  <p class="msg" id="quizMsg"></p>
+  <div id="quizEnd" style="display:none;margin-top:12px">
+    <p id="quizEndTxt" style="font-size:15px"></p>
+    <button class="btn primary" id="quizAgain">↻ <span data-i18n="quizAgain">Play again</span></button>
+    <button class="btn" id="quizClose2" data-close="quizModal"><span data-i18n="close">Close</span></button>
+  </div>
+</div></div>
+
+<div class="modal" id="zoomModal"><div class="mcard" style="max-width:860px">
+  <button class="mclose" data-close="zoomModal">✕</button>
+  <h2 id="zoomTitle">—</h2>
+  <p class="sub" data-i18n="zoomHint">Drag to pan · scroll or pinch to zoom · double-click to reset</p>
+  <div class="zoomwrap" id="zoomWrap"><img id="zoomImg" alt=""></div>
+</div></div>
+
+<div class="modal" id="proModal"><div class="mcard">
+  <button class="mclose" data-close="proModal">✕</button>
+  <h2 data-i18n="proTitle">This one is Pro</h2>
+  <p class="sub" data-i18n="proBody">OpenX Pro unlocks the last four paintings, the detail inspector, HD 2048px posters and unlimited favourites. One key unlocks every OpenX tool.</p>
+  <p style="font-size:14px;margin:0 0 4px">• <span data-i18n="proLi1">Monthly US$9.99 · Yearly US$88 · Lifetime US$166</span></p>
+  <p style="font-size:14px;margin:0 0 14px">• <span data-i18n="proLi2">Keys are validated per device; offline checks are honoured for a while.</span></p>
+  <div class="keyrow"><input id="proKeyIn2" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off"><button class="btn" id="proKeyBtn2" data-i18n="unlock">Unlock</button></div>
+  <p class="msg" id="proMsg2"></p>
+  <div class="buylinks"><a href="#" id="buyLink3">Monthly US$9.99</a><a href="#" id="buyLink4">Lifetime US$166</a></div>
+</div></div>
+
+<footer class="foot">
+  <span data-i18n="footCopy">© 2026 OpenX Mo — a pocket gallery. All ten paintings are public domain; images via Wikimedia Commons. Nothing here is a reproduction for sale — look, learn, enjoy.</span><br>
+  <span data-i18n="footCredit">Paintings: Botticelli · Leonardo · Vermeer · Hokusai · Seurat · Van Gogh · Munch · Klimt · Monet — via Wikimedia Commons (public domain).</span>
+</footer>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+/* ---------- i18n ---------- */
+const I18N={
+en:{tagline:"POCKET ART GALLERY",prev:"Previous",next:"Next",secAbout:"About this painting",secStory:"The story",secLook:"Look closely",secPalette:"Palette — extracted live from the pixels",paletteNote:"Tap a swatch to copy its hex code. The palette is read from the real painting with a median-cut pass over a small sample — no preset colours.",secDo:"Do more with it",fav:"Favourite",faved:"Favourited",zoom:"Inspect detail",poster:"Poster PNG",share:"Copy share link",quiz:"Quiz — guess the painter",drawerTitle:"Gallery desk",drawerSub:"Ten masterpieces, five centuries — all public domain, all in your pocket.",secMove:"Movement",secGallery:"The collection",favOnly:"Favourites only",secTime:"Five centuries — tap a dot",secQuiz:"Quiz",quizNote:"Ten rounds, one painting each — guess the painter. Your best score stays on this device.",quizStart:"Start the quiz",secPro:"OpenX Pro",proNote:"Pro unlocks the last four paintings, the detail inspector, HD 2048px posters and unlimited favourites.",unlock:"Unlock",secHow:"How the palette works",howText:"When a painting loads, Gallery Mo samples it down to a small grid and runs a median-cut pass — splitting the colour space until five dominant colours remain. The five swatches are the painting's own colours, not a preset. If the image cannot load, the palette saved in advance is shown instead.",quizTitle:"Guess the painter",quizAgain:"Play again",close:"Close",zoomHint:"Drag to pan · scroll or pinch to zoom · double-click to reset",proTitle:"This one is Pro",proBody:"OpenX Pro unlocks the last four paintings, the detail inspector, HD 2048px posters and unlimited favourites. One key unlocks every OpenX tool.",proLi1:"Monthly US$9.99 · Yearly US$88 · Lifetime US$166",proLi2:"Keys are validated per device; offline checks are honoured for a while.",footCopy:"© 2026 OpenX Mo — a pocket gallery. All ten paintings are public domain; images via Wikimedia Commons. Nothing here is a reproduction for sale — look, learn, enjoy.",footCredit:"Paintings: Botticelli · Leonardo · Vermeer · Hokusai · Seurat · Van Gogh · Munch · Klimt · Monet — via Wikimedia Commons (public domain).",
+year:"Year",medium:"Medium",size:"Size",museum:"Museum",movement:"Movement",copied:"Copied ",linkCopied:"Share link copied",favCap:"Free favourites are capped at 3 — Pro is unlimited.",imgFail:"This painting could not be loaded — check your connection. The palette below was extracted in advance.",posterSaved:"Poster PNG saved",posterFail:"Poster export failed — the image could not be read.",key_ok:"Pro unlocked — welcome aboard.",key_bad:"That key did not check out. Try again.",key_net:"Could not reach the license server. Check your connection and try again.",key_saved:"Checking…",best:"Best",round:"Round",of:"of",score:"Score",streak:"streak",correct:"Correct — ",wrong:"Not quite — it is ",quizDone:"You scored",quizGrade:"",free:"Free",pro:"Pro"},
+zh:{tagline:"口袋名畫館",prev:"上一幅",next:"下一幅",secAbout:"關於呢幅畫",secStory:"背後嘅故事",secLook:"睇真啲",secPalette:"配色——即時由畫面像素抽出",paletteNote:"撳色塊複製 hex 碼。配色係由真畫用 median-cut 喺細樣本上面抽出嚟，唔係預設色。",secDo:"再玩多啲",fav:"收藏",faved:"已收藏",zoom:"放大細睇",poster:"海報 PNG",share:"複製分享連結",quiz:"測驗——估下邊個畫家",drawerTitle:"畫廊工作台",drawerSub:"十幅名畫，五百年——全部公有領域，全部喺你袋入面。",secMove:"流派",secGallery:"館藏",favOnly:"只睇收藏",secTime:"五百年——撳個點跳去",secQuiz:"測驗",quizNote:"十回合，每回合一幅畫——估下係邊個畫家。最高分會留喺呢部機。",quizStart:"開始測驗",secPro:"OpenX Pro",proNote:"Pro 解鎖最後四幅畫、細節放大鏡、2048px 高清海報同無上限收藏。",unlock:"解鎖",secHow:"配色點抽出嚟",howText:"每幅畫載入嗰陣，Gallery Mo 會將佢縮做細格，再做一次 median-cut——不斷將色彩空間劈開，直至剩低五隻主色。五隻色係幅畫本身嘅色，唔係預設。如果幅畫載入唔到，就會顯示預先抽好嘅配色。",quizTitle:"估下邊個畫家",quizAgain:"再玩一次",close:"關閉",zoomHint:"拖曳平移 · 捲動或雙指縮放 · 撳兩下還原",proTitle:"呢個係 Pro 功能",proBody:"OpenX Pro 解鎖最後四幅畫、細節放大鏡、2048px 高清海報同無上限收藏。一條 key 解鎖全部 OpenX 工具。",proLi1:"月費 US$9.99 · 年費 US$88 · 終身 US$166",proLi2:"每部裝置驗證一次 key；離線嗰陣會寬限一段時間。",footCopy:"© 2026 OpenX Mo — 口袋畫廊。十幅畫全部係公有領域，圖片來自 Wikimedia Commons。呢度唔係賣複製品——睇、學、享受就得。",footCredit:"畫作：波提切利 · 達文西 · 維梅爾 · 葛飾北齋 · 修拉 · 梵高 · 孟克 · 克林姆 · 莫奈——來自 Wikimedia Commons（公有領域）。",
+year:"年份",medium:"媒介",size:"尺寸",museum:"收藏地",movement:"流派",copied:"已複製 ",linkCopied:"分享連結已複製",favCap:"免費收藏上限 3 幅——Pro 無上限。",imgFail:"呢幅畫載入唔到——檢查下網絡。下面嘅配色係預先抽好嘅。",posterSaved:"海報 PNG 已儲存",posterFail:"海報匯出失敗——讀唔到幅畫。",key_ok:"Pro 已解鎖——歡迎。",key_bad:"呢條 key 驗唔到。再試一次。",key_net:"連唔到授權伺服器。檢查網絡再試。",key_saved:"驗證緊…",best:"最高分",round:"第",of:"／",score:"分數",streak:"連勝",correct:"啱晒——",wrong:"唔係——係 ",quizDone:"你攞到",quizGrade:"",free:"免費",pro:"Pro"}
+};
+let LANG=localStorage.getItem("gallery-mo-lang")||"en";
+function T(k){return (I18N[LANG]&&I18N[LANG][k])||I18N.en[k]||k;}
+function applyI18n(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=T(el.dataset.i18n);});
+  $("langBtn").textContent=LANG==="en"?"EN":"繁";
+  document.documentElement.lang=LANG==="en"?"en":"zh-Hant";
+}
+/* ---------- data: 10 public-domain masterpieces (facts checked against Wikipedia, 2026-11-27) ---------- */
+const W="https://thumb.wikimedia.org/wikipedia/commons/thumb/";
+const PAINTINGS=[
+{id:"venus",year:1485,yearLbl:"c. 1485",pro:true,img:W+"0/0b/Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg/1280px-Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg",
+ title:{en:"The Birth of Venus",zh:"維納斯的誕生"},artist:{en:"Sandro Botticelli",zh:"山德羅 · 波提切利"},movement:{en:"Early Renaissance",zh:"文藝復興早期"},
+ medium:{en:"Tempera on canvas",zh:"蛋彩 · 畫布"},size:"172.5 × 278.9 cm",museum:{en:"Uffizi, Florence",zh:"佛羅倫斯烏菲茲美術館"},
+ story:{en:"Venus, goddess of love, is born from sea foam and blown ashore on a giant shell. The west wind Zephyrus blows her in while a Hora waits on the shore with a flowered cloak to cover her. It is one of the first large Renaissance paintings of a pagan goddess, almost life-size and unashamedly beautiful.",
+ zh:"愛神維納斯由海泡沫誕生，企喺巨貝上面畀西風吹上岸；岸邊嘅時序女神拎住花斗篷等緊幫佢遮身。呢幅係文藝復興早期第一批畫異教女神嘅大畫，接近真人咁大，毫不掩飾咁靚。"},
+ look:{en:"Roses fall around her, blown in with the wind. Her pose is impossible — no body stands like that — yet it feels perfectly balanced. Look at the myrtle bush behind the Hora: myrtle is Venus's own plant.",
+ zh:"玫瑰花瓣隨住風飄落佢身邊。佢個姿勢現實中根本企唔到，但睇落完全平衡。留意時序女神身後嘅桃金娘——嗰係維納斯自己嘅植物。"},
+ palette:["#cfc7a5","#a67e4c","#5f4b31","#302e20","#e2dabf"],dominant:"#cfc7a5"},
+{id:"mona",year:1503,yearLbl:"1503–06",pro:false,img:W+"e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/1280px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+ title:{en:"Mona Lisa",zh:"蒙娜麗莎"},artist:{en:"Leonardo da Vinci",zh:"李安納度 · 達文西"},movement:{en:"High Renaissance",zh:"文藝復興盛期"},
+ medium:{en:"Oil on poplar panel",zh:"油彩 · 白楊木板"},size:"77 × 53 cm",museum:{en:"Louvre, Paris",zh:"巴黎羅浮宮"},
+ story:{en:"Lisa del Giocondo, the wife of a Florentine merchant, sits with a smile that seems to change as you look at her — Leonardo's sfumato, layers of translucent paint with no hard edges, makes her expression shift. Stolen from the Louvre in 1911 and recovered two years later, she became the most famous painting on earth.",
+ zh:"佛羅倫斯商人嘅妻子 Lisa del Giocondo 坐喺度微笑——個笑容好似你望住佢嗰陣會變，因為達文西用咗 sfumato：層層半透明顏料，完全冇硬邊，令表情識郁。1911 年喺羅浮宮被盜、兩年後尋回，佢從此成為世上最出名嘅一幅畫。"},
+ look:{en:"The horizon behind her does not line up — the landscape on her left sits lower than on her right, so her head seems to turn as you move. She has no eyebrows or eyelashes, which is how fashionable Florentine women plucked themselves.",
+ zh:"佢身後嘅地平線左右唔對齊——左邊低過右邊，令佢個頭好似你行過嗰陣會跟住轉。佢冇眉毛同眼睫毛，嗰陣時髦嘅佛羅倫斯女人就係咁剃走佢哋。"},
+ palette:["#82824c","#1f1526","#49302a","#51543d","#afa25e"],dominant:"#82824c"},
+{id:"pearl",year:1665,yearLbl:"c. 1665",pro:false,img:W+"0/0f/1665_Girl_with_a_Pearl_Earring.jpg/1280px-1665_Girl_with_a_Pearl_Earring.jpg",
+ title:{en:"Girl with a Pearl Earring",zh:"戴珍珠耳環的少女"},artist:{en:"Johannes Vermeer",zh:"約翰尼斯 · 維梅爾"},movement:{en:"Dutch Golden Age",zh:"荷蘭黃金時代"},
+ medium:{en:"Oil on canvas",zh:"油彩 · 畫布"},size:"44.5 × 39 cm",museum:{en:"Mauritshuis, The Hague",zh:"海牙莫瑞泰斯皇家美術館"},
+ story:{en:"Nobody knows who she is — this is a tronie, a study of a face, not a portrait of a real sitter. She turns over her shoulder and catches your eye, the pearl glowing against the dark. Vermeer painted barely thirty-five pictures in his life; this small one became the Dutch Mona Lisa.",
+ zh:"冇人知佢係邊個——呢幅唔係肖像，係 tronie，即係面孔習作。佢擰轉頭望住你，珍珠喺黑暗入面發光。維梅爾一生只畫咗三十幾幅畫，呢幅細細幅就成為荷蘭版蒙娜麗莎。"},
+ look:{en:"The pearl is not a pearl at all — just two strokes of white paint, a highlight and a shadow, and your eye does the rest. Her blue-and-yellow turban was exotic in 1660s Delft, and the dark background was once a deep green curtain.",
+ zh:"粒珍珠根本唔係珍珠——只係兩筆白色顏料，一筆光一筆影，你隻眼自己補完。佢藍黃色頭巾喺 1660 年代嘅代爾夫特好異國風，而深色背景原本係一幅深綠色簾。"},
+ palette:["#282115","#4e4838","#88785e","#c3b197","#231a0d"],dominant:"#282115"},
+{id:"wave",year:1831,yearLbl:"c. 1831",pro:false,img:W+"a/a5/Tsunami_by_hokusai_19th_century.jpg/1280px-Tsunami_by_hokusai_19th_century.jpg",
+ title:{en:"The Great Wave off Kanagawa",zh:"神奈川沖浪裏"},artist:{en:"Katsushika Hokusai",zh:"葛飾北齋"},movement:{en:"Ukiyo-e",zh:"浮世繪"},
+ medium:{en:"Colour woodblock print",zh:"彩色木刻版畫"},size:"25.7 × 37.9 cm",museum:{en:"Met, New York (and others)",zh:"紐約大都會藝術博物館（等多間）"},
+ story:{en:"From Hokusai's series Thirty-six Views of Mount Fuji, printed when he was already seventy. A giant wave, claws of foam and all, is about to swallow three fishing boats — while Fuji itself sits tiny and calm under the curl. It is the most reproduced Japanese image in the world, and it was made to be cheap: a woodblock print anyone could buy.",
+ zh:"出自北齋七十歲嗰陣嘅《富嶽三十六景》。巨浪連埋泡沫爪就快吞咗三隻漁船，而富士山就細細粒、靜靜哋喺浪捲下面。呢幅係世上最多人複製嘅日本圖像，而佢原本係平價嘢：木刻版畫，人人都買得起。"},
+ look:{en:"Find Fuji: the small white-capped triangle tucked under the wave's curl, echoing the wave's own shape. The wave is drawn to look like a claw reaching down — and the boats' rowers are still rowing, calm as anything.",
+ zh:"搵富士山：浪捲下面嗰個細細嘅白色三角，同個浪本身嘅形狀互相呼應。個浪畫到似隻爪伸落嚟——而船上面嘅划手仲係冷靜咁划緊。"},
+ palette:["#f5e5c5","#31516e","#f8f4e0","#b1bab4","#d5ceb9"],dominant:"#f5e5c5"},
+{id:"sunday",year:1884,yearLbl:"1884–86",pro:true,img:W+"7/7d/A_Sunday_on_La_Grande_Jatte%2C_Georges_Seurat%2C_1884.jpg/1280px-A_Sunday_on_La_Grande_Jatte%2C_Georges_Seurat%2C_1884.jpg",
+ title:{en:"A Sunday Afternoon on the Island of La Grande Jatte",zh:"大碗島的星期天下午"},artist:{en:"Georges Seurat",zh:"喬治 · 修拉"},movement:{en:"Pointillism",zh:"點彩派"},
+ medium:{en:"Oil on canvas",zh:"油彩 · 畫布"},size:"207.5 × 308.1 cm",museum:{en:"Art Institute of Chicago",zh:"芝加哥藝術學院"},
+ story:{en:"Two years of dots. Seurat built this huge Sunday crowd — Parisians at leisure on an island in the Seine — out of millions of tiny touches of pure colour, trusting your eye to mix them. He was twenty-five when he started it, and it invented Pointillism on the spot.",
+ zh:"兩年嘅點。修拉用幾百萬粒純色小點，砌出呢個塞納河小島上面嘆緊星期日嘅巴黎人群，信你隻眼會自己將顏色撈埋。佢開畫嗰陣先廿五歲，即場發明咗點彩派。"},
+ look:{en:"A monkey on a leash, bottom right. A woman with a parasol and a little girl in white, dead centre. And nobody looks at anybody — every figure is locked in its own Sunday, which is exactly the point.",
+ zh:"右下角有隻拖住繩嘅馬騮。正中間係撐住陽傘嘅女人同白衫細路女。而冇一個人望住另一個人——每個人都困喺自己嘅星期日，呢個正正就係重點。"},
+ palette:["#b0aa78","#3d534a","#323a3b","#666767","#737f6f"],dominant:"#b0aa78"},
+{id:"sunflowers",year:1888,yearLbl:"Aug 1888",pro:false,img:W+"4/46/Vincent_Willem_van_Gogh_127.jpg/1280px-Vincent_Willem_van_Gogh_127.jpg",
+ title:{en:"Sunflowers",zh:"向日葵"},artist:{en:"Vincent van Gogh",zh:"文森 · 梵高"},movement:{en:"Post-Impressionism",zh:"後印象派"},
+ medium:{en:"Oil on canvas",zh:"油彩 · 畫布"},size:"92.1 × 73 cm",museum:{en:"National Gallery, London",zh:"倫敦國家美術館"},
+ story:{en:"Painted in a rush to decorate Gauguin's bedroom in the Yellow House at Arles, before his friend arrived. Van Gogh made five versions; this is the fourth, the one in London. The yellows have faded since — the chrome yellow he loved has darkened with age, so the flowers were once brighter still.",
+ zh:"為咗喺高更嚟阿爾嘅黃屋之前，趕住裝飾佢間房而畫。梵高畫咗五個版本，呢個係第四個，喺倫敦。啲黃色已經褪咗——佢最鍾意嘅鉻黃隨住年月變暗，即係話啲花當年仲要光好多。"},
+ look:{en:"The flowers are at every stage of life at once — bud, bloom and wilting, all in one vase. The paint is laid on so thick you can see the brush tracks, and Van Gogh signed it on the vase itself, in blue.",
+ zh:"啲花喺同一個花瓶入面同時經歷晒一生——花蕾、盛放、枯萎。顏料搽到好厚，睇到筆觸，梵高仲用藍色喺花瓶上面簽咗名。"},
+ palette:["#b49d20","#947d21","#d3c971","#f0e788","#bbae46"],dominant:"#b49d20"},
+{id:"starry",year:1889,yearLbl:"June 1889",pro:false,img:W+"e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+ title:{en:"The Starry Night",zh:"星夜"},artist:{en:"Vincent van Gogh",zh:"文森 · 梵高"},movement:{en:"Post-Impressionism",zh:"後印象派"},
+ medium:{en:"Oil on canvas",zh:"油彩 · 畫布"},size:"73.7 × 92.1 cm",museum:{en:"MoMA, New York",zh:"紐約現代藝術博物館"},
+ story:{en:"Painted from the east-facing window of Van Gogh's asylum room at Saint-Rémy, in June 1889 — but the village below is imagined, not seen, and the swirling sky is pure invention. The brightest 'star' is Venus, the morning star. He thought the painting a failure; it is now the most loved night sky ever painted.",
+ zh:"1889 年 6 月，喺聖雷米療養院房間向東嘅窗畫出嚟——但下面條村係想像出嚟，唔係真係見到；成個旋渦天空都係憑空創作。最光嗰粒「星」係金星，即係晨星。佢以為呢幅係失敗作；今日佢成為世上最受愛戴嘅夜空。"},
+ look:{en:"Count the orbs: eleven swirling stars and a haloed moon, each ringed like a spinning top. The cypress in the foreground flames up like a dark green fire, and the church spire in the village is Dutch — Van Gogh's homeland, smuggled into Provence.",
+ zh:"數下啲光球：十一個旋渦星同一粒有光暈嘅月亮，每粒都似陀螺咁轉緊。前景棵柏樹似深綠色火焰咁燒上去，而村入面教堂尖頂係荷蘭式——梵高將故鄉偷運入普羅旺斯。"},
+ palette:["#6e8594","#1c1f21","#48648e","#3c5075","#262e3e"],dominant:"#6e8594"},
+{id:"scream",year:1893,yearLbl:"1893",pro:false,img:W+"c/c5/Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg/1280px-Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg",
+ title:{en:"The Scream",zh:"吶喊"},artist:{en:"Edvard Munch",zh:"愛德華 · 孟克"},movement:{en:"Symbolism",zh:"象徵主義"},
+ medium:{en:"Oil, tempera & pastel on cardboard",zh:"油彩、蛋彩、粉彩 · 紙板"},size:"91 × 73.5 cm",museum:{en:"National Gallery, Oslo",zh:"奧斯陸國家美術館"},
+ story:{en:"Munch was walking at sunset when the sky turned blood red and, in his words, he 'sensed an infinite scream passing through nature'. He painted the feeling, not the scene — the figure's head is almost a skull, the fjord bends away below. There are four versions; this, the first, was stolen in 1994 and recovered three months later.",
+ zh:"孟克黃昏散步嗰陣，天空變成血紅色，佢話「感覺到一聲無限嘅吶喊穿過大自然」。佢畫嘅係感覺，唔係景色——個人頭幾乎係骷髏，下面峽灣彎走。呢幅有四個版本；呢個第一版 1994 年被盜，三個月後尋回。"},
+ look:{en:"The two figures behind walk on, completely unaware — the horror is private. The sky was not invented: a real blood-red sunset over Oslo, possibly coloured by the Krakatoa eruption a decade earlier, which reddened sunsets worldwide.",
+ zh:"後面兩個人若無其事咁行過——恐怖係私人嘅。個天空唔係作嘅：奧斯陸真係有過血紅色黃昏，可能係十年前喀拉喀托火山爆發令全球晚霞變紅造成。"},
+ palette:["#73665a","#535154","#aa7b54","#9c553f","#86755f"],dominant:"#73665a"},
+{id:"kiss",year:1908,yearLbl:"1908–09",pro:true,img:W+"4/40/The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg/1280px-The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg",
+ title:{en:"The Kiss",zh:"吻"},artist:{en:"Gustav Klimt",zh:"古斯塔夫 · 克林姆"},movement:{en:"Art Nouveau",zh:"新藝術運動"},
+ medium:{en:"Oil & gold leaf on canvas",zh:"油彩、金箔 · 畫布"},size:"180 × 180 cm",museum:{en:"Belvedere, Vienna",zh:"維也納美景宮"},
+ story:{en:"A couple wrapped in patterned robes, kneeling on a flower meadow at the edge of the world. His robe is rectangles, hers is circles and flowers — the two patterns never mix, only embrace. Klimt laid real gold leaf over the paint, so the whole square glows like a Byzantine icon.",
+ zh:"一對情侶披住圖案長袍，跪喺世界邊緣嘅花草地上面。佢件袍係長方形，佢件係圓圈同花——兩種圖案永遠唔撈埋，只係擁抱。克林姆喺顏料上面鋪咗真金箔，成幅正方形畫似拜占庭聖像咁發光。"},
+ look:{en:"Her face is turned away, eyes closed, and her toes curl over the meadow's edge — she is giving in to the kiss, not posing for it. The gold is not paint: tilt your head and the leaf catches the light differently.",
+ zh:"佢塊面擰開，合埋眼，腳趾捲過草地邊緣——佢係投入緊個吻，唔係擺姿勢。啲金唔係顏料：側側頭，金箔反光會唔同。"},
+ palette:["#846c3b","#c7ad57","#8a8b5d","#a5a162","#665632"],dominant:"#846c3b"},
+{id:"lilies",year:1920,yearLbl:"c. 1920",pro:true,img:W+"4/4b/Reflections_of_Clouds_on_the_Water-Lily_Pond.jpg/1280px-Reflections_of_Clouds_on_the_Water-Lily_Pond.jpg",
+ title:{en:"Water Lilies — Reflections of Clouds on the Water-Lily Pond",zh:"睡蓮——水面雲影"},artist:{en:"Claude Monet",zh:"克勞德 · 莫奈"},movement:{en:"Impressionism",zh:"印象派"},
+ medium:{en:"Oil on canvas",zh:"油彩 · 畫布"},size:"200 × 1276 cm",museum:{en:"MoMA, New York",zh:"紐約現代藝術博物館"},
+ story:{en:"One panel of the great Water Lilies murals Monet painted in his seventies and eighties at Giverny, nearly blind from cataracts. There is no horizon, no sky, no bank — only water, and clouds that exist purely as reflections. He painted about 250 water-lily pictures; these last ones dissolve almost into abstraction.",
+ zh:"莫奈七八十歲、幾乎因白內障失明嗰陣，喺吉維尼畫嘅睡蓮巨幅壁畫其中一幅。冇地平線、冇天空、冇岸——只有水，同純粹倒影存在嘅雲。佢一生畫咗約 250 幅睡蓮；呢啲最後嘅幾乎溶入抽象。"},
+ look:{en:"No sky is painted anywhere — every cloud you see is a reflection on the water. The lily pads sit on the very edge of abstraction, and the whole twelve-metre wall was meant to wrap around you like a room.",
+ zh:"成幅畫冇任何一忽係畫天空——你見到嘅每朵雲都係水面倒影。睡蓮葉企喺抽象嘅邊緣，而成幅十二米闊嘅牆原本係要似間房咁包圍住你。"},
+ palette:["#3e3e3f","#d2c1b3","#9d714a","#a99b95","#e3d8d3"],dominant:"#3e3e3f"}
+];
+const BY_ID={}; PAINTINGS.forEach(p=>BY_ID[p.id]=p);
+const MOVEMENTS=[...new Set(PAINTINGS.map(p=>p.movement.en))];
+/* ---------- Pro (same wiring as the rest of the OpenX series) ---------- */
+/* NOTE: Lemon Squeezy shut down 2026-11-16/17; Paddle migration is pending.
+   This build keeps the series' LS test wiring so the Pro dialog behaves exactly
+   like the other tools until the Paddle checkout is live. */
+const CONFIG={storeId:508220,licenseValidateUrl:"https://api.lemonsqueezy.com/v1/licenses/validate",instanceName:"gallery-mo",
+buyMonthly:"https://openx.lemonsqueezy.com/checkout/buy/934fa5b0-fe63-4707-b9cb-d303de1e127f",
+buyLifetime:"https://openx.lemonsqueezy.com/checkout/buy/d107e805-e8e9-42b0-9c1a-eb89078421be"};
+let PRO=false;
+function proStore(){try{return JSON.parse(localStorage.getItem("gallery-mo-pro")||"null");}catch(e){return null;}}
+function savePro(key){try{localStorage.setItem("gallery-mo-pro",JSON.stringify({key,instance:getProInstance(),at:Date.now()}));}catch(e){}}
+function clearPro(){try{localStorage.removeItem("gallery-mo-pro");}catch(e){}}
+function getProInstance(){let v=localStorage.getItem("gallery-mo-instance");if(!v){v="g"+Math.random().toString(36).slice(2,10)+Date.now().toString(36);localStorage.setItem("gallery-mo-instance",v);}return v;}
+function lsValid(d){return !!(d&&d.valid&&d.license_key&&d.license_key.status==="active");}
+async function validateKey(fromModal){
+  const inp=fromModal?$("proKeyIn2"):$("proKeyIn"),msg=fromModal?$("proMsg2"):$("proMsg");
+  const key=inp.value.trim();if(!key){msg.textContent=T("key_bad");msg.className="msg err";return;}
+  msg.textContent=T("key_saved");msg.className="msg";
+  try{const res=await fetch(CONFIG.licenseValidateUrl,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({license_key:key,instance_name:getProInstance()})});
+    let data=null;try{data=await res.json();}catch(e){}
+    if(lsValid(data)){savePro(key);PRO=true;refreshPro();msg.textContent=T("key_ok");msg.className="msg ok";setTimeout(()=>{closeModal("proModal");},900);renderAll();}
+    else{msg.textContent=T("key_bad");msg.className="msg err";}
+  }catch(err){msg.textContent=T("key_net");msg.className="msg err";}
+}
+async function revalidatePro(){
+  const s=proStore();if(!s||!s.key)return;
+  try{const res=await fetch(CONFIG.licenseValidateUrl,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({license_key:s.key,instance_name:getProInstance()})});
+    let data=null;try{data=await res.json();}catch(e){}
+    if(!lsValid(data)){clearPro();PRO=false;refreshPro();}
+  }catch(err){/* offline grace: keep Pro until a check succeeds */}
+}
+function refreshPro(){
+  $("proBtn").textContent=PRO?"Pro ✓":"Pro";
+  $("proBtn").classList.toggle("on",PRO);
+  $("zoomBtn").innerHTML="🔍 <span>"+T("zoom")+"</span>"+(PRO?"":" 🔒");
+  renderGrid();
+}
+/* ---------- state ---------- */
+let CUR=BY_ID.starry;
+let FAVS=[];try{FAVS=JSON.parse(localStorage.getItem("gallery-mo-favs")||"[]");}catch(e){FAVS=[];}
+let moveFilter="All", favOnly=false, searchQ="";
+function saveFavs(){try{localStorage.setItem("gallery-mo-favs",JSON.stringify(FAVS));}catch(e){}}
+function L(obj){return obj[LANG]||obj.en;}
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200);}
+function copyText(txt,msg){const done=()=>toast(msg||T("copied")+txt);
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopy(txt,done));}
+  else fallbackCopy(txt,done);}
+function fallbackCopy(txt,done){const ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){}document.body.removeChild(ta);}
+/* ---------- median-cut palette (live, from the real pixels) ---------- */
+function medianCutPalette(img){
+  const S=96,c=document.createElement("canvas");c.width=S;c.height=S;
+  const x=c.getContext("2d",{willReadFrequently:true});
+  x.drawImage(img,0,0,S,S);
+  const d=x.getImageData(0,0,S,S).data,px=[];
+  for(let i=0;i<d.length;i+=4){px.push([d[i],d[i+1],d[i+2]]);}
+  let boxes=[px];
+  function split(box){
+    let rMin=255,rMax=0,gMin=255,gMax=0,bMin=255,bMax=0;
+    box.forEach(p=>{if(p[0]<rMin)rMin=p[0];if(p[0]>rMax)rMax=p[0];if(p[1]<gMin)gMin=p[1];if(p[1]>gMax)gMax=p[1];if(p[2]<bMin)bMin=p[2];if(p[2]>bMax)bMax=p[2];});
+    const ranges=[[rMax-rMin,0],[gMax-gMin,1],[bMax-bMin,2]];ranges.sort((a,b)=>b[0]-a[0]);
+    const ch=ranges[0][1];if(ranges[0][0]===0)return null;
+    const sorted=box.slice().sort((a,b)=>a[ch]-b[ch]),mid=Math.floor(sorted.length/2);
+    return [sorted.slice(0,mid),sorted.slice(mid)];
+  }
+  while(boxes.length<5){
+    let bi=-1,best=-1;
+    boxes.forEach((b,i)=>{let rMin=255,rMax=0,gMin=255,gMax=0,bMin=255,bMax=0;
+      b.forEach(p=>{if(p[0]<rMin)rMin=p[0];if(p[0]>rMax)rMax=p[0];if(p[1]<gMin)gMin=p[1];if(p[1]>gMax)gMax=p[1];if(p[2]<bMin)bMin=p[2];if(p[2]>bMax)bMax=p[2];});
+      const r=Math.max(rMax-rMin,gMax-gMin,bMax-bMin);if(r>best){best=r;bi=i;}});
+    if(best===0)break;
+    const sp=split(boxes[bi]);if(!sp)break;
+    boxes.splice(bi,1,...sp);
+  }
+  const dist=(a,b)=>Math.sqrt((a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2);
+  const cols=boxes.map(b=>{let r=0,g=0,bl=0;b.forEach(p=>{r+=p[0];g+=p[1];bl+=p[2];});const n=b.length||1;return {rgb:[Math.round(r/n),Math.round(g/n),Math.round(bl/n)],n};});
+  cols.sort((a,b)=>b.n-a.n);
+  const picked=[];
+  cols.forEach(c=>{if(picked.length<5&&picked.every(p=>dist(p.rgb,c.rgb)>24))picked.push(c);});
+  cols.forEach(c=>{if(picked.length<5&&!picked.includes(c))picked.push(c);});
+  return picked.map(c=>"#"+c.rgb.map(v=>v.toString(16).padStart(2,"0")).join(""));
+}
+/* ---------- render ---------- */
+function hexLum(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return (0.299*r+0.587*g+0.114*b)/255;}
+function renderPalette(hexes){
+  const el=$("palette");el.innerHTML="";
+  hexes.forEach(h=>{const s=document.createElement("div");s.className="swatch";
+    s.innerHTML="<i style='background:"+h+"'></i><span>"+h+"</span>";
+    s.title=h;s.onclick=()=>copyText(h);el.appendChild(s);});
+}
+function renderPainting(p,skipImg){
+  CUR=p;
+  $("artTitle").textContent=L(p.title);
+  $("artArtist").innerHTML="<b>"+L(p.artist)+"</b> · "+p.yearLbl+" · "+L(p.movement);
+  $("facts").innerHTML=
+    "<dt>"+T("year")+"</dt><dd>"+p.yearLbl+"</dd>"+
+    "<dt>"+T("medium")+"</dt><dd>"+L(p.medium)+"</dd>"+
+    "<dt>"+T("size")+"</dt><dd>"+p.size+"</dd>"+
+    "<dt>"+T("museum")+"</dt><dd>"+L(p.museum)+"</dd>"+
+    "<dt>"+T("movement")+"</dt><dd>"+L(p.movement)+"</dd>";
+  $("story").textContent=L(p.story);
+  $("look").textContent=L(p.look);
+  renderPalette(p.palette);
+  $("wall").style.background="color-mix(in srgb, "+p.dominant+" 12%, var(--bg))";
+  $("favBtn").innerHTML=(FAVS.includes(p.id)?"♥ ":"♡ ")+"<span>"+T(FAVS.includes(p.id)?"faved":"fav")+"</span>";
+  $("zoomTitle").textContent=L(p.title)+" — "+L(p.artist);
+  if(!skipImg){
+    const img=$("artImg");$("imgFail").style.display="none";img.style.display="";
+    img.onload=()=>{try{const live=medianCutPalette(img);if(live&&live.length===5)renderPalette(live);}catch(e){/* keep embedded palette */}};
+    img.onerror=()=>{img.style.display="none";const f=$("imgFail");f.style.display="flex";f.textContent=T("imgFail");};
+    img.src=p.img;img.alt=L(p.title)+" — "+L(p.artist);
+  }
+  document.querySelectorAll(".gitem").forEach(g=>g.classList.toggle("cur",g.dataset.id===p.id));
+  document.querySelectorAll(".tl .dot").forEach(d=>d.classList.toggle("cur",d.dataset.id===p.id));
+  $("tlLbl").textContent=L(p.title)+" · "+p.yearLbl;
+  if(location.hash!=="#painting="+p.id){history.replaceState(null,"","#painting="+p.id);}
+}
+function openPainting(id){
+  const p=BY_ID[id];if(!p)return;
+  if(p.pro&&!PRO){openModal("proModal");return;}
+  closeDrawer();renderPainting(p);
+}
+function renderChips(){
+  const el=$("chips");el.innerHTML="";
+  ["All",...MOVEMENTS].forEach(m=>{
+    const b=document.createElement("button");b.className="chip"+(moveFilter===m?" on":"");
+    b.textContent=m==="All"?(LANG==="en"?"All":"全部"):L({en:m,zh:PAINTINGS.find(p=>p.movement.en===m).movement.zh});
+    b.onclick=()=>{moveFilter=m;renderChips();renderGrid();};el.appendChild(b);});
+}
+function renderGrid(){
+  const el=$("grid");el.innerHTML="";
+  const list=PAINTINGS.filter(p=>{
+    if(favOnly&&!FAVS.includes(p.id))return false;
+    if(moveFilter!=="All"&&p.movement.en!==moveFilter)return false;
+    if(searchQ){const q=searchQ.toLowerCase();
+      if(!(p.title.en.toLowerCase().includes(q)||p.title.zh.includes(searchQ)||p.artist.en.toLowerCase().includes(q)||p.artist.zh.includes(searchQ)))return false;}
+    return true;});
+  $("countLbl").textContent=list.length+" / "+PAINTINGS.length;
+  list.forEach(p=>{
+    const b=document.createElement("button");b.className="gitem"+(CUR.id===p.id?" cur":"");b.dataset.id=p.id;
+    b.innerHTML=(p.pro&&!PRO?'<span class="lock">🔒 Pro</span>':"")+'<img loading="lazy" crossorigin="anonymous" src="'+p.img+'" alt="">'+
+      '<span class="gi"><b>'+L(p.title)+'</b><span>'+L(p.artist)+' · '+p.yearLbl+'</span></span>';
+    b.onclick=()=>openPainting(p.id);el.appendChild(b);});
+  if(!list.length)el.innerHTML='<p style="font-size:13.5px;color:var(--muted)">—</p>';
+}
+function renderTimeline(){
+  const el=$("timeline");el.querySelectorAll(".dot").forEach(d=>d.remove());
+  const min=1485,max=1920;
+  PAINTINGS.forEach(p=>{
+    const d=document.createElement("button");d.className="dot"+(CUR.id===p.id?" cur":"");d.dataset.id=p.id;
+    d.style.left=((p.year-min)/(max-min)*100)+"%";
+    d.innerHTML="<span>"+p.year+"</span>";d.title=L(p.title)+" · "+p.yearLbl;
+    d.onclick=()=>openPainting(p.id);el.appendChild(d);});
+}
+function renderAll(){applyI18n();renderChips();renderGrid();renderTimeline();renderPainting(CUR,true);refreshPro();
+  $("bestLbl").textContent=T("best")+": "+(parseInt(localStorage.getItem("gallery-mo-best")||"0",10)||0)+"/10";
+  $("proTagPalette").innerHTML="";}
+function openDrawer(){$("drawer").classList.add("open");$("scrim").classList.add("open");}
+function closeDrawer(){$("drawer").classList.remove("open");$("scrim").classList.remove("open");}
+function openModal(id){$(id).classList.add("open");}
+function closeModal(id){$(id).classList.remove("open");}
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
+/* ---------- quiz ---------- */
+let QUIZ=null;
+function startQuiz(){
+  const order=PAINTINGS.slice().sort(()=>Math.random()-0.5);
+  QUIZ={order,round:0,score:0,streak:0};
+  $("quizEnd").style.display="none";$("quizMsg").textContent="";
+  closeDrawer();openModal("quizModal");showRound();
+}
+function showRound(){
+  const p=QUIZ.order[QUIZ.round];
+  $("quizSub").textContent=T("round")+" "+(QUIZ.round+1)+" "+T("of")+" 10";
+  $("quizScore").textContent=T("score")+" "+QUIZ.score;
+  $("quizStreak").textContent=QUIZ.streak>1?"🔥 "+QUIZ.streak+" "+T("streak"):"";
+  $("quizMsg").textContent="";
+  const img=$("quizImg");img.src=p.img;img.alt="?";
+  const others=PAINTINGS.filter(x=>x.artist.en!==p.artist.en).sort(()=>Math.random()-0.5).slice(0,3).map(x=>x.artist.en);
+  const opts=[p.artist.en,...others].sort(()=>Math.random()-0.5);
+  const box=$("quizOpts");box.innerHTML="";
+  opts.forEach(name=>{
+    const b=document.createElement("button");b.className="opt";b.textContent=name;
+    b.onclick=()=>{
+      box.querySelectorAll(".opt").forEach(o=>o.disabled=true);
+      if(name===p.artist.en){b.classList.add("right");QUIZ.score++;QUIZ.streak++;
+        $("quizMsg").textContent=T("correct")+L(p.title)+" · "+p.yearLbl;$("quizMsg").className="msg ok";}
+      else{b.classList.add("wrong");QUIZ.streak=0;
+        box.querySelectorAll(".opt").forEach(o=>{if(o.textContent===p.artist.en)o.classList.add("right");});
+        $("quizMsg").textContent=T("wrong")+L(p.artist)+".";$("quizMsg").className="msg err";}
+      $("quizScore").textContent=T("score")+" "+QUIZ.score;
+      setTimeout(()=>{
+        QUIZ.round++;
+        if(QUIZ.round>=10)endQuiz();else showRound();
+      },1600);};
+    box.appendChild(b);});
+}
+function endQuiz(){
+  const best=parseInt(localStorage.getItem("gallery-mo-best")||"0",10);
+  if(QUIZ.score>best)localStorage.setItem("gallery-mo-best",String(QUIZ.score));
+  $("quizEnd").style.display="block";
+  const grade=QUIZ.score>=9?"S":QUIZ.score>=7?"A":QUIZ.score>=5?"B":QUIZ.score>=3?"C":"D";
+  $("quizEndTxt").textContent=T("quizDone")+" "+QUIZ.score+" / 10 — "+grade+(QUIZ.score>best?" · "+(LANG==="en"?"new best!":"新紀錄！"):"");
+  $("quizImg").style.display="none";$("quizOpts").innerHTML="";
+  $("bestLbl").textContent=T("best")+": "+Math.max(best,QUIZ.score)+"/10";
+  $("quizImg").style.display="";
+}
+/* ---------- poster PNG ---------- */
+function exportPoster(){
+  const p=CUR,hi=PRO, W2=hi?2048:1024, H2=Math.round(W2*1.28);
+  const c=document.createElement("canvas");c.width=W2;c.height=H2;const x=c.getContext("2d");
+  const u=v=>v/1024*W2;
+  x.fillStyle="#f6f8f9";x.fillRect(0,0,W2,H2);
+  x.fillStyle=p.dominant;x.globalAlpha=0.12;x.fillRect(0,0,W2,H2);x.globalAlpha=1;
+  const img=$("artImg");
+  const iw=img.naturalWidth,ih=img.naturalHeight;
+  if(iw){
+    const maxW=W2-u(120),maxH=H2-u(470),sc=Math.min(maxW/iw,maxH/ih),dw=iw*sc,dh=ih*sc;
+    const dx=(W2-dw)/2,dy=u(70);
+    x.fillStyle="#2b2419";x.fillRect(dx-u(18),dy-u(18),dw+u(36),dh+u(36));
+    x.fillStyle="#f7f3ea";x.fillRect(dx-u(8),dy-u(8),dw+u(16),dh+u(16));
+    x.drawImage(img,dx,dy,dw,dh);
+    var y=dy+dh+u(70);
+  }else{
+    /* offline fallback: the painting itself could not be loaded, so the poster
+       becomes a palette card — still honest, still useful */
+    x.fillStyle=p.dominant;x.globalAlpha=0.9;x.fillRect(u(60),u(70),W2-u(120),H2-u(560));x.globalAlpha=1;
+    x.fillStyle="rgba(255,255,255,.85)";x.textAlign="center";
+    x.font="700 "+u(40)+"px 'Noto Sans TC', sans-serif";
+    x.fillText(LANG==="en"?"Image unavailable offline":"圖片未能載入",W2/2,u(300));
+    x.font=u(28)+"px 'Noto Sans TC', sans-serif";
+    x.fillText(LANG==="en"?"Palette extracted in advance":"配色為預先抽取",W2/2,u(350));
+    var y=H2-u(490);
+  }
+  try{
+    x.fillStyle="#1d2126";x.textAlign="center";
+    x.font="700 "+u(44)+"px 'Noto Sans TC', sans-serif";
+    x.fillText(L(p.title),W2/2,y);y+=u(52);
+    x.fillStyle="#6b7280";x.font=u(30)+"px 'Noto Sans TC', sans-serif";
+    x.fillText(L(p.artist)+" · "+p.yearLbl+" · "+L(p.museum),W2/2,y);y+=u(64);
+    const pal=document.querySelectorAll("#palette .swatch span");
+    const hexes=p.palette,sw=u(90),gap=u(16),tot=sw*hexes.length+gap*(hexes.length-1);
+    let sx=(W2-tot)/2;
+    hexes.forEach(h=>{x.fillStyle=h;x.fillRect(sx,y,sw,sw);x.strokeStyle="rgba(0,0,0,.2)";x.strokeRect(sx,y,sw,sw);sx+=sw+gap;});
+    y+=sw+u(40);
+    x.fillStyle="#1d2126";x.font="700 "+u(22)+"px 'Noto Sans TC', sans-serif";
+    hexes.forEach((h,i)=>{x.fillText(h,(W2-tot)/2+sw/2+i*(sw+gap),y);});
+    y+=u(70);
+    x.fillStyle="#8a6d3b";x.font="700 "+u(28)+"px 'Noto Sans TC', sans-serif";
+    x.fillText("GALLERY MO · "+(LANG==="en"?"Public domain via Wikimedia Commons":"公有領域 · Wikimedia Commons"),W2/2,H2-u(46));
+    const a=document.createElement("a");a.download="gallery-mo-"+p.id+".png";a.href=c.toDataURL("image/png");a.click();
+    toast(T("posterSaved")+" ("+W2+"px)");
+  }catch(e){toast(T("posterFail"));}
+}
+/* ---------- zoom ---------- */
+let Z={s:1,x:0,y:0};
+function zoomReset(){Z={s:1,x:0,y:0};applyZoom();}
+function applyZoom(){$("zoomImg").style.transform="translate("+Z.x+"px,"+Z.y+"px) scale("+Z.s+")";}
+function openZoom(){
+  if(!PRO){openModal("proModal");return;}
+  const img=$("zoomImg");img.src=CUR.img;img.alt=$("artImg").alt;zoomReset();openModal("zoomModal");
+}
+(function(){
+  const w=$("zoomWrap"),img=$("zoomImg");let drag=null;
+  w.addEventListener("pointerdown",e=>{drag={x:e.clientX-Z.x,y:e.clientY-Z.y};w.setPointerCapture(e.pointerId);});
+  w.addEventListener("pointermove",e=>{if(!drag)return;Z.x=e.clientX-drag.x;Z.y=e.clientY-drag.y;applyZoom();});
+  w.addEventListener("pointerup",()=>drag=null);
+  w.addEventListener("wheel",e=>{e.preventDefault();const f=e.deltaY<0?1.15:1/1.15;Z.s=Math.min(4,Math.max(1,Z.s*f));applyZoom();},{passive:false});
+  w.addEventListener("dblclick",zoomReset);
+})();
+/* ---------- events ---------- */
+$("menuBtn").onclick=openDrawer;
+$("scrim").onclick=closeDrawer;
+$("langBtn").onclick=()=>{LANG=LANG==="en"?"zh":"en";localStorage.setItem("gallery-mo-lang",LANG);renderAll();};
+const THEMES=["silver","white","black"];
+$("themeBtn").onclick=()=>{
+  let cur=document.body.dataset.theme||"silver";
+  let nx=THEMES[(THEMES.indexOf(cur)+1)%THEMES.length];
+  document.body.dataset.theme=nx;localStorage.setItem("gallery-mo-theme",nx);};
+$("prevBtn").onclick=()=>{const i=PAINTINGS.indexOf(CUR);const p=PAINTINGS[(i-1+PAINTINGS.length)%PAINTINGS.length];if(p.pro&&!PRO){openPainting(p.id);return;}renderPainting(p);};
+$("nextBtn").onclick=()=>{const i=PAINTINGS.indexOf(CUR);const p=PAINTINGS[(i+1)%PAINTINGS.length];if(p.pro&&!PRO){openPainting(p.id);return;}renderPainting(p);};
+$("favBtn").onclick=()=>{
+  const i=FAVS.indexOf(CUR.id);
+  if(i>=0){FAVS.splice(i,1);}
+  else{if(FAVS.length>=3&&!PRO){openModal("proModal");toast(T("favCap"));return;}FAVS.push(CUR.id);}
+  saveFavs();renderPainting(CUR,true);renderGrid();};
+$("zoomBtn").onclick=openZoom;
+$("pngBtn").onclick=exportPoster;
+$("shareBtn").onclick=()=>copyText(location.origin+location.pathname+"#painting="+CUR.id,T("linkCopied"));
+$("quizBtn").onclick=startQuiz;
+$("quizBtn2").onclick=startQuiz;
+$("quizAgain").onclick=()=>{startQuiz();};
+$("search").addEventListener("input",e=>{searchQ=e.target.value.trim();renderGrid();});
+$("favOnly").addEventListener("change",e=>{favOnly=e.target.checked;renderGrid();});
+$("proBtn").onclick=()=>openModal("proModal");
+$("proKeyBtn").onclick=()=>validateKey(false);
+$("proKeyBtn2").onclick=()=>validateKey(true);
+[["buyLink1","buyMonthly"],["buyLink2","buyLifetime"],["buyLink3","buyMonthly"],["buyLink4","buyLifetime"]].forEach(([id,k])=>{
+  $(id).onclick=e=>{e.preventDefault();window.open(CONFIG[k],"_blank");};});
+/* ---------- init ---------- */
+(function(){
+  const th=localStorage.getItem("gallery-mo-theme");if(th)document.body.dataset.theme=th;
+  const s=proStore();if(s&&s.key){PRO=true;}
+  let start=BY_ID.starry;
+  const m=location.hash.match(/#painting=([a-z]+)/);
+  if(m&&BY_ID[m[1]]&&(!BY_ID[m[1]].pro||PRO))start=BY_ID[m[1]];
+  renderAll();renderPainting(start);
+  if(PRO)revalidatePro();
+})();
+</script>
+</body>
+</html>
