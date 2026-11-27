@@ -49,6 +49,17 @@ a{color:inherit}
 .previewcol{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--bg)}
 .previewbar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:13px}
 .previewbar select{height:32px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);padding:0 8px;font-size:13px}
+.pvtoolbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--panel)}
+.pvtool{height:30px;min-width:32px;padding:0 8px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);font-size:12.5px;font-weight:700}
+.pvtool:hover{border-color:var(--accent)}
+.pv-hint{font-size:12px;color:var(--muted);margin-left:4px}
+.adv-label{font-size:12px;color:var(--muted);align-self:center;margin-right:2px;white-space:nowrap}
+/* v2: preview blocks are directly editable */
+.pb [data-bi]{outline:none}
+.pb [data-bi]:hover{outline:1px dashed #a8adb3;outline-offset:2px}
+.pb [data-bi]:focus{outline:1px solid #8a867e;outline-offset:2px}
+.pb td[data-bi]:hover,.pb th[data-bi]:hover{outline:1px dashed #a8adb3;outline-offset:-1px}
+.pbrk{display:none}
 .pageswrap{flex:1;overflow:auto;padding:20px 16px 40px}
 #pages{width:794px;margin:0 auto}
 
@@ -143,7 +154,8 @@ a{color:inherit}
 
 @media print{
   body{background:#fff;overflow:visible}
-  .topbar,.drawer,.mobiletabs,.editorcol,.previewbar,.toast,.modal,.editorfoot{display:none !important}
+  .topbar,.drawer,.mobiletabs,.editorcol,.previewbar,.pvtoolbar,.toast,.modal,.editorfoot{display:none !important}
+  .pb [data-bi]{outline:none !important}
   .stage{display:block;height:auto}
   .previewcol{display:block;overflow:visible}
   .pageswrap{overflow:visible;padding:0}
@@ -171,6 +183,7 @@ a{color:inherit}
 <main class="stage">
   <section class="editorcol" id="editorCol">
     <div class="toolbar" id="toolbar">
+      <span class="adv-label" data-i18n="advLabel">Advanced · Markup</span>
       <button class="toolbtn" data-ins="h1" title="Heading 1">H1</button>
       <button class="toolbtn" data-ins="h2" title="Heading 2">H2</button>
       <button class="toolbtn" data-ins="h3" title="Heading 3">H3</button>
@@ -196,6 +209,21 @@ a{color:inherit}
         <option value="1">100%</option>
       </select>
       <span class="countpill" id="pageCount2"></span>
+    </div>
+    <div class="pvtoolbar" id="pvToolbar">
+      <button class="pvtool" data-pv="bold" title="Bold"><b>B</b></button>
+      <button class="pvtool" data-pv="italic" title="Italic"><i>I</i></button>
+      <button class="pvtool" data-pv="h1" title="Heading 1">H1</button>
+      <button class="pvtool" data-pv="h2" title="Heading 2">H2</button>
+      <button class="pvtool" data-pv="h3" title="Heading 3">H3</button>
+      <button class="pvtool" data-pv="ul" title="Bullet list">• List</button>
+      <button class="pvtool" data-pv="ol" title="Numbered list">1. List</button>
+      <button class="pvtool" data-pv="table" title="Insert table">Table</button>
+      <button class="pvtool" data-pv="quote" title="Quote">Quote</button>
+      <button class="pvtool" data-pv="rule" title="Divider">—</button>
+      <button class="pvtool" data-pv="break" title="Page break">⏎ Break</button>
+      <button class="pvtool" data-pv="clear" title="Clear formatting" data-i18n="pvClear">Clear</button>
+      <span class="pv-hint" data-i18n="pvHint">Click into a page to edit directly — no markup needed.</span>
     </div>
     <div class="pageswrap" id="pagesWrap"><div id="pages"></div></div>
   </section>
@@ -316,7 +344,8 @@ needPro:"Pro feature — unlock OpenX Pro to use it.",proOn:"Pro ✓",proActive:
 copied:"Copied",imgLoaded:"Letterhead image loaded",imgFail:"That file could not be read as an image.",
 lhRemoved:"Letterhead removed",profileSaved:"Profile saved",profileDeleted:"Profile deleted",profileCap:"Free keeps 1 letterhead profile — Pro keeps them all.",
 expDone:"Exported",expFail:"Export failed — try again.",
-howText:"Write in the mini-markup on the left; the A4 pages on the right update live. <code>#</code> <code>##</code> <code>###</code> headings, <code>*bold*</code>, <code>_italic_</code>, lists <code>-</code> and <code>1.</code>, tables <code>| a | b |</code>, quotes <code>&gt;</code>, <code>---</code> for a rule, <code>[pagebreak]</code> for a new page.",
+advLabel:"Advanced · Markup",pvHint:"Click into a page to edit directly — no markup needed.",pvClickFirst:"Click into the preview first.",pvClear:"Clear",
+howText:"Write in the mini-markup on the left; the A4 pages on the right update live. <code>#</code> <code>##</code> <code>###</code> headings, <code>*bold*</code>, <code>_italic_</code>, lists <code>-</code> and <code>1.</code>, tables <code>| a | b |</code>, quotes <code>&gt;</code>, <code>---</code> for a rule, <code>[pagebreak]</code> for a new page. You can also click straight into the A4 preview on the right and type — no markup needed. The preview toolbar above the pages formats whatever your cursor is on.",
 footCopy:"© 2026 OpenX Mo — a pocket document studio. Mini-markup inspired by Typst (Apache-2.0)."},
 zh:{tagline:"口袋文書工作室",edit:"編輯",preview:"預覽",zoom:"縮放",zoomFit:"適應",
 drawerTitle:"文書工作台",secLetterhead:"信頭信尾",secTemplates:"範本",secExport:"匯出",secFont:"文件字體",secPro:"OpenX Pro",secHow:"標記寫法",
@@ -341,7 +370,8 @@ needPro:"Pro 功能——解鎖 OpenX Pro 先用到。",proOn:"Pro ✓",proActiv
 copied:"已複製",imgLoaded:"信頭圖片已載入",imgFail:"讀唔到呢個圖片檔。",
 lhRemoved:"信頭信尾已清除",profileSaved:"檔案已儲存",profileDeleted:"檔案已刪除",profileCap:"免費版只 keep 1 個信頭檔案——Pro 無上限。",
 expDone:"已匯出",expFail:"匯出失敗——再試一次。",
-howText:"左邊用迷你標記寫，右邊 A4 即時更新。<code>#</code> <code>##</code> <code>###</code> 標題、<code>*粗體*</code>、<code>_斜體_</code>、清單 <code>-</code> 同 <code>1.</code>、表格 <code>| a | b |</code>、引言 <code>&gt;</code>、<code>---</code> 分隔線、<code>[pagebreak]</code> 換頁。",
+advLabel:"進階 · Markup",pvHint:"撳入頁面直接改——唔使識標記。",pvClickFirst:"先撳入預覽。",pvClear:"清除格式",
+howText:"左邊用迷你標記寫，右邊 A4 即時更新。<code>#</code> <code>##</code> <code>###</code> 標題、<code>*粗體*</code>、<code>_斜體_</code>、清單 <code>-</code> 同 <code>1.</code>、表格 <code>| a | b |</code>、引言 <code>&gt;</code>、<code>---</code> 分隔線、<code>[pagebreak]</code> 換頁。亦可以直接撳入右邊 A4 預覽打字——唔使識標記。預覽上面嘅工具列可以幫游標位置嘅文字加格式。",
 footCopy:"© 2026 OpenX Mo — 口袋文書工作室。迷你標記靈感來自 Typst（Apache-2.0）。"}};
 let LANG="en";
 function T(k){return (I18N[LANG]&&I18N[LANG][k])||I18N.en[k]||k;}
@@ -568,19 +598,22 @@ function parseMarkup(src){
   flushPara();flushList();flushTable();
   return blocks;
 }
-function blockHTML(b){
+/* v2: every rendered block carries data-bi (its index in MODEL.blocks) and is
+   directly editable in the preview. Lists carry data-li per item; table cells
+   carry data-r / data-c (data-h="1" for header cells). */
+function blockHTML(b,bi){
   switch(b.type){
-    case "h1":return "<h1>"+inline(b.text)+"</h1>";
-    case "h2":return "<h2>"+inline(b.text)+"</h2>";
-    case "h3":return "<h3>"+inline(b.text)+"</h3>";
-    case "p":return "<p>"+inline(b.text)+"</p>";
-    case "ul":return "<ul>"+b.items.map(i=>"<li>"+inline(i)+"</li>").join("")+"</ul>";
-    case "ol":return "<ol>"+b.items.map(i=>"<li>"+inline(i)+"</li>").join("")+"</ol>";
-    case "quote":return "<blockquote>"+inline(b.text)+"</blockquote>";
-    case "hr":return "<hr>";
+    case "h1":return '<h1 data-bi="'+bi+'" contenteditable="true" spellcheck="false">'+inline(b.text)+'</h1>';
+    case "h2":return '<h2 data-bi="'+bi+'" contenteditable="true" spellcheck="false">'+inline(b.text)+'</h2>';
+    case "h3":return '<h3 data-bi="'+bi+'" contenteditable="true" spellcheck="false">'+inline(b.text)+'</h3>';
+    case "p":return '<p data-bi="'+bi+'" contenteditable="true" spellcheck="false">'+inline(b.text)+'</p>';
+    case "ul":return '<ul data-bi="'+bi+'">'+b.items.map((i,n)=>'<li data-bi="'+bi+'" data-li="'+n+'" contenteditable="true" spellcheck="false">'+inline(i)+'</li>').join("")+'</ul>';
+    case "ol":return '<ol data-bi="'+bi+'">'+b.items.map((i,n)=>'<li data-bi="'+bi+'" data-li="'+n+'" contenteditable="true" spellcheck="false">'+inline(i)+'</li>').join("")+'</ol>';
+    case "quote":return '<blockquote data-bi="'+bi+'" contenteditable="true" spellcheck="false">'+inline(b.text)+'</blockquote>';
+    case "hr":return '<hr data-bi="'+bi+'">';
     case "table":{
-      const head=b.headRow?"<thead><tr>"+b.headRow.map(c=>"<th>"+inline(c)+"</th>").join("")+"</tr></thead>":"";
-      return "<table>"+head+"<tbody>"+b.rows.map(r=>"<tr>"+r.map(c=>"<td>"+inline(c)+"</td>").join("")+"</tr>").join("")+"</tbody></table>";
+      const head=b.headRow?'<thead><tr>'+b.headRow.map((c,n)=>'<th data-bi="'+bi+'" data-h="1" data-c="'+n+'" contenteditable="true" spellcheck="false">'+inline(c).replace(/\n/g,"<br>")+'</th>').join("")+'</tr></thead>':"";
+      return '<table data-bi="'+bi+'">'+head+'<tbody>'+b.rows.map((r,ri)=>'<tr>'+r.map((c,ci)=>'<td data-bi="'+bi+'" data-r="'+ri+'" data-c="'+ci+'" contenteditable="true" spellcheck="false">'+inline(c).replace(/\n/g,"<br>")+'</td>').join("")+'</tr>').join("")+'</tbody></table>';
     }
   }
   return "";
@@ -595,62 +628,59 @@ function measure(html){
   return m.offsetHeight;
 }
 function fontCls(){return FONT==="default"?"":"font-"+FONT;}
-function makeParaUnit(text){
-  const html="<p>"+inline(text)+"</p>";
-  return {kind:"para",text:text,html:html,h:measure(html),
+function makeParaUnit(text,bi){
+  const html='<p data-bi="'+bi+'" contenteditable="true" spellcheck="false">'+inline(text)+'</p>';
+  return {kind:"para",bi:bi,text:text,html:html,h:measure(html),
     split:function(avail){
       if(text.length<=1)return [null,this];
       let lo=1,hi=text.length,best=0;
-      while(lo<=hi){const mid=(lo+hi)>>1;const hh=measure("<p>"+inline(text.slice(0,mid))+"</p>");if(hh<=avail){best=mid;lo=mid+1;}else hi=mid-1;}
+      while(lo<=hi){const mid=(lo+hi)>>1;const hh=measure('<p data-bi="'+bi+'" contenteditable="true" spellcheck="false">'+inline(text.slice(0,mid))+'</p>');if(hh<=avail){best=mid;lo=mid+1;}else hi=mid-1;}
       if(best===0)return [null,this];
       let cut=best;
       const sp=text.slice(0,best).lastIndexOf(" ");
       if(sp>best*0.6)cut=sp;
-      const first=makeParaUnit(text.slice(0,cut));
-      let restText=text.slice(cut);if(restText.charAt(0)===" ")restText=restText.slice(1);
-      const rest=makeParaUnit(restText);
+      const first=makeParaUnit(text.slice(0,cut),bi);
+      const rest=makeParaUnit(text.slice(cut),bi); // keep the leading space: parts concatenate exactly
       return [first,rest];
     }};
 }
-function makeTableUnit(b){
-  const head=b.headRow;
-  function tableHtml(rows){
-    const hd=head?"<thead><tr>"+head.map(c=>"<th>"+inline(c)+"</th>").join("")+"</tr></thead>":"";
-    return "<table>"+hd+"<tbody>"+rows.map(r=>"<tr>"+r.map(c=>"<td>"+inline(c)+"</td>").join("")+"</tr>").join("")+"</tbody></table>";
+function makeTableUnit(head,rows,bi){ // rows: [{cells:[...], idx:n}] — idx survives splits
+  function tableHtml(rs){
+    const hd=head?'<thead><tr>'+head.map((c,n)=>'<th data-bi="'+bi+'" data-h="1" data-c="'+n+'" contenteditable="true" spellcheck="false">'+inline(c).replace(/\n/g,"<br>")+'</th>').join("")+'</tr></thead>':"";
+    return '<table data-bi="'+bi+'">'+hd+'<tbody>'+rs.map(r=>'<tr>'+r.cells.map((c,ci)=>'<td data-bi="'+bi+'" data-r="'+r.idx+'" data-c="'+ci+'" contenteditable="true" spellcheck="false">'+inline(c).replace(/\n/g,"<br>")+'</td>').join("")+'</tr>').join("")+'</tbody></table>';
   }
-  return {kind:"table",html:tableHtml(b.rows),h:measure(tableHtml(b.rows)),
+  return {kind:"table",bi:bi,html:tableHtml(rows),h:measure(tableHtml(rows)),
     split:function(avail){
       let n=0;
-      for(let i=1;i<=b.rows.length;i++){if(measure(tableHtml(b.rows.slice(0,i)))<=avail)n=i;else break;}
+      for(let i=1;i<=rows.length;i++){if(measure(tableHtml(rows.slice(0,i)))<=avail)n=i;else break;}
       if(n===0)return [null,this];
-      const first=makeTableUnit({headRow:head,rows:b.rows.slice(0,n)});
-      const rest=makeTableUnit({headRow:head,rows:b.rows.slice(n)});
+      const first=makeTableUnit(head,rows.slice(0,n),bi);
+      const rest=makeTableUnit(head,rows.slice(n),bi);
       return [first,rest];
     }};
 }
-function makeListUnit(b){
-  const tag=b.type;
-  function listHtml(items){return "<"+tag+">"+items.map(i=>"<li>"+inline(i)+"</li>").join("")+"</"+tag+">";}
-  return {kind:"list",html:listHtml(b.items),h:measure(listHtml(b.items)),
+function makeListUnit(tag,items,bi){ // items: [{text, idx}]
+  function listHtml(is){return "<"+tag+' data-bi="'+bi+'">'+is.map(it=>'<li data-bi="'+bi+'" data-li="'+it.idx+'" contenteditable="true" spellcheck="false">'+inline(it.text)+"</li>").join("")+"</"+tag+">";}
+  return {kind:"list",bi:bi,html:listHtml(items),h:measure(listHtml(items)),
     split:function(avail){
       let n=0;
-      for(let i=1;i<=b.items.length;i++){if(measure(listHtml(b.items.slice(0,i)))<=avail)n=i;else break;}
+      for(let i=1;i<=items.length;i++){if(measure(listHtml(items.slice(0,i)))<=avail)n=i;else break;}
       if(n===0)return [null,this];
-      const first=makeListUnit({type:tag,items:b.items.slice(0,n)});
-      const rest=makeListUnit({type:tag,items:b.items.slice(n)});
+      const first=makeListUnit(tag,items.slice(0,n),bi);
+      const rest=makeListUnit(tag,items.slice(n),bi);
       return [first,rest];
     }};
 }
 function buildUnits(blocks){
   const units=[];
-  for(const b of blocks){
-    if(b.type==="pb"){units.push({kind:"break"});continue;}
-    if(b.type==="p"){units.push(makeParaUnit(b.text));continue;}
-    if(b.type==="table"){units.push(makeTableUnit(b));continue;}
-    if(b.type==="ul"||b.type==="ol"){units.push(makeListUnit(b));continue;}
-    const html=blockHTML(b);
-    units.push({kind:(b.type==="h1"||b.type==="h2"||b.type==="h3")?"head":"atom",html:html,h:measure(html)});
-  }
+  blocks.forEach((b,bi)=>{
+    if(b.type==="pb"){units.push({kind:"break",bi:bi});return;}
+    if(b.type==="p"){units.push(makeParaUnit(b.text,bi));return;}
+    if(b.type==="table"){units.push(makeTableUnit(b.headRow,b.rows.map((r,i)=>({cells:r,idx:i})),bi));return;}
+    if(b.type==="ul"||b.type==="ol"){units.push(makeListUnit(b.type,b.items.map((t,i)=>({text:t,idx:i})),bi));return;}
+    const html=blockHTML(b,bi);
+    units.push({kind:(b.type==="h1"||b.type==="h2"||b.type==="h3")?"head":"atom",html:html,h:measure(html),bi:bi});
+  });
   return units;
 }
 function flow(blocks,capacity){
@@ -658,7 +688,7 @@ function flow(blocks,capacity){
   const pages=[[]];let rem=capacity;
   const newPage=()=>{pages.push([]);rem=capacity;};
   for(const u of units){
-    if(u.kind==="break"){newPage();continue;}
+    if(u.kind==="break"){pages[pages.length-1].push('<div class="pbrk" data-bi="'+u.bi+'"></div>');newPage();continue;}
     if(u.kind==="head"&&pages[pages.length-1].length>0&&rem<u.h+48){newPage();}
     if(u.h<=rem){pages[pages.length-1].push(u.html);rem-=u.h;continue;}
     if(u.split){
@@ -716,14 +746,20 @@ function measureHeadFoot(){
 }
 
 /* ================= render ================= */
+/* v2: MODEL.blocks is the single source of truth. renderAll() parses the
+   markup pane into the model; renderFromModel() renders the model (used
+   after preview edits, so the textarea is regenerated from the model). */
+let MODEL={blocks:[]};
+let pendingCaret=null;   // {bi,kind,li,r,c,offset} — restored after a re-render
+let composing=false;     // IME composition in progress — hold off re-renders
+let pvRenderT=null;
 let FONT="default";
 let ZOOM="fit";
-function renderAll(){
+function renderPages(blocks){
   const mf=fontCls();
   $("measurer").className="pb "+mf;
   const hf=measureHeadFoot();
   const capacity=PAGE_H-PAD_T-PAD_B-hf.hh-hf.fh;
-  const blocks=parseMarkup($("editor").value);
   const pageUnits=flow(blocks,capacity);
   const total=pageUnits.length;
   const pagesEl=$("pages");
@@ -738,13 +774,471 @@ function renderAll(){
   });
   const pc=LANG==="zh"?("共 "+total+" 頁"):(total+(total===1?" page":" pages"));
   $("pageCount").textContent=pc;$("pageCount2").textContent=pc;
-  updateCounts();
   applyZoom();
   // re-render once letterhead images finish loading (height may shift)
   pagesEl.querySelectorAll("img").forEach(im=>{
     if(!im.complete)im.addEventListener("load",()=>{if(!im._rl){im._rl=1;renderAll();}});
   });
+  if(pendingCaret){restoreCaret(pendingCaret);pendingCaret=null;}
+}
+function renderAll(){
+  MODEL.blocks=parseMarkup($("editor").value);
+  renderPages(MODEL.blocks);
+  updateCounts();
   saveState();
+}
+function renderFromModel(){
+  renderPages(MODEL.blocks);
+  updateCounts();
+  saveState();
+}
+/* ================= block model <-> markup (v2: preview is editable) ================= */
+function blocksToMarkup(blocks){
+  const out=[];
+  for(const b of blocks){
+    switch(b.type){
+      case "h1":out.push("# "+b.text);break;
+      case "h2":out.push("## "+b.text);break;
+      case "h3":out.push("### "+b.text);break;
+      case "p":out.push(b.text);break;
+      case "ul":out.push(b.items.map(i=>"- "+i).join("\n"));break;
+      case "ol":out.push(b.items.map((i,n)=>(n+1)+". "+i).join("\n"));break;
+      case "quote":out.push("> "+b.text);break;
+      case "hr":out.push("---");break;
+      case "pb":out.push("[pagebreak]");break;
+      case "table":{
+        const lines=[];
+        if(b.headRow){lines.push("| "+b.headRow.map(c=>String(c).replace(/\n/g," ")).join(" | ")+" |");lines.push("| "+b.headRow.map(()=>"---").join(" | ")+" |");}
+        b.rows.forEach(r=>lines.push("| "+r.map(c=>String(c).replace(/\n/g," ")).join(" | ")+" |"));
+        out.push(lines.join("\n"));
+        break;
+      }
+    }
+  }
+  return out.join("\n\n");
+}
+function updateEditorFromModel(){ $("editor").value=blocksToMarkup(MODEL.blocks); }
+/* DOM element -> inline markup: <strong> -> *..*, <em> -> _.._, <br> -> newline.
+   Nested same-tag formatting is flattened (no double markers). Zero-width
+   spaces (the collapsed-caret bold trick) are stripped. */
+function domToInline(el){
+  if(!el.textContent.replace(/\u200B/g,"").trim())return "";
+  let out="";
+  const walk=(n,inB,inI)=>{
+    if(n.nodeType===3){out+=n.nodeValue.replace(/\u200B/g,"");return;}
+    if(n.nodeType!==1)return;
+    const tag=n.tagName.toLowerCase();
+    if(tag==="br"){out+="\n";return;}
+    const nb=inB||tag==="strong"||tag==="b";
+    const ni=inI||tag==="em"||tag==="i";
+    const start=out.length;
+    for(const c of n.childNodes)walk(c,nb,ni);
+    if((tag==="strong"||tag==="b")&&!inB){const seg=out.slice(start);if(seg)out=out.slice(0,start)+"*"+seg+"*";}
+    else if((tag==="em"||tag==="i")&&!inI){const seg=out.slice(start);if(seg)out=out.slice(0,start)+"_"+seg+"_";}
+  };
+  for(const c of el.childNodes)walk(c,false,false);
+  return out;
+}
+/* Rebuild the block model from the live preview DOM (in document order).
+   Split paragraphs concatenate exactly (the split keeps the space at the
+   start of the continuation part); split lists/tables rejoin by data-li /
+   data-r. Page-break markers (.pbrk) keep [pagebreak] blocks alive. */
+function syncFromPreview(){
+  const els=[...document.querySelectorAll("#pages .pb > [data-bi]")];
+  const byBi=new Map();
+  for(const el of els){const bi=+el.dataset.bi;if(!byBi.has(bi))byBi.set(bi,[]);byBi.get(bi).push(el);}
+  const blocks=[];
+  const order=[...byBi.keys()].sort((a,b)=>a-b);
+  for(const bi of order){
+    const parts=byBi.get(bi);
+    const first=parts[0];
+    const tag=first.tagName.toLowerCase();
+    if(tag==="div"){blocks.push({type:"pb"});continue;}
+    if(tag==="hr"){blocks.push({type:"hr"});continue;}
+    if(tag==="table"){
+      const head=[...first.querySelectorAll("thead th")].map(th=>domToInline(th));
+      const rowsMap=new Map();
+      for(const p of parts){
+        for(const td of p.querySelectorAll("tbody td")){
+          const r=+td.dataset.r,c=+td.dataset.c;
+          if(!rowsMap.has(r))rowsMap.set(r,[]);
+          rowsMap.get(r)[c]=domToInline(td);
+        }
+      }
+      const rows=[...rowsMap.keys()].sort((a,b)=>a-b).map(k=>rowsMap.get(k));
+      blocks.push({type:"table",headRow:head.length?head:null,rows:rows});
+      continue;
+    }
+    if(tag==="ul"||tag==="ol"){
+      const items=[];
+      for(const p of parts){for(const li of p.querySelectorAll("li"))items.push(domToInline(li));}
+      blocks.push({type:tag,items:items});
+      continue;
+    }
+    const text=parts.map(p=>domToInline(p)).join("");
+    const type=tag==="blockquote"?"quote":tag;
+    blocks.push({type:type,text:text});
+  }
+  MODEL.blocks=blocks;
+  updateEditorFromModel();
+  updateCounts();
+}
+/* A rendered data-bi value is a render-time index; the model index is its
+   position among the distinct data-bi values in DOM order. */
+function modelIndexOfBi(bi){
+  const seen=[];
+  for(const el of document.querySelectorAll("#pages .pb > [data-bi]")){
+    const v=+el.dataset.bi;
+    if(seen.indexOf(v)<0)seen.push(v);
+  }
+  return seen.indexOf(bi);
+}
+function offsetIn(el,node,nodeOff){
+  if(node.nodeType===1){
+    let off=0;
+    for(let i=0;i<nodeOff&&i<node.childNodes.length;i++)off+=node.childNodes[i].textContent.length;
+    let p=node;
+    while(p&&p!==el){let s=p.previousSibling;while(s){off+=s.textContent.length;s=s.previousSibling;}p=p.parentElement;}
+    return off;
+  }
+  let off=nodeOff;
+  let p=node;
+  while(p&&p!==el){let s=p.previousSibling;while(s){off+=s.textContent.length;s=s.previousSibling;}p=p.parentElement;}
+  return off;
+}
+/* Caret position in model terms: {bi (model index), kind, li/r/c, offset}. */
+function captureCaret(){
+  const sel=window.getSelection();
+  if(!sel||!sel.rangeCount)return null;
+  const r=sel.getRangeAt(0);
+  const node=r.startContainer;
+  const el=node.nodeType===3?node.parentElement:node;
+  const blk=el.closest?el.closest("[data-bi]"):null;
+  if(!blk||!document.getElementById("pages").contains(blk))return null;
+  const rawBi=+blk.dataset.bi;
+  const bi=modelIndexOfBi(rawBi);
+  if(bi<0)return null;
+  const tag=blk.tagName.toLowerCase();
+  if(tag==="td")return {bi:bi,kind:"td",r:+blk.dataset.r,c:+blk.dataset.c,offset:offsetIn(blk,node,r.startOffset)};
+  if(tag==="th")return {bi:bi,kind:"th",r:-1,c:+blk.dataset.c,offset:offsetIn(blk,node,r.startOffset)};
+  if(tag==="li"){
+    const lis=[...blk.parentElement.querySelectorAll("li")];
+    return {bi:bi,kind:"li",li:lis.indexOf(blk),offset:offsetIn(blk,node,r.startOffset)};
+  }
+  const parts=[...document.querySelectorAll('#pages .pb > [data-bi="'+rawBi+'"]')];
+  let off=0;
+  for(const p of parts){if(p===blk)break;off+=p.textContent.length;}
+  off+=offsetIn(blk,node,r.startOffset);
+  return {bi:bi,kind:"text",offset:off};
+}
+function restoreCaret(pos){
+  if(!pos)return false;
+  const pages=document.getElementById("pages");
+  let target=null,off=pos.offset||0;
+  if(pos.kind==="td"){
+    target=pages.querySelector('td[data-bi="'+pos.bi+'"][data-r="'+pos.r+'"][data-c="'+pos.c+'"]');
+  }else if(pos.kind==="th"){
+    target=pages.querySelector('th[data-bi="'+pos.bi+'"][data-c="'+pos.c+'"]');
+  }else if(pos.kind==="li"){
+    const ul=pages.querySelector('[data-bi="'+pos.bi+'"]');
+    if(ul)target=ul.querySelectorAll("li")[pos.li];
+  }else{
+    const parts=[...pages.querySelectorAll('.pb > [data-bi="'+pos.bi+'"]')];
+    for(const p of parts){const len=p.textContent.length;if(off<=len){target=p;break;}off-=len;}
+    if(!target&&parts.length){target=parts[parts.length-1];off=target.textContent.length;}
+  }
+  if(!target)return false;
+  const walker=document.createTreeWalker(target,NodeFilter.SHOW_TEXT);
+  let n,acc=0;
+  const range=document.createRange();
+  while((n=walker.nextNode())){
+    if(acc+n.nodeValue.length>=off){
+      range.setStart(n,Math.max(0,off-acc));range.collapse(true);
+      const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+      return true;
+    }
+    acc+=n.nodeValue.length;
+  }
+  range.selectNodeContents(target);range.collapse(false);
+  const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+  return true;
+}
+function schedulePreviewRender(){
+  clearTimeout(pvRenderT);
+  pvRenderT=setTimeout(()=>{
+    if(composing)return;
+    pendingCaret=captureCaret();
+    renderFromModel();
+  },400);
+}
+function caretAtEndOfBlock(i){
+  if(i<0)return null;
+  const b=MODEL.blocks[i];
+  if(!b)return null;
+  if(b.type==="ul"||b.type==="ol")return {bi:i,kind:"li",li:b.items.length-1,offset:(b.items[b.items.length-1]||"").length};
+  if(b.type==="table")return {bi:i,kind:"td",r:b.rows.length-1,c:0,offset:0};
+  if(b.type==="hr"||b.type==="pb")return caretAtEndOfBlock(i-1);
+  return {bi:i,kind:"text",offset:(b.text||"").length};
+}
+function caretAtBlockStart(i){
+  if(i>=MODEL.blocks.length){MODEL.blocks.push({type:"p",text:""});updateEditorFromModel();return {bi:MODEL.blocks.length-1,kind:"text",offset:0};}
+  const b=MODEL.blocks[i];
+  if(b.type==="ul"||b.type==="ol")return {bi:i,kind:"li",li:0,offset:0};
+  if(b.type==="table")return {bi:i,kind:"td",r:0,c:0,offset:0};
+  if(b.type==="hr"||b.type==="pb")return caretAtBlockStart(i+1);
+  return {bi:i,kind:"text",offset:0};
+}
+function handleEnterInPreview(){
+  const sel0=window.getSelection();
+  if(sel0&&sel0.rangeCount&&!sel0.getRangeAt(0).collapsed){
+    sel0.getRangeAt(0).deleteContents();
+    syncFromPreview();
+  }
+  const pos=captureCaret();
+  if(!pos)return false;
+  const idx=pos.bi;
+  const blk=MODEL.blocks[idx];
+  if(!blk)return false;
+  if(pos.kind==="td"||pos.kind==="th"){
+    const sel=window.getSelection();if(!sel.rangeCount)return false;
+    const r=sel.getRangeAt(0);
+    const br=document.createElement("br");
+    r.insertNode(br);
+    r.setStartAfter(br);r.collapse(true);
+    sel.removeAllRanges();sel.addRange(r);
+    syncFromPreview();schedulePreviewRender();
+    return true;
+  }
+  if(pos.kind==="li"){
+    const item=blk.items[pos.li]||"";
+    if(item===""&&pos.li===blk.items.length-1){
+      blk.items.splice(pos.li,1);
+      let newBi;
+      if(blk.items.length===0){MODEL.blocks.splice(idx,1);MODEL.blocks.splice(idx,0,{type:"p",text:""});newBi=idx;}
+      else{MODEL.blocks.splice(idx+1,0,{type:"p",text:""});newBi=idx+1;}
+      updateEditorFromModel();
+      pendingCaret={bi:newBi,kind:"text",offset:0};
+      renderFromModel();
+      return true;
+    }
+    const before=item.slice(0,pos.offset),after=item.slice(pos.offset);
+    blk.items[pos.li]=before;
+    blk.items.splice(pos.li+1,0,after);
+    updateEditorFromModel();
+    pendingCaret={bi:idx,kind:"li",li:pos.li+1,offset:0};
+    renderFromModel();
+    return true;
+  }
+  if(blk.type==="table"||blk.type==="hr"||blk.type==="pb")return false;
+  const before=blk.text.slice(0,pos.offset),after=blk.text.slice(pos.offset);
+  blk.text=before;
+  MODEL.blocks.splice(idx+1,0,{type:"p",text:after});
+  updateEditorFromModel();
+  pendingCaret={bi:idx+1,kind:"text",offset:0};
+  renderFromModel();
+  return true;
+}
+function handleBackspaceInPreview(){
+  const sel0=window.getSelection();
+  if(!sel0||!sel0.rangeCount||!sel0.getRangeAt(0).collapsed)return false; // a selection: let the browser delete just the selection
+  const pos=captureCaret();
+  if(!pos||pos.offset>0||pos.kind==="td"||pos.kind==="th")return false;
+  const idx=pos.bi;
+  if(idx<=0)return false;
+  const blk=MODEL.blocks[idx],prev=MODEL.blocks[idx-1];
+  if(!blk||!prev)return false;
+  const emptyText=b=>["p","h1","h2","h3","quote"].indexOf(b.type)>=0&&!b.text;
+  const emptyList=b=>(b.type==="ul"||b.type==="ol")&&(b.items.length===0||(b.items.length===1&&!b.items[0]));
+  if(pos.kind==="li"){
+    const item=blk.items[pos.li]||"";
+    if(pos.li===0){
+      if(item===""){
+        blk.items.splice(0,1);
+        if(!blk.items.length){MODEL.blocks.splice(idx,1);updateEditorFromModel();pendingCaret=caretAtEndOfBlock(idx-1);renderFromModel();return true;}
+        updateEditorFromModel();
+        pendingCaret={bi:idx,kind:"li",li:0,offset:0};
+        renderFromModel();
+        return true;
+      }
+      blk.items.splice(0,1);
+      MODEL.blocks.splice(idx,0,{type:"p",text:item});
+      if(!blk.items.length)MODEL.blocks.splice(idx+1,1);
+      updateEditorFromModel();
+      pendingCaret={bi:idx,kind:"text",offset:item.length};
+      renderFromModel();
+      return true;
+    }
+    const at=(blk.items[pos.li-1]||"").length;
+    blk.items[pos.li-1]=(blk.items[pos.li-1]||"")+item;
+    blk.items.splice(pos.li,1);
+    updateEditorFromModel();
+    pendingCaret={bi:idx,kind:"li",li:pos.li-1,offset:at};
+    renderFromModel();
+    return true;
+  }
+  if(emptyText(blk)||emptyList(blk)){
+    MODEL.blocks.splice(idx,1);
+    updateEditorFromModel();
+    pendingCaret=caretAtEndOfBlock(idx-1);
+    renderFromModel();
+    return true;
+  }
+  if(["p","h1","h2","h3","quote"].indexOf(blk.type)>=0&&["p","h1","h2","h3","quote"].indexOf(prev.type)>=0){
+    const at=prev.text.length;
+    prev.text+=blk.text;
+    MODEL.blocks.splice(idx,1);
+    updateEditorFromModel();
+    pendingCaret={bi:idx-1,kind:"text",offset:at};
+    renderFromModel();
+    return true;
+  }
+  if((blk.type==="ul"||blk.type==="ol")&&prev.type===blk.type){
+    const at=prev.items.length;
+    prev.items.push.apply(prev.items,blk.items);
+    MODEL.blocks.splice(idx,1);
+    updateEditorFromModel();
+    pendingCaret={bi:idx-1,kind:"li",li:at,offset:0};
+    renderFromModel();
+    return true;
+  }
+  return false;
+}
+function insertPlainTextAtCaret(text){
+  const sel=window.getSelection();
+  if(!sel.rangeCount)return;
+  const r=sel.getRangeAt(0);
+  r.deleteContents();
+  const node=document.createTextNode(text);
+  r.insertNode(node);
+  r.setStartAfter(node);r.collapse(true);
+  sel.removeAllRanges();sel.addRange(r);
+}
+/* Manual Range-based inline formatting (no execCommand): wrap the selection
+   in <strong>/<em>; a collapsed caret toggles the run under it, or plants an
+   empty formatted run (zero-width space) that the next typed characters
+   land inside. */
+function fmtAncestor(node,tag){
+  let el=node.nodeType===3?node.parentElement:node;
+  while(el&&el.id!=="pages"){
+    if(el.tagName&&el.tagName.toLowerCase()===tag)return el;
+    el=el.parentElement;
+  }
+  return null;
+}
+function wrapSelection(tag){
+  const sel=window.getSelection();
+  if(!sel||!sel.rangeCount)return false;
+  const r=sel.getRangeAt(0);
+  const sc=r.startContainer.nodeType===3?r.startContainer.parentElement:r.startContainer;
+  const ec=r.endContainer.nodeType===3?r.endContainer.parentElement:r.endContainer;
+  const sb=sc.closest?sc.closest("[data-bi]"):null;
+  const eb=ec.closest?ec.closest("[data-bi]"):null;
+  if(!sb||sb!==eb)return false;
+  if(r.collapsed){
+    const ex=fmtAncestor(r.startContainer,tag);
+    if(ex){ // toggle off: unwrap the whole run
+      const p=ex.parentNode;
+      while(ex.firstChild)p.insertBefore(ex.firstChild,ex);
+      p.removeChild(ex);
+      return true;
+    }
+    const node=document.createElement(tag);
+    node.appendChild(document.createTextNode("\u200B"));
+    r.insertNode(node);
+    const nr=document.createRange();
+    nr.setStart(node.firstChild,1);nr.collapse(true);
+    sel.removeAllRanges();sel.addRange(nr);
+    return true;
+  }
+  const ex=fmtAncestor(r.startContainer,tag);
+  if(ex&&ex===fmtAncestor(r.endContainer,tag)&&r.toString()===ex.textContent.replace(/\u200B/g,"")){
+    const p=ex.parentNode;
+    while(ex.firstChild)p.insertBefore(ex.firstChild,ex);
+    p.removeChild(ex);
+    return true;
+  }
+  try{
+    const frag=r.extractContents();
+    const node=document.createElement(tag);
+    node.appendChild(frag);
+    r.insertNode(node);
+    const nr=document.createRange();
+    nr.selectNodeContents(node);
+    sel.removeAllRanges();sel.addRange(nr);
+    return true;
+  }catch(e){return false;}
+}
+function pvAction(kind){
+  const pos=captureCaret();
+  if(!pos){toast(T("pvClickFirst"));return;}
+  if(kind==="bold"||kind==="italic"){
+    const tag=kind==="bold"?"strong":"em";
+    if(wrapSelection(tag)){syncFromPreview();schedulePreviewRender();}
+    return;
+  }
+  const idx=pos.bi;
+  const blk=MODEL.blocks[idx];
+  if(!blk)return;
+  if(kind==="table"){
+    MODEL.blocks.splice(idx+1,0,{type:"table",headRow:["Item","Price"],rows:[["Sample","$10.00"],["Sample","$20.00"]]});
+    updateEditorFromModel();
+    pendingCaret={bi:idx+1,kind:"td",r:0,c:0,offset:0};
+    renderFromModel();
+    return;
+  }
+  if(kind==="rule"||kind==="break"){
+    MODEL.blocks.splice(idx+1,0,{type:kind==="rule"?"hr":"pb"});
+    updateEditorFromModel();
+    pendingCaret=caretAtBlockStart(idx+2);
+    renderFromModel();
+    return;
+  }
+  if(kind==="clear"){
+    const strip=s=>String(s).replace(/\*([^*]+)\*/g,"$1").replace(/_([^_]+)_/g,"$1");
+    if(blk.type==="table"){
+      if(pos.kind==="th"){if(blk.headRow)blk.headRow[pos.c]=strip(blk.headRow[pos.c]);}
+      else{blk.rows[pos.r][pos.c]=strip(blk.rows[pos.r][pos.c]);}
+    }
+    else if(blk.type==="ul"||blk.type==="ol"){blk.items[pos.li]=strip(blk.items[pos.li]);}
+    else if(blk.text!==undefined){blk.text=strip(blk.text);}
+    updateEditorFromModel();
+    pendingCaret=pos;
+    renderFromModel();
+    return;
+  }
+  if(kind==="h1"||kind==="h2"||kind==="h3"||kind==="quote"){
+    if(blk.type==="table")return;
+    if(blk.type==="ul"||blk.type==="ol"){
+      const paras=blk.items.map(t=>({type:"p",text:t}));
+      MODEL.blocks.splice(idx,1,...paras);
+      updateEditorFromModel();
+      pendingCaret={bi:idx,kind:"text",offset:0};
+      renderFromModel();
+      return;
+    }
+    blk.type=(blk.type===kind)?"p":kind;
+    updateEditorFromModel();
+    pendingCaret={bi:idx,kind:"text",offset:pos.offset||0};
+    renderFromModel();
+    return;
+  }
+  if(kind==="ul"||kind==="ol"){
+    if(blk.type==="table")return;
+    if(blk.type===kind){
+      const paras=blk.items.map(t=>({type:"p",text:t}));
+      MODEL.blocks.splice(idx,1,...paras);
+      updateEditorFromModel();
+      pendingCaret={bi:idx,kind:"text",offset:0};
+      renderFromModel();
+      return;
+    }
+    if(blk.type==="ul"||blk.type==="ol"){blk.type=kind;}
+    else{MODEL.blocks.splice(idx,1,{type:kind,items:[blk.text]});}
+    updateEditorFromModel();
+    pendingCaret={bi:idx,kind:"li",li:0,offset:0};
+    renderFromModel();
+    return;
+  }
 }
 function updateCounts(){
   const v=$("editor").value;
@@ -1158,6 +1652,41 @@ function init(){
     FONT=v;renderAll();
   };
   document.querySelectorAll("#toolbar .toolbtn").forEach(b=>{b.onclick=()=>INS[b.dataset.ins]();});
+
+  // preview direct editing (v2): the preview is the primary editor; the
+  // markup pane stays as the advanced view. Both panes share MODEL.blocks.
+  const pagesEl=$("pages");
+  pagesEl.addEventListener("input",e=>{
+    if(!e.target.closest||!e.target.closest("[data-bi]"))return;
+    syncFromPreview();
+    schedulePreviewRender();
+  });
+  pagesEl.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){if(handleEnterInPreview())e.preventDefault();}
+    else if(e.key==="Backspace"){if(handleBackspaceInPreview())e.preventDefault();}
+  });
+  pagesEl.addEventListener("paste",e=>{
+    const blk=e.target.closest?e.target.closest("[data-bi]"):null;
+    if(!blk)return;
+    e.preventDefault();
+    const text=((e.clipboardData||window.clipboardData).getData("text/plain")||"").replace(/\r\n?/g,"\n").replace(/\n+/g," ");
+    if(text)insertPlainTextAtCaret(text);
+    syncFromPreview();schedulePreviewRender();
+  });
+  pagesEl.addEventListener("click",e=>{
+    if(e.target.classList&&e.target.classList.contains("pb")){
+      MODEL.blocks.push({type:"p",text:""});
+      updateEditorFromModel();
+      pendingCaret={bi:MODEL.blocks.length-1,kind:"text",offset:0};
+      renderFromModel();
+    }
+  });
+  pagesEl.addEventListener("compositionstart",()=>{composing=true;});
+  pagesEl.addEventListener("compositionend",()=>{composing=false;syncFromPreview();schedulePreviewRender();});
+  document.querySelectorAll("#pvToolbar .pvtool").forEach(b=>{
+    b.addEventListener("mousedown",e=>e.preventDefault()); // keep the preview caret
+    b.addEventListener("click",()=>pvAction(b.dataset.pv));
+  });
 
   // letterhead
   document.querySelectorAll("#lhModeSeg button").forEach(b=>{b.onclick=()=>{LH.mode=b.dataset.mode;refreshLHUI();saveLetterhead();renderAll();};});
