@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Letter Mo — Pocket Document Studio</title>
+<meta name="description" content="Write in simple markup and get a print-ready letter: A4 pages, your own letterhead (image or typed), templates, PNG / JPG export. Everything runs in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============ themes (OpenX spec: default silver #EAEDEF) ============ */
+:root{ --accent:#8a867e; }
+[data-theme="silver"]{ --bg:#EAEDEF; --panel:#F6F8F9; --panel2:#ffffff; --ink:#1d2126; --muted:#6b7280; --line:#D5D9DC; --shadow:0 8px 28px rgba(20,24,30,.14); --chip:#eceff1; }
+[data-theme="white"]{ --bg:#ffffff; --panel:#f7f7f7; --panel2:#ffffff; --ink:#1d2126; --muted:#6b7280; --line:#e2e2e0; --shadow:0 8px 28px rgba(20,24,30,.12); --chip:#efefed; }
+[data-theme="black"]{ --bg:#14161a; --panel:#1d2026; --panel2:#23262d; --ink:#e8eaed; --muted:#9aa0a8; --line:#33373f; --shadow:0 8px 28px rgba(0,0,0,.45); --chip:#2a2e35; }
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+h1,h2,h3,.dela{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-weight:400;letter-spacing:.01em}
+button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,select,textarea{font-family:inherit;color:inherit}
+a{color:inherit}
+
+/* ============ top bar ============ */
+.topbar{height:56px;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--line);background:var(--panel)}
+.iconbtn{width:38px;height:38px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:19px;color:var(--accent);border:1px solid var(--line);background:var(--panel2);flex:0 0 auto}
+.iconbtn:hover{border-color:var(--accent)}
+.brand{font-size:20px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{font-size:11px;color:var(--muted);font-family:"Noto Sans TC",sans-serif;letter-spacing:.06em;display:block;margin-top:3px}
+.spacer{flex:1}
+.pillbtn{height:36px;padding:0 12px;border-radius:18px;border:1px solid var(--line);background:var(--panel2);font-size:13px;white-space:nowrap}
+.pillbtn:hover{border-color:var(--accent)}
+.pillbtn.pro{border-color:var(--accent);font-weight:700}
+.pillbtn.pro.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.bmc{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--accent);flex:0 0 auto}
+.bmc svg{display:block}
+.countpill{font-size:12px;color:var(--muted);white-space:nowrap}
+.mobiletabs{display:none}
+
+/* ============ stage ============ */
+.stage{height:calc(100% - 56px);display:grid;grid-template-columns:minmax(360px,440px) minmax(0,1fr)}
+.editorcol{display:flex;flex-direction:column;border-right:1px solid var(--line);background:var(--panel);min-height:0}
+.toolbar{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.toolbtn{height:32px;min-width:34px;padding:0 9px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);font-size:13px;font-weight:700}
+.toolbtn:hover{border-color:var(--accent)}
+#editor{flex:1;border:none;outline:none;resize:none;background:var(--panel2);color:var(--ink);padding:16px 18px;font-size:14px;line-height:1.65;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;min-height:0}
+.editorfoot{display:flex;gap:12px;padding:8px 14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.previewcol{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--bg)}
+.previewbar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:13px}
+.previewbar select{height:32px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);padding:0 8px;font-size:13px}
+.pageswrap{flex:1;overflow:auto;padding:20px 16px 40px}
+#pages{width:794px;margin:0 auto}
+
+/* ============ A4 page ============ */
+.page{width:794px;height:1123px;background:#fff;color:#16181c;box-shadow:var(--shadow);margin:0 auto 28px;padding:56px 64px;display:flex;flex-direction:column;position:relative}
+.ph{margin-bottom:14px}
+.ph img{max-height:84px;max-width:100%;object-fit:contain;display:block}
+.ph-text{border-bottom:1.5px solid #222;padding-bottom:10px}
+.ph-name{font-size:21px;font-weight:700;letter-spacing:.02em}
+.ph-contact{font-size:11.5px;color:#555;margin-top:4px;line-height:1.5}
+.pb{flex:1;overflow:hidden}
+.pb h1{font-size:27px;margin:2px 0 12px;line-height:1.3}
+.pb h2{font-size:21px;margin:18px 0 8px;line-height:1.35}
+.pb h3{font-size:16.5px;margin:16px 0 6px}
+.pb p{font-size:14.5px;line-height:1.75;margin:0 0 10px}
+.pb ul,.pb ol{font-size:14.5px;line-height:1.7;margin:0 0 10px;padding-left:22px}
+.pb li{margin-bottom:3px}
+.pb blockquote{margin:0 0 10px;padding:8px 14px;border-left:3px solid #999;background:#f5f5f3;font-size:14.5px;line-height:1.7}
+.pb hr{border:none;border-top:1.5px solid #bbb;margin:16px 0}
+.pb table{width:100%;border-collapse:collapse;font-size:13.5px;margin:0 0 12px}
+.pb th,.pb td{border:1px solid #bbb;padding:6px 9px;text-align:left}
+.pb th{background:#efefed;font-weight:700}
+.pf{margin-top:12px}
+.pf img{max-height:56px;max-width:100%;object-fit:contain;display:block;margin:0 auto 6px}
+.pf-line{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #bbb;padding-top:8px;font-size:11px;color:#666}
+.pf-line span:last-child{white-space:nowrap}
+.font-serif .pb{font-family:Georgia,'Times New Roman','Songti SC',serif}
+.font-mono .pb{font-family:ui-monospace,Menlo,Consolas,monospace}
+.font-kai .pb{font-family:'KaiTi','STKaiti','Kaiti SC',serif}
+#measurer{position:absolute;left:-9999px;top:0;width:666px;visibility:hidden}
+
+/* ============ drawer ============ */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(430px,94vw);background:var(--panel);border-left:1px solid var(--line);box-shadow:var(--shadow);transform:translateX(105%);transition:transform .28s ease;z-index:40;display:flex;flex-direction:column}
+.drawer.open{transform:translateX(0)}
+.drawerhead{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.drawerhead h2{font-size:17px;margin:0;flex:1}
+.drawerbody{overflow-y:auto;padding:16px;flex:1}
+.sec{margin-bottom:22px}
+.sec h3{font-size:14px;margin:0 0 10px}
+.sec p{font-size:13px;line-height:1.6;color:var(--muted);margin:0 0 10px}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.field input,.field select{width:100%;height:38px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);padding:0 10px;font-size:14px}
+.seg{display:flex;gap:6px;margin-bottom:10px}
+.seg button{flex:1;height:36px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);font-size:13px}
+.seg button.sel{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.imgrow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.imgrow img{width:120px;height:44px;object-fit:contain;background:var(--panel2);border:1px solid var(--line);border-radius:8px}
+.imgrow .nm{flex:1;min-width:0;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tplgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tpl{border:1px solid var(--line);border-radius:10px;background:var(--panel2);padding:10px;text-align:left;font-size:13px}
+.tpl b{display:block;font-size:13px}
+.tpl span{font-size:11px;color:var(--muted)}
+.tpl:hover{border-color:var(--accent)}
+.btn{height:40px;padding:0 16px;border-radius:10px;background:var(--ink);color:var(--bg);font-size:14px;font-weight:700}
+.btn.ghost{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.block{width:100%;margin-bottom:8px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.keyrow{display:flex;gap:8px}
+.keyrow input{flex:1;min-width:0;height:40px;border:1px solid var(--line);border-radius:10px;padding:0 12px;background:var(--panel2);font-size:14px}
+.msg{font-size:12px;margin-top:8px;min-height:16px;color:var(--muted)}
+.msg.ok{color:#2e7d32}.msg.err{color:#c62828}
+.cheat{font-size:13px;line-height:1.8}
+.cheat code{background:var(--chip);border-radius:5px;padding:1px 6px;font-size:12px}
+.foot{font-size:12px;color:var(--muted);line-height:1.6}
+.foot a{text-decoration:underline}
+.lock{color:var(--muted);font-size:11px}
+
+/* ============ modal + toast ============ */
+.modal{position:fixed;inset:0;background:rgba(10,12,16,.45);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+.modal.open{display:flex}
+.mbox{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:440px;width:100%;padding:22px;box-shadow:var(--shadow)}
+.mbox h2{font-size:19px;margin:0 0 8px}
+.mbox p{font-size:13px;line-height:1.6;color:var(--muted);margin:0 0 12px}
+.mbox .x{float:right;font-size:20px;color:var(--accent);line-height:1}
+.prolist{font-size:13px;line-height:1.7;margin:0 0 14px;padding-left:18px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:all .25s ease;z-index:80;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (max-width:900px){
+  .mobiletabs{display:flex;height:44px;border-bottom:1px solid var(--line);background:var(--panel);flex:0 0 auto}
+  .mobiletabs button{flex:1;font-size:14px;font-weight:700;color:var(--muted)}
+  .mobiletabs button.sel{color:var(--ink);border-bottom:2px solid var(--ink)}
+  .stage{display:block;height:calc(100% - 56px - 44px);overflow:hidden}
+  .editorcol,.previewcol{height:100%;border-right:none}
+  body[data-tab="edit"] .previewcol{display:none}
+  body[data-tab="preview"] .editorcol{display:none}
+  .brand small{display:none}
+  .countpill{display:none}
+}
+
+@media print{
+  body{background:#fff;overflow:visible}
+  .topbar,.drawer,.mobiletabs,.editorcol,.previewbar,.toast,.modal,.editorfoot{display:none !important}
+  .stage{display:block;height:auto}
+  .previewcol{display:block;overflow:visible}
+  .pageswrap{overflow:visible;padding:0}
+  #pages{zoom:1 !important;width:794px}
+  .page{box-shadow:none;margin:0;page-break-after:always;break-after:page}
+  .page:last-child{page-break-after:auto;break-after:auto}
+}
+</style>
+</head>
+<body data-theme="silver" data-tab="edit">
+<header class="topbar">
+  <button class="iconbtn" id="drawerBtn" aria-label="Menu">☰</button>
+  <div class="brand"><span class="dela">Letter Mo</span><small data-i18n="tagline">POCKET DOCUMENT STUDIO</small></div>
+  <div class="spacer"></div>
+  <span class="countpill" id="pageCount">1 page</span>
+  <button class="pillbtn pro" id="proBtn">Pro</button>
+  <button class="pillbtn" id="themeBtn">◐ Silver</button>
+  <button class="pillbtn" id="langBtn">EN</button>
+  <a class="bmc" href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener" aria-label="Buy Me a Coffee" title="Buy Me a Coffee"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg></a>
+</header>
+<nav class="mobiletabs">
+  <button id="tabEdit" class="sel" data-i18n="edit">Edit</button>
+  <button id="tabPreview" data-i18n="preview">Preview</button>
+</nav>
+<main class="stage">
+  <section class="editorcol" id="editorCol">
+    <div class="toolbar" id="toolbar">
+      <button class="toolbtn" data-ins="h1" title="Heading 1">H1</button>
+      <button class="toolbtn" data-ins="h2" title="Heading 2">H2</button>
+      <button class="toolbtn" data-ins="h3" title="Heading 3">H3</button>
+      <button class="toolbtn" data-ins="bold" title="Bold"><b>B</b></button>
+      <button class="toolbtn" data-ins="italic" title="Italic"><i>I</i></button>
+      <button class="toolbtn" data-ins="ul" title="Bullet list">• List</button>
+      <button class="toolbtn" data-ins="ol" title="Numbered list">1. List</button>
+      <button class="toolbtn" data-ins="table" title="Table">Table</button>
+      <button class="toolbtn" data-ins="quote" title="Quote">Quote</button>
+      <button class="toolbtn" data-ins="rule" title="Divider">—</button>
+      <button class="toolbtn" data-ins="break" title="Page break">⏎ Break</button>
+    </div>
+    <textarea id="editor" spellcheck="false" aria-label="Document markup"></textarea>
+    <div class="editorfoot"><span id="wordCount">0 words</span><span id="charCount">0 characters</span></div>
+  </section>
+  <section class="previewcol" id="previewCol">
+    <div class="previewbar">
+      <label for="zoomSel" data-i18n="zoom">Zoom</label>
+      <select id="zoomSel">
+        <option value="fit" data-i18n="zoomFit">Fit</option>
+        <option value="0.5">50%</option>
+        <option value="0.75">75%</option>
+        <option value="1">100%</option>
+      </select>
+      <span class="countpill" id="pageCount2"></span>
+    </div>
+    <div class="pageswrap" id="pagesWrap"><div id="pages"></div></div>
+  </section>
+</main>
+
+<aside class="drawer" id="drawer" aria-label="Letter desk">
+  <div class="drawerhead"><h2 data-i18n="drawerTitle">Letter desk</h2><button class="iconbtn" data-close="drawer" aria-label="Close">✕</button></div>
+  <div class="drawerbody">
+    <div class="sec">
+      <h3 data-i18n="secLetterhead">Letterhead</h3>
+      <p data-i18n="lhNote">Upload your own header and footer images, or type your company details. Saved on this device only.</p>
+      <div class="seg" id="lhModeSeg">
+        <button data-mode="none" data-i18n="lhNone">None</button>
+        <button data-mode="image" data-i18n="lhImage">Image</button>
+        <button data-mode="text" data-i18n="lhText">Text</button>
+      </div>
+      <div id="lhImagePane">
+        <div class="imgrow"><img id="imgHeadPrev" alt=""><span class="nm" id="imgHeadName" data-i18n="lhHeadImg">Header image</span><button class="toolbtn" id="pickHead" data-i18n="lhUpload">Choose</button></div>
+        <div class="imgrow"><img id="imgFootPrev" alt=""><span class="nm" id="imgFootName" data-i18n="lhFootImg">Footer image</span><button class="toolbtn" id="pickFoot" data-i18n="lhUpload">Choose</button></div>
+        <p class="lock" data-i18n="lhImgNote">Images are scaled to max 1200px wide and kept on this device.</p>
+      </div>
+      <div id="lhTextPane">
+        <div class="field"><label data-i18n="lhCompany">Company name</label><input id="lhCompany" type="text" placeholder="Example Trading Co."></div>
+        <div class="field"><label data-i18n="lhAddress">Address</label><input id="lhAddress" type="text" placeholder="123 Sample Road, Example City"></div>
+        <div class="field"><label data-i18n="lhPhone">Phone</label><input id="lhPhone" type="text" placeholder="(555) 010-1234"></div>
+        <div class="field"><label data-i18n="lhEmail">Email</label><input id="lhEmail" type="text" placeholder="hello@example-trading.example"></div>
+      </div>
+      <div class="field"><label data-i18n="lhScope">Header on</label>
+        <select id="lhScope"><option value="first" data-i18n="lhFirst">First page only</option><option value="all" data-i18n="lhAll">Every page</option></select>
+      </div>
+      <div class="actions"><button class="btn ghost" id="lhReset" data-i18n="lhReset">Remove letterhead</button></div>
+      <div class="field" style="margin-top:14px"><label data-i18n="lhProfile">Saved profiles</label>
+        <select id="profileSelect"></select>
+      </div>
+      <div class="keyrow"><input id="profileName" type="text" data-i18n-ph="lhProfileName" placeholder="Profile name"><button class="btn ghost" id="saveProfile" data-i18n="lhSaveProfile">Save</button></div>
+      <div class="actions"><button class="btn ghost" id="deleteProfile" data-i18n="lhDeleteProfile">Delete profile</button></div>
+    </div>
+    <div class="sec">
+      <h3 data-i18n="secTemplates">Templates</h3>
+      <div class="tplgrid">
+        <button class="tpl" data-tpl="business"><b data-i18n="tplBusiness">Business letter</b><span data-i18n="tplBusinessSub">Formal letter · free</span></button>
+        <button class="tpl" data-tpl="blank"><b data-i18n="tplBlank">Blank</b><span data-i18n="tplBlankSub">Start from nothing · free</span></button>
+        <button class="tpl" data-tpl="notice"><b data-i18n="tplNotice">Notice</b><span data-i18n="tplNoticeSub">Announcement · Pro</span></button>
+        <button class="tpl" data-tpl="report"><b data-i18n="tplReport">Report</b><span data-i18n="tplReportSub">Structured report · Pro</span></button>
+      </div>
+    </div>
+    <div class="sec">
+      <h3 data-i18n="secExport">Export</h3>
+      <button class="btn block" id="expPng" data-i18n="expPng">Export PNG (all pages)</button>
+      <button class="btn block ghost" id="expJpg">Export JPG (all pages) · Pro</button>
+      <button class="btn block ghost" id="expPrint" data-i18n="expPrint">Print / Save as PDF</button>
+      <div class="field"><label data-i18n="expPrefix">File name prefix · Pro</label><input id="expPrefix" type="text" placeholder="letter-mo" disabled></div>
+    </div>
+    <div class="sec">
+      <h3 data-i18n="secFont">Document font</h3>
+      <div class="field"><select id="fontSel">
+        <option value="default" data-i18n="fontDefault">Default (sans)</option>
+        <option value="serif" data-i18n="fontSerif">Serif</option>
+        <option value="mono" data-i18n="fontMono">Mono</option>
+        <option value="kai" data-i18n="fontKai">Kai (Chinese)</option>
+      </select></div>
+      <p class="lock" data-i18n="fontNote">Serif, Mono and Kai are Pro. The preview font also carries into PNG / JPG export.</p>
+    </div>
+    <div class="sec">
+      <h3 data-i18n="secPro">OpenX Pro</h3>
+      <p data-i18n="proNote">Pro unlocks all 4 templates, unlimited letterhead profiles, custom fonts, JPG export and batch file naming.</p>
+      <div class="keyrow"><input id="proKeyIn" type="text" data-i18n-ph="keyPh" placeholder="OX1-XXXX-XXXX"><button class="btn" id="proKeyBtn" data-i18n="unlock">Unlock</button></div>
+      <div class="msg" id="proMsg"></div>
+      <div class="actions"><button class="btn ghost" id="buyBtn" data-i18n="getPro">Get OpenX Pro</button></div>
+    </div>
+    <div class="sec">
+      <h3 data-i18n="secHow">How the markup works</h3>
+      <div class="cheat" data-i18n="howText">Write in the mini-markup on the left; the A4 pages on the right update live. <code>#</code> <code>##</code> <code>###</code> headings, <code>*bold*</code>, <code>_italic_</code>, lists <code>-</code> and <code>1.</code>, tables <code>| a | b |</code>, quotes <code>&gt;</code>, <code>---</code> for a rule, <code>[pagebreak]</code> for a new page.</div>
+    </div>
+    <p class="foot"><span data-i18n="footCopy">© 2026 OpenX Mo — a pocket document studio. Mini-markup inspired by Typst (Apache-2.0).</span><br><a href="https://openx-mo.vercel.app/" target="_blank" rel="noopener">OpenX</a> · <a href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener">Buy Me a Coffee</a> · <a href="https://github.com/typst/typst" target="_blank" rel="noopener">Typst</a></p>
+  </div>
+</aside>
+
+<div class="modal" id="proModal">
+  <div class="mbox">
+    <button class="x" data-close="proModal">✕</button>
+    <h2 data-i18n="proTitle">This one is Pro</h2>
+    <p data-i18n="proBody">OpenX Pro unlocks the full letter desk — all templates, unlimited letterhead profiles, custom fonts, JPG export and batch naming. One key unlocks every OpenX tool.</p>
+    <ul class="prolist"><li data-i18n="proLi1">Monthly US$9.99 · Yearly US$88 · Lifetime US$166</li><li data-i18n="proLi2">Keys are validated per device; offline checks are honoured for a while.</li></ul>
+    <div class="keyrow"><input id="proKeyIn2" type="text" data-i18n-ph="keyPh" placeholder="OX1-XXXX-XXXX"><button class="btn" id="proKeyBtn2" data-i18n="unlock">Unlock</button></div>
+    <div class="msg" id="proMsg2"></div>
+    <div class="actions"><button class="btn" id="buyBtn2" data-i18n="getPro">Get OpenX Pro</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="measurer" class="pb" aria-hidden="true"></div>
+<input type="file" id="fileHead" accept="image/*" hidden>
+<input type="file" id="fileFoot" accept="image/*" hidden>
+<script>
+/* ================= i18n ================= */
+const I18N={
+en:{tagline:"POCKET DOCUMENT STUDIO",edit:"Edit",preview:"Preview",zoom:"Zoom",zoomFit:"Fit",
+drawerTitle:"Letter desk",secLetterhead:"Letterhead",secTemplates:"Templates",secExport:"Export",secFont:"Document font",secPro:"OpenX Pro",secHow:"How the markup works",
+lhNote:"Upload your own header and footer images, or type your company details. Saved on this device only.",
+lhNone:"None",lhImage:"Image",lhText:"Text",lhHeadImg:"Header image",lhFootImg:"Footer image",lhUpload:"Choose",
+lhImgNote:"Images are scaled to max 1200px wide and kept on this device.",
+lhCompany:"Company name",lhAddress:"Address",lhPhone:"Phone",lhEmail:"Email",
+lhScope:"Header on",lhFirst:"First page only",lhAll:"Every page",lhReset:"Remove letterhead",
+lhProfile:"Saved profiles",lhProfileName:"Profile name",lhSaveProfile:"Save",lhDeleteProfile:"Delete profile",
+tplBusiness:"Business letter",tplBusinessSub:"Formal letter · free",tplBlank:"Blank",tplBlankSub:"Start from nothing · free",
+tplNotice:"Notice",tplNoticeSub:"Announcement · Pro",tplReport:"Report",tplReportSub:"Structured report · Pro",
+tplLoaded:"Template loaded",
+expPng:"Export PNG (all pages)",expPrint:"Print / Save as PDF",expPrefix:"File name prefix · Pro",
+fontDefault:"Default (sans)",fontSerif:"Serif",fontMono:"Mono",fontKai:"Kai (Chinese)",
+fontNote:"Serif, Mono and Kai are Pro. The preview font also carries into PNG / JPG export.",
+proNote:"Pro unlocks all 4 templates, unlimited letterhead profiles, custom fonts, JPG export and batch file naming.",
+unlock:"Unlock",getPro:"Get OpenX Pro",keyPh:"OX1-XXXX-XXXX",
+proTitle:"This one is Pro",proBody:"OpenX Pro unlocks the full letter desk — all templates, unlimited letterhead profiles, custom fonts, JPG export and batch naming. One key unlocks every OpenX tool.",
+proLi1:"Monthly US$9.99 · Yearly US$88 · Lifetime US$166",proLi2:"Keys are validated per device; offline checks are honoured for a while.",
+key_ok:"Pro unlocked — welcome aboard.",key_bad:"That key did not check out. Try again.",key_net:"Could not reach the license server. Check your connection and try again.",key_saved:"Checking…",
+needPro:"Pro feature — unlock OpenX Pro to use it.",proOn:"Pro ✓",proActive:"Pro is active on this device.",
+copied:"Copied",imgLoaded:"Letterhead image loaded",imgFail:"That file could not be read as an image.",
+lhRemoved:"Letterhead removed",profileSaved:"Profile saved",profileDeleted:"Profile deleted",profileCap:"Free keeps 1 letterhead profile — Pro keeps them all.",
+expDone:"Exported",expFail:"Export failed — try again.",
+howText:"Write in the mini-markup on the left; the A4 pages on the right update live. <code>#</code> <code>##</code> <code>###</code> headings, <code>*bold*</code>, <code>_italic_</code>, lists <code>-</code> and <code>1.</code>, tables <code>| a | b |</code>, quotes <code>&gt;</code>, <code>---</code> for a rule, <code>[pagebreak]</code> for a new page.",
+footCopy:"© 2026 OpenX Mo — a pocket document studio. Mini-markup inspired by Typst (Apache-2.0)."},
+zh:{tagline:"口袋文書工作室",edit:"編輯",preview:"預覽",zoom:"縮放",zoomFit:"適應",
+drawerTitle:"文書工作台",secLetterhead:"信頭信尾",secTemplates:"範本",secExport:"匯出",secFont:"文件字體",secPro:"OpenX Pro",secHow:"標記寫法",
+lhNote:"上載自己嘅信頭／信尾圖片，或者直接打公司資料。只係存喺呢部裝置。",
+lhNone:"唔用",lhImage:"圖片",lhText:"文字",lhHeadImg:"信頭圖片",lhFootImg:"信尾圖片",lhUpload:"揀檔案",
+lhImgNote:"圖片會縮到最闊 1200px，只係存喺呢部裝置。",
+lhCompany:"公司名稱",lhAddress:"地址",lhPhone:"電話",lhEmail:"電郵",
+lhScope:"信頭出現喺",lhFirst:"只限第一頁",lhAll:"每一頁",lhReset:"清除信頭信尾",
+lhProfile:"已存檔案",lhProfileName:"檔案名稱",lhSaveProfile:"儲存",lhDeleteProfile:"刪除檔案",
+tplBusiness:"商業信函",tplBusinessSub:"正式信件 · 免費",tplBlank:"空白",tplBlankSub:"由零開始 · 免費",
+tplNotice:"通告",tplNoticeSub:"公告 · Pro",tplReport:"報告",tplReportSub:"結構報告 · Pro",
+tplLoaded:"範本已載入",
+expPng:"匯出 PNG（全部頁數）",expPrint:"列印／存做 PDF",expPrefix:"檔名前綴 · Pro",
+fontDefault:"預設（無襯線）",fontSerif:"襯線體",fontMono:"等寬體",fontKai:"楷體（中文）",
+fontNote:"襯線體、等寬體同楷體係 Pro。預覽字體會一併帶入 PNG／JPG 匯出。",
+proNote:"Pro 解鎖全部 4 個範本、無上限信頭檔案、自訂字體、JPG 匯出同批量檔名。",
+unlock:"解鎖",getPro:"拎 OpenX Pro",keyPh:"OX1-XXXX-XXXX",
+proTitle:"呢個係 Pro 功能",proBody:"OpenX Pro 解鎖完整文書台——全部範本、無上限信頭檔案、自訂字體、JPG 匯出同批量檔名。一條 key 解鎖全部 OpenX 工具。",
+proLi1:"月費 US$9.99 · 年費 US$88 · 終身 US$166",proLi2:"每部裝置驗證一次 key；離線嗰陣會寬限一段時間。",
+key_ok:"Pro 已解鎖——歡迎。",key_bad:"呢條 key 驗唔到，再試一次。",key_net:"連唔到授權伺服器，檢查網絡再試。",key_saved:"檢查緊…",
+needPro:"Pro 功能——解鎖 OpenX Pro 先用到。",proOn:"Pro ✓",proActive:"呢部裝置已開通 Pro。",
+copied:"已複製",imgLoaded:"信頭圖片已載入",imgFail:"讀唔到呢個圖片檔。",
+lhRemoved:"信頭信尾已清除",profileSaved:"檔案已儲存",profileDeleted:"檔案已刪除",profileCap:"免費版只 keep 1 個信頭檔案——Pro 無上限。",
+expDone:"已匯出",expFail:"匯出失敗——再試一次。",
+howText:"左邊用迷你標記寫，右邊 A4 即時更新。<code>#</code> <code>##</code> <code>###</code> 標題、<code>*粗體*</code>、<code>_斜體_</code>、清單 <code>-</code> 同 <code>1.</code>、表格 <code>| a | b |</code>、引言 <code>&gt;</code>、<code>---</code> 分隔線、<code>[pagebreak]</code> 換頁。",
+footCopy:"© 2026 OpenX Mo — 口袋文書工作室。迷你標記靈感來自 Typst（Apache-2.0）。"}};
+let LANG="en";
+function T(k){return (I18N[LANG]&&I18N[LANG][k])||I18N.en[k]||k;}
+function applyLang(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{const k=el.dataset.i18n;if(I18N[LANG][k]!==undefined)el.textContent=I18N[LANG][k];});
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{const k=el.dataset.i18nPh;if(I18N[LANG][k]!==undefined)el.placeholder=I18N[LANG][k];});
+  document.querySelectorAll("[data-i18n]").forEach(el=>{if(el.dataset.i18n==="howText"&&I18N[LANG].howText)el.innerHTML=I18N[LANG].howText;});
+  $("langBtn").textContent=LANG==="en"?"EN":"繁中";
+  document.documentElement.lang=LANG==="en"?"en":"zh-Hant";
+  renderAll();
+}
+
+/* ================= helpers / themes ================= */
+const $=id=>document.getElementById(id);
+const THEMES=["silver","white","black"];
+const THEME_LABEL={silver:"◐ Silver",white:"○ White",black:"● Black"};
+let THEME="silver";
+function applyTheme(){document.body.dataset.theme=THEME;$("themeBtn").textContent=THEME_LABEL[THEME];try{localStorage.setItem("lettermo_theme",THEME);}catch(e){}}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200);}
+
+/* ================= Pro (hardened pattern, same as Critique/Sleep/Fit Mo) ================= */
+/* NOTE: Lemon Squeezy shut down 2026-11-16/17; Paddle migration is pending.
+   This build still ships the LS test wiring, like every other tool in the
+   series — the Pro dialogs will be swapped to Paddle together, once the
+   Paddle checkout is live. */
+const CONFIG={storeId:508220,licenseValidateUrl:"https://api.lemonsqueezy.com/v1/licenses/validate",instanceName:"letter-mo",
+buyMonthly:"https://openx.lemonsqueezy.com/checkout/buy/934fa5b0-fe63-4707-b9cb-d303de1e127f",
+buyLifetime:"https://openx.lemonsqueezy.com/checkout/buy/d107e805-e8e9-42b0-9c1a-eb89078421be"};
+let PRO=false;
+function storedPro(){try{const s=localStorage.getItem("lettermo_pro");return s?JSON.parse(s):null;}catch(e){return null;}}
+function savePro(k){try{localStorage.setItem("lettermo_pro",JSON.stringify({key:k}));}catch(e){}}
+function clearPro(){try{localStorage.removeItem("lettermo_pro");}catch(e){}}
+function getProInstance(){try{let id=localStorage.getItem("lettermo_instance");if(!id){id="lettermo-"+Date.now().toString(36)+Math.random().toString(36).slice(2,10);localStorage.setItem("lettermo_instance",id);}return id;}catch(e){return CONFIG.instanceName;}}
+function lsValid(d){return !!(d&&d.valid&&d.license_key&&d.license_key.status==="active");}
+async function validateKey(fromModal){const inp=fromModal?$("proKeyIn2"):$("proKeyIn");const msg=fromModal?$("proMsg2"):$("proMsg");const key=inp.value.trim();if(!key){msg.textContent=T("key_bad");msg.className="msg err";return;}msg.textContent=T("key_saved");msg.className="msg";try{const res=await fetch(CONFIG.licenseValidateUrl,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({license_key:key,instance_name:getProInstance()})});let data=null;try{data=await res.json();}catch(e){}if(lsValid(data)){savePro(key);PRO=true;refreshPro();msg.textContent=T("key_ok");msg.className="msg ok";setTimeout(()=>{closeProModal();},900);renderAll();}else{msg.textContent=T("key_bad");msg.className="msg err";}}catch(err){msg.textContent=T("key_net");msg.className="msg err";}}
+async function revalidatePro(){const s=storedPro();if(!s||!s.key)return;try{const res=await fetch(CONFIG.licenseValidateUrl,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({license_key:s.key,instance_name:getProInstance()})});let data=null;try{data=await res.json();}catch(e){}if(!lsValid(data)){clearPro();PRO=false;refreshPro();}}catch(err){/* offline grace: keep Pro until a check succeeds */}}
+function refreshPro(){
+  $("proBtn").textContent=PRO?T("proOn"):"Pro";
+  $("proBtn").classList.toggle("on",PRO);
+  $("expPrefix").disabled=!PRO;
+  const pm=$("proMsg"); if(PRO) pm.textContent=T("proActive");
+}
+function needPro(){openProModal();toast(T("needPro"));}
+function openProModal(){$("proModal").classList.add("open");}
+function closeProModal(){$("proModal").classList.remove("open");}
+function openDrawer(){$("drawer").classList.add("open");}
+function closeDrawer(){$("drawer").classList.remove("open");}
+
+/* ================= templates (all sample text is fictional) ================= */
+const TEMPLATES={
+business:{free:true,en:`# Business Letter
+
+Dear Ms. Rivera,
+
+Thank you for your enquiry about our wholesale catalogue. We are pleased to confirm that every item in the Spring Collection is in stock and available for immediate dispatch.
+
+## Price list
+
+| Item | Description | Unit price |
+| --- | --- | --- |
+| A-101 | Sample notebook, A5 | $12.00 |
+| A-102 | Sample pen set | $8.50 |
+| A-103 | Sample desk organiser | $24.00 |
+
+Orders placed before Friday ship the same week. Delivery is free for orders over $200.
+
+> Please quote reference ETC-2026-114 on all correspondence.
+
+Yours sincerely,
+
+*Alex Example*
+Sales Manager, Example Trading Co.`,
+zh:`# 商業信函
+
+尊敬的李小姐：
+
+感謝閣下查詢本公司的批發目錄。現確認春季系列全部貨品均有現貨，可以即時發貨。
+
+## 價格表
+
+| 貨號 | 品名 | 單價 |
+| --- | --- | --- |
+| A-101 | 範例筆記簿 A5 | $12.00 |
+| A-102 | 範例原子筆套裝 | $8.50 |
+| A-103 | 範例桌面收納盒 | $24.00 |
+
+星期五前落單，同星期內出貨。滿 $200 免運費。
+
+> 所有往來請註明編號 ETC-2026-114。
+
+此致
+
+*陳示例*
+範例貿易公司銷售經理`},
+blank:{free:true,en:"",zh:""},
+notice:{free:false,en:`# Notice — Office Closure
+
+## Holiday hours
+
+Please note that our office will be closed on the following dates:
+
+- Monday, 21 December 2026 — Winter Solstice
+- Friday, 25 December 2026 — Christmas Day
+- Friday, 1 January 2027 — New Year's Day
+
+Normal service resumes on the next working day. Urgent enquiries can be sent to hello@example-trading.example and will be answered on our return.
+
+> Thank you for your understanding.
+
+Example Trading Co.
+Management Office`,
+zh:`# 通告 — 辦公室假期安排
+
+## 休假日期
+
+本公司辦公室將於以下日期休息：
+
+- 2026 年 12 月 21 日星期一 — 冬至
+- 2026 年 12 月 25 日星期五 — 聖誕節
+- 2027 年 1 月 1 日星期五 — 元旦
+
+其後第一個工作日恢復正常服務。如有急事，請電郵至 hello@example-trading.example，我們回來後會盡快回覆。
+
+> 多謝體諒。
+
+範例貿易公司
+管理處`},
+report:{free:false,en:`# Monthly Sales Report — November 2026
+
+## Summary
+
+November sales reached **$48,200**, up 12% on October. Online orders drove most of the growth, while walk-in sales held steady.
+
+## By channel
+
+| Channel | Sales | Share |
+| --- | --- | --- |
+| Online store | $29,400 | 61% |
+| Walk-in | $12,600 | 26% |
+| Wholesale | $6,200 | 13% |
+
+## Notes
+
+- The Spring Collection launch added 340 new customers.
+- Two items ran out of stock in the final week; reorder is placed.
+- December target is set at $52,000.
+
+[pagebreak]
+
+## Appendix — Top items
+
+1. Sample notebook, A5 — 1,240 units
+2. Sample pen set — 980 units
+3. Sample desk organiser — 610 units
+
+> Prepared by Alex Example, Sales Manager, Example Trading Co.`,
+zh:`# 月度銷售報告 — 2026 年 11 月
+
+## 摘要
+
+11 月銷售額達 **$48,200**，比 10 月升 12%。增長主要來自網上訂單，門市銷售保持平穩。
+
+## 按渠道
+
+| 渠道 | 銷售額 | 佔比 |
+| --- | --- | --- |
+| 網店 | $29,400 | 61% |
+| 門市 | $12,600 | 26% |
+| 批發 | $6,200 | 13% |
+
+## 備註
+
+- 春季系列推出，新增 340 名客戶。
+- 最後一星期有兩款貨品缺貨，已經補貨。
+- 12 月目標定為 $52,000。
+
+[pagebreak]
+
+## 附錄 — 暢銷貨品
+
+1. 範例筆記簿 A5 — 1,240 件
+2. 範例原子筆套裝 — 980 件
+3. 範例桌面收納盒 — 610 件
+
+> 撰寫：陳示例，範例貿易公司銷售經理`}};
+
+/* ================= mini-markup parser (original subset, Typst-inspired) ================= */
+function inline(s){
+  let t=esc(s);
+  t=t.replace(/\*([^*]+)\*/g,"<strong>$1</strong>");
+  t=t.replace(/_([^_]+)_/g,"<em>$1</em>");
+  return t;
+}
+function parseMarkup(src){
+  const lines=String(src).replace(/\r\n?/g,"\n").split("\n");
+  const blocks=[];let para=[],list=null,table=null;
+  const flushPara=()=>{if(para.length){blocks.push({type:"p",text:para.join(" ")});para=[];}};
+  const flushList=()=>{if(list){blocks.push(list);list=null;}};
+  const flushTable=()=>{if(table){blocks.push(table);table=null;}};
+  for(const raw of lines){
+    const t=raw.trim();
+    if(t===""){flushPara();flushList();flushTable();continue;}
+    if(t==="[pagebreak]"){flushPara();flushList();flushTable();blocks.push({type:"pb"});continue;}
+    if(t==="---"){flushPara();flushList();flushTable();blocks.push({type:"hr"});continue;}
+    const h=t.match(/^(#{1,3})\s+(.*)$/);
+    if(h){flushPara();flushList();flushTable();blocks.push({type:"h"+h[1].length,text:h[2]});continue;}
+    if(t.startsWith("> ")){flushPara();flushList();flushTable();blocks.push({type:"quote",text:t.slice(2)});continue;}
+    if(t.startsWith("|")){
+      flushPara();flushList();
+      const cells=t.split("|").slice(1,-1).map(c=>c.trim());
+      if(!cells.length)continue;
+      if(!table)table={type:"table",rows:[],headRow:null};
+      if(cells.every(c=>/^:?-+:?$/.test(c))){if(table.rows.length)table.headRow=table.rows.pop();continue;}
+      table.rows.push(cells);continue;
+    }
+    const ol=t.match(/^(\d+)\.\s+(.*)$/);
+    if(ol){flushPara();flushTable();if(!list||list.type!=="ol"){flushList();list={type:"ol",items:[]};}list.items.push(ol[2]);continue;}
+    if(t.startsWith("- ")){flushPara();flushTable();if(!list||list.type!=="ul"){flushList();list={type:"ul",items:[]};}list.items.push(t.slice(2));continue;}
+    if(list){list.items[list.items.length-1]+=" "+t;continue;}
+    para.push(t);
+  }
+  flushPara();flushList();flushTable();
+  return blocks;
+}
+function blockHTML(b){
+  switch(b.type){
+    case "h1":return "<h1>"+inline(b.text)+"</h1>";
+    case "h2":return "<h2>"+inline(b.text)+"</h2>";
+    case "h3":return "<h3>"+inline(b.text)+"</h3>";
+    case "p":return "<p>"+inline(b.text)+"</p>";
+    case "ul":return "<ul>"+b.items.map(i=>"<li>"+inline(i)+"</li>").join("")+"</ul>";
+    case "ol":return "<ol>"+b.items.map(i=>"<li>"+inline(i)+"</li>").join("")+"</ol>";
+    case "quote":return "<blockquote>"+inline(b.text)+"</blockquote>";
+    case "hr":return "<hr>";
+    case "table":{
+      const head=b.headRow?"<thead><tr>"+b.headRow.map(c=>"<th>"+inline(c)+"</th>").join("")+"</tr></thead>":"";
+      return "<table>"+head+"<tbody>"+b.rows.map(r=>"<tr>"+r.map(c=>"<td>"+inline(c)+"</td>").join("")+"</tr>").join("")+"</tbody></table>";
+    }
+  }
+  return "";
+}
+
+/* ================= pagination (measure + greedy flow, with splitting) ================= */
+const PAGE_W=794,PAGE_H=1123,PAD_T=56,PAD_B=56,PAD_X=64;
+const CONTENT_W=PAGE_W-PAD_X*2;
+function measure(html){
+  const m=$("measurer");
+  m.innerHTML=html;
+  return m.offsetHeight;
+}
+function fontCls(){return FONT==="default"?"":"font-"+FONT;}
+function makeParaUnit(text){
+  const html="<p>"+inline(text)+"</p>";
+  return {kind:"para",text:text,html:html,h:measure(html),
+    split:function(avail){
+      if(text.length<=1)return [null,this];
+      let lo=1,hi=text.length,best=0;
+      while(lo<=hi){const mid=(lo+hi)>>1;const hh=measure("<p>"+inline(text.slice(0,mid))+"</p>");if(hh<=avail){best=mid;lo=mid+1;}else hi=mid-1;}
+      if(best===0)return [null,this];
+      let cut=best;
+      const sp=text.slice(0,best).lastIndexOf(" ");
+      if(sp>best*0.6)cut=sp;
+      const first=makeParaUnit(text.slice(0,cut));
+      let restText=text.slice(cut);if(restText.charAt(0)===" ")restText=restText.slice(1);
+      const rest=makeParaUnit(restText);
+      return [first,rest];
+    }};
+}
+function makeTableUnit(b){
+  const head=b.headRow;
+  function tableHtml(rows){
+    const hd=head?"<thead><tr>"+head.map(c=>"<th>"+inline(c)+"</th>").join("")+"</tr></thead>":"";
+    return "<table>"+hd+"<tbody>"+rows.map(r=>"<tr>"+r.map(c=>"<td>"+inline(c)+"</td>").join("")+"</tr>").join("")+"</tbody></table>";
+  }
+  return {kind:"table",html:tableHtml(b.rows),h:measure(tableHtml(b.rows)),
+    split:function(avail){
+      let n=0;
+      for(let i=1;i<=b.rows.length;i++){if(measure(tableHtml(b.rows.slice(0,i)))<=avail)n=i;else break;}
+      if(n===0)return [null,this];
+      const first=makeTableUnit({headRow:head,rows:b.rows.slice(0,n)});
+      const rest=makeTableUnit({headRow:head,rows:b.rows.slice(n)});
+      return [first,rest];
+    }};
+}
+function makeListUnit(b){
+  const tag=b.type;
+  function listHtml(items){return "<"+tag+">"+items.map(i=>"<li>"+inline(i)+"</li>").join("")+"</"+tag+">";}
+  return {kind:"list",html:listHtml(b.items),h:measure(listHtml(b.items)),
+    split:function(avail){
+      let n=0;
+      for(let i=1;i<=b.items.length;i++){if(measure(listHtml(b.items.slice(0,i)))<=avail)n=i;else break;}
+      if(n===0)return [null,this];
+      const first=makeListUnit({type:tag,items:b.items.slice(0,n)});
+      const rest=makeListUnit({type:tag,items:b.items.slice(n)});
+      return [first,rest];
+    }};
+}
+function buildUnits(blocks){
+  const units=[];
+  for(const b of blocks){
+    if(b.type==="pb"){units.push({kind:"break"});continue;}
+    if(b.type==="p"){units.push(makeParaUnit(b.text));continue;}
+    if(b.type==="table"){units.push(makeTableUnit(b));continue;}
+    if(b.type==="ul"||b.type==="ol"){units.push(makeListUnit(b));continue;}
+    const html=blockHTML(b);
+    units.push({kind:(b.type==="h1"||b.type==="h2"||b.type==="h3")?"head":"atom",html:html,h:measure(html)});
+  }
+  return units;
+}
+function flow(blocks,capacity){
+  const units=buildUnits(blocks);
+  const pages=[[]];let rem=capacity;
+  const newPage=()=>{pages.push([]);rem=capacity;};
+  for(const u of units){
+    if(u.kind==="break"){newPage();continue;}
+    if(u.kind==="head"&&pages[pages.length-1].length>0&&rem<u.h+48){newPage();}
+    if(u.h<=rem){pages[pages.length-1].push(u.html);rem-=u.h;continue;}
+    if(u.split){
+      let cur=u,fit,rest;
+      const r0=cur.split(rem);
+      if(!r0[0]){newPage();const r1=cur.split(capacity);fit=r1[0];rest=r1[1];}
+      else{fit=r0[0];rest=r0[1];}
+      if(fit){pages[pages.length-1].push(fit.html);rem-=fit.h;}
+      while(rest){
+        newPage();
+        if(rest.h<=capacity){pages[pages.length-1].push(rest.html);rem-=rest.h;rest=null;}
+        else{
+          const r=rest.split(capacity);
+          if(!r[0]){pages[pages.length-1].push(rest.html);rem=0;rest=null;}
+          else{pages[pages.length-1].push(r[0].html);rem-=r[0].h;rest=r[1];}
+        }
+      }
+    }else{
+      if(pages[pages.length-1].length>0)newPage();
+      pages[pages.length-1].push(u.html);rem-=u.h;
+    }
+  }
+  return pages;
+}
+
+/* ================= letterhead ================= */
+let LH={mode:"none",headerOn:"first",imgHead:null,imgFoot:null,imgHeadName:"",imgFootName:"",company:"",address:"",phone:"",email:"",profiles:[],activeProfile:-1};
+function saveLetterhead(){try{localStorage.setItem("lettermo_letterhead",JSON.stringify(LH));}catch(e){toast("Storage full — image too large to save.");}}
+function loadLetterhead(){
+  try{const raw=localStorage.getItem("lettermo_letterhead");if(!raw)return;const o=JSON.parse(raw);
+    if(o&&typeof o==="object"){LH=Object.assign(LH,o);if(!Array.isArray(LH.profiles))LH.profiles=[];}
+  }catch(e){}
+}
+function headerHTML(){
+  if(LH.mode==="image"&&LH.imgHead)return '<div class="ph"><img src="'+LH.imgHead+'" alt=""></div>';
+  if(LH.mode==="text"&&LH.company){
+    const contact=[LH.address,LH.phone,LH.email].filter(Boolean).join(" · ");
+    return '<div class="ph ph-text"><div class="ph-name">'+esc(LH.company)+'</div>'+(contact?'<div class="ph-contact">'+esc(contact)+'</div>':"")+'</div>';
+  }
+  return "";
+}
+function footerHTML(idx,total){
+  let img="";
+  if(LH.mode==="image"&&LH.imgFoot)img='<img class="pf-img" src="'+LH.imgFoot+'" alt="">';
+  const left=(LH.mode==="text"&&LH.company)?esc(LH.company):"";
+  return '<div class="pf">'+img+'<div class="pf-line"><span>'+left+'</span><span>Page '+(idx+1)+' of '+total+'</span></div></div>';
+}
+function measureHeadFoot(){
+  const m=$("measurer");
+  let hh=0,fh=34;
+  if(LH.mode==="image"&&LH.imgHead)hh=98;
+  else if(LH.mode==="text"&&LH.company){m.innerHTML=headerHTML();hh=m.offsetHeight+14;}
+  if(LH.mode==="image"&&LH.imgFoot)fh=56+12+34;
+  return {hh:hh,fh:fh};
+}
+
+/* ================= render ================= */
+let FONT="default";
+let ZOOM="fit";
+function renderAll(){
+  const mf=fontCls();
+  $("measurer").className="pb "+mf;
+  const hf=measureHeadFoot();
+  const capacity=PAGE_H-PAD_T-PAD_B-hf.hh-hf.fh;
+  const blocks=parseMarkup($("editor").value);
+  const pageUnits=flow(blocks,capacity);
+  const total=pageUnits.length;
+  const pagesEl=$("pages");
+  pagesEl.className=mf;
+  pagesEl.innerHTML="";
+  pageUnits.forEach((units,i)=>{
+    const pg=document.createElement("div");
+    pg.className="page "+mf;
+    const showHead=LH.mode!=="none"&&(LH.headerOn==="all"||i===0);
+    pg.innerHTML=(showHead?headerHTML():"")+'<div class="pb">'+units.join("")+"</div>"+footerHTML(i,total);
+    pagesEl.appendChild(pg);
+  });
+  const pc=LANG==="zh"?("共 "+total+" 頁"):(total+(total===1?" page":" pages"));
+  $("pageCount").textContent=pc;$("pageCount2").textContent=pc;
+  updateCounts();
+  applyZoom();
+  // re-render once letterhead images finish loading (height may shift)
+  pagesEl.querySelectorAll("img").forEach(im=>{
+    if(!im.complete)im.addEventListener("load",()=>{if(!im._rl){im._rl=1;renderAll();}});
+  });
+  saveState();
+}
+function updateCounts(){
+  const v=$("editor").value;
+  const words=v.trim()?v.trim().split(/\s+/).length:0;
+  const chars=v.replace(/\s/g,"").length;
+  $("wordCount").textContent=LANG==="zh"?words+" 個詞":words+(words===1?" word":" words");
+  $("charCount").textContent=LANG==="zh"?chars+" 個字":chars+(chars===1?" character":" characters");
+}
+function applyZoom(){
+  const wrap=$("pagesWrap"),pages=$("pages");
+  let s=1;
+  if(ZOOM==="fit"){const w=wrap.clientWidth-40;s=Math.min(1,w/PAGE_W);}
+  else s=parseFloat(ZOOM);
+  if(!isFinite(s)||s<=0)s=1;
+  pages.style.zoom=String(s);
+}
+
+/* ================= state ================= */
+let saveT=null;
+function saveState(){
+  clearTimeout(saveT);
+  saveT=setTimeout(()=>{
+    try{localStorage.setItem("lettermo_state",JSON.stringify({doc:$("editor").value,lang:LANG,theme:THEME,zoom:ZOOM,font:FONT}));}catch(e){}
+  },200);
+}
+function loadState(){
+  try{const raw=localStorage.getItem("lettermo_state");if(!raw)return null;return JSON.parse(raw);}catch(e){return null;}
+}
+
+/* ================= editor toolbar ================= */
+function insertAtCursor(text,selA,selB){
+  const ta=$("editor");
+  const s=ta.selectionStart,e=ta.selectionEnd,v=ta.value;
+  ta.value=v.slice(0,s)+text+v.slice(e);
+  ta.focus();
+  if(selA!==undefined)ta.setSelectionRange(s+selA,s+selB);
+  else ta.setSelectionRange(s+text.length,s+text.length);
+  onDocInput();
+}
+function insertLinePrefix(prefix){
+  const ta=$("editor");
+  const s=ta.selectionStart,v=ta.value;
+  const ls=v.lastIndexOf("\n",s-1)+1;
+  ta.value=v.slice(0,ls)+prefix+v.slice(ls);
+  ta.focus();ta.setSelectionRange(s+prefix.length,s+prefix.length);
+  onDocInput();
+}
+function insertBlock(text){
+  const ta=$("editor");
+  const s=ta.selectionStart,e=ta.selectionEnd,v=ta.value;
+  let pre=v.slice(0,s),post=v.slice(e);
+  if(pre&&!pre.endsWith("\n\n"))pre+=pre.endsWith("\n")?"\n":"\n\n";
+  if(post&&!post.startsWith("\n"))post="\n"+post;
+  ta.value=pre+text+post;
+  ta.focus();ta.setSelectionRange((pre+text).length,(pre+text).length);
+  onDocInput();
+}
+const INS={
+  h1:()=>insertLinePrefix("# "),
+  h2:()=>insertLinePrefix("## "),
+  h3:()=>insertLinePrefix("### "),
+  bold:()=>insertAtCursor("*bold*",1,5),
+  italic:()=>insertAtCursor("_italic_",1,7),
+  ul:()=>insertLinePrefix("- "),
+  ol:()=>insertLinePrefix("1. "),
+  table:()=>insertBlock("| Item | Price |\n| --- | --- |\n| Sample | $10.00 |"),
+  quote:()=>insertLinePrefix("> "),
+  rule:()=>insertBlock("---"),
+  "break":()=>insertBlock("[pagebreak]")
+};
+let renderT=null;
+function onDocInput(){
+  updateCounts();
+  clearTimeout(renderT);
+  renderT=setTimeout(renderAll,120);
+}
+
+/* ================= letterhead UI ================= */
+function refreshLHUI(){
+  document.querySelectorAll("#lhModeSeg button").forEach(b=>b.classList.toggle("sel",b.dataset.mode===LH.mode));
+  $("lhImagePane").style.display=LH.mode==="image"?"":"none";
+  $("lhTextPane").style.display=LH.mode==="text"?"":"none";
+  $("imgHeadPrev").src=LH.imgHead||"";
+  $("imgFootPrev").src=LH.imgFoot||"";
+  $("imgHeadName").textContent=LH.imgHeadName||T("lhHeadImg");
+  $("imgFootName").textContent=LH.imgFootName||T("lhFootImg");
+  $("lhCompany").value=LH.company;$("lhAddress").value=LH.address;
+  $("lhPhone").value=LH.phone;$("lhEmail").value=LH.email;
+  $("lhScope").value=LH.headerOn;
+  const sel=$("profileSelect");
+  sel.innerHTML="";
+  if(!LH.profiles.length){const o=document.createElement("option");o.value="-1";o.textContent="—";sel.appendChild(o);}
+  LH.profiles.forEach((p,i)=>{const o=document.createElement("option");o.value=String(i);o.textContent=p.name;sel.appendChild(o);});
+  sel.value=String(LH.activeProfile>=0?LH.activeProfile:-1);
+}
+function currentProfileData(){
+  return {name:$("profileName").value.trim(),mode:LH.mode,headerOn:LH.headerOn,imgHead:LH.imgHead,imgFoot:LH.imgFoot,imgHeadName:LH.imgHeadName,imgFootName:LH.imgFootName,company:LH.company,address:LH.address,phone:LH.phone,email:LH.email};
+}
+function applyProfile(p){
+  LH.mode=p.mode;LH.headerOn=p.headerOn;LH.imgHead=p.imgHead;LH.imgFoot=p.imgFoot;
+  LH.imgHeadName=p.imgHeadName||"";LH.imgFootName=p.imgFootName||"";
+  LH.company=p.company||"";LH.address=p.address||"";LH.phone=p.phone||"";LH.email=p.email||"";
+}
+function downscaleImage(file,cb){
+  const rd=new FileReader();
+  rd.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      const MAXW=1200;
+      let w=img.naturalWidth,h=img.naturalHeight;
+      if(w>MAXW){h=Math.round(h*MAXW/w);w=MAXW;}
+      const cv=document.createElement("canvas");cv.width=w;cv.height=h;
+      const cx=cv.getContext("2d");cx.drawImage(img,0,0,w,h);
+      let url=cv.toDataURL("image/png");
+      if(url.length>1500000)url=cv.toDataURL("image/jpeg",0.85);
+      cb(url);
+    };
+    img.onerror=()=>toast(T("imgFail"));
+    img.src=rd.result;
+  };
+  rd.onerror=()=>toast(T("imgFail"));
+  rd.readAsDataURL(file);
+}
+
+/* ================= export ================= */
+/* ================= export — canvas renderer ================= */
+/* NOTE: the SVG foreignObject -> canvas trick does NOT work in Chrome: drawing
+   an SVG image that contains <foreignObject> taints the canvas, and toBlob
+   then throws a SecurityError. So Letter Mo re-renders each page straight
+   onto a canvas (same fonts, sizes and spacing as the DOM pages). */
+function baseFontFor(pageEl){
+  if(pageEl.classList.contains("font-serif"))return "Georgia,'Times New Roman','Songti SC',serif";
+  if(pageEl.classList.contains("font-mono"))return "ui-monospace,Menlo,Consolas,monospace";
+  if(pageEl.classList.contains("font-kai"))return "'KaiTi','STKaiti','Kaiti SC',serif";
+  return '"Noto Sans TC",system-ui,-apple-system,"Segoe UI",sans-serif';
+}
+const HEAD_FONT='"Dela Gothic One","Noto Sans TC",sans-serif';
+function parseRuns(el){
+  const segs=[];
+  function walk(n,b,i){
+    if(n.nodeType===3){if(n.nodeValue)segs.push({t:n.nodeValue,b:b,i:i});return;}
+    if(n.nodeType===1){
+      const tag=n.tagName.toLowerCase();
+      const nb=b||tag==="strong"||tag==="b";
+      const ni=i||tag==="em"||tag==="i";
+      for(const c of n.childNodes)walk(c,nb,ni);
+    }
+  }
+  for(const c of el.childNodes)walk(c,false,false);
+  return segs;
+}
+function segFont(seg,size,base){return (seg.i?"italic ":"")+(seg.b?"700 ":"")+size+"px "+base;}
+function atomsOf(segs){
+  const atoms=[];
+  for(const s of segs){
+    const parts=s.t.split(/(\s+)/);
+    for(const p of parts){
+      if(!p)continue;
+      if(/^\s+$/.test(p)){atoms.push({t:" ",b:s.b,i:s.i,space:true});continue;}
+      const chunks=p.match(/[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]|[^\s\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]+/g)||[p];
+      for(const c of chunks)atoms.push({t:c,b:s.b,i:s.i,space:false});
+    }
+  }
+  return atoms;
+}
+function wrapLines(ctx,atoms,maxW,size,base){
+  const lines=[];let cur=[],w=0;
+  const aw=a=>{ctx.font=segFont(a,size,base);return ctx.measureText(a.t).width;};
+  for(const a of atoms){
+    const mw=aw(a);
+    if(a.space){
+      if(!cur.length)continue;
+      if(w+mw<=maxW){cur.push(a);w+=mw;}
+      else{lines.push(cur);cur=[];w=0;}
+      continue;
+    }
+    if(w+mw>maxW&&cur.length){lines.push(cur);cur=[];w=0;}
+    cur.push(a);w+=mw;
+  }
+  if(cur.length)lines.push(cur);
+  return lines;
+}
+function drawLines(ctx,lines,x,yTop,size,base,lh){
+  ctx.textBaseline="alphabetic";
+  let cy=yTop+size*0.85;
+  for(const line of lines){
+    let cx=x;
+    for(const a of line){
+      ctx.font=segFont(a,size,base);
+      ctx.fillText(a.t,cx,cy);
+      cx+=ctx.measureText(a.t).width;
+    }
+    cy+=lh;
+  }
+  return lines.length*lh;
+}
+function drawTextBlock(ctx,segs,x,yTop,maxW,size,base,lh){
+  const lines=wrapLines(ctx,atomsOf(segs),maxW,size,base);
+  return drawLines(ctx,lines,x,yTop,size,base,lh);
+}
+function drawTable(ctx,tableEl,x,yTop,maxW,base){
+  const rows=Array.from(tableEl.querySelectorAll("tr"));
+  const hasHead=!!tableEl.querySelector("thead");
+  const data=rows.map(tr=>Array.from(tr.children).map(td=>parseRuns(td)));
+  const ncols=Math.max.apply(null,data.map(r=>r.length).concat([0]));
+  if(!ncols)return 0;
+  const FS=27,LH=40,PADX=36,PADY=24;
+  const colW=new Array(ncols).fill(0);
+  data.forEach((r,ri)=>{
+    r.forEach((cell,ci)=>{
+      const bold=hasHead&&ri===0;
+      let w=0;
+      for(const seg of cell){ctx.font=segFont({t:seg.t,b:seg.b||bold,i:seg.i},FS,base);w+=ctx.measureText(seg.t).width;}
+      colW[ci]=Math.max(colW[ci],w);
+    });
+  });
+  let total=colW.reduce((a,b)=>a+b,0)+ncols*PADX;
+  if(total>maxW){const k=maxW/total;for(let i=0;i<ncols;i++)colW[i]=Math.max(40,colW[i]*k);}
+  else if(total<maxW){ // DOM tables are width:100% — stretch to fill the content width
+    const extra=maxW-total,sum=colW.reduce((a,b)=>a+b,0)||1;
+    for(let i=0;i<ncols;i++)colW[i]+=extra*(colW[i]/sum);
+  }
+  const rowH=data.map(r=>{
+    let lines=1;
+    r.forEach((cell,ci)=>{lines=Math.max(lines,wrapLines(ctx,atomsOf(cell),colW[ci],FS,base).length);});
+    return lines*LH+PADY;
+  });
+  let y=yTop;
+  const fullW=colW.reduce((a,b)=>a+b,0)+ncols*PADX;
+  data.forEach((r,ri)=>{
+    const h=rowH[ri];
+    if(hasHead&&ri===0){ctx.fillStyle="#efefed";ctx.fillRect(x,y,fullW,h);}
+    let cx=x;
+    r.forEach((cell,ci)=>{
+      const w=colW[ci];
+      ctx.strokeStyle="#bbb";ctx.lineWidth=2;ctx.strokeRect(cx,y,w+PADX,h);
+      const segs=cell.map(s=>{const o={t:s.t,b:s.b,i:s.i};if(hasHead&&ri===0)o.b=true;return o;});
+      const lines=wrapLines(ctx,atomsOf(segs),w,FS,base);
+      ctx.fillStyle="#16181c";
+      let ly=y+PADY/2+FS*0.85;
+      for(const line of lines){
+        let tx=cx+PADX/2;
+        for(const a of line){ctx.font=segFont(a,FS,base);ctx.fillText(a.t,tx,ly);tx+=ctx.measureText(a.t).width;}
+        ly+=LH;
+      }
+      cx+=w+PADX;
+    });
+    y+=h;
+  });
+  return y-yTop;
+}
+function drawBlock(ctx,el,x,yTop,maxW,base){
+  const tag=el.tagName.toLowerCase();
+  ctx.fillStyle="#16181c";
+  if(tag==="h1"){const h=drawTextBlock(ctx,parseRuns(el),x,yTop+4,maxW,54,HEAD_FONT,70);return 4+h+24;}
+  if(tag==="h2"){const h=drawTextBlock(ctx,parseRuns(el),x,yTop+36,maxW,42,HEAD_FONT,57);return 36+h+16;}
+  if(tag==="h3"){const h=drawTextBlock(ctx,parseRuns(el),x,yTop+32,maxW,33,HEAD_FONT,43);return 32+h+12;}
+  if(tag==="p"){const h=drawTextBlock(ctx,parseRuns(el),x,yTop,maxW,29,base,51);return h+20;}
+  if(tag==="ul"||tag==="ol"){
+    let y=yTop;
+    const items=Array.from(el.children);
+    items.forEach((li,idx)=>{
+      const lines=wrapLines(ctx,atomsOf(parseRuns(li)),maxW-44,29,base);
+      const base1=y+25;
+      ctx.fillStyle="#16181c";
+      if(tag==="ul"){ctx.font="29px "+base;ctx.fillText("•",x+16,base1);}
+      else{const num=(idx+1)+".";ctx.font="29px "+base;ctx.fillText(num,x+44-ctx.measureText(num).width,base1);}
+      let ly=base1;
+      for(const line of lines){
+        let tx=x+44;
+        for(const a of line){ctx.font=segFont(a,29,base);ctx.fillText(a.t,tx,ly);tx+=ctx.measureText(a.t).width;}
+        ly+=49;
+      }
+      y+=lines.length*49+6;
+    });
+    return (y-yTop)-6+20;
+  }
+  if(tag==="blockquote"){
+    const lines=wrapLines(ctx,atomsOf(parseRuns(el)),maxW-56,29,base);
+    const boxH=32+lines.length*49;
+    ctx.fillStyle="#f5f5f3";ctx.fillRect(x,yTop,maxW,boxH);
+    ctx.fillStyle="#999";ctx.fillRect(x,yTop,6,boxH);
+    ctx.fillStyle="#16181c";
+    let ly=yTop+16+25;
+    for(const line of lines){
+      let tx=x+28;
+      for(const a of line){ctx.font=segFont(a,29,base);ctx.fillText(a.t,tx,ly);tx+=ctx.measureText(a.t).width;}
+      ly+=49;
+    }
+    return boxH+20;
+  }
+  if(tag==="hr"){ctx.fillStyle="#bbb";ctx.fillRect(x,yTop+32,maxW,3);return 32+3+32;}
+  if(tag==="table"){const h=drawTable(ctx,el,x,yTop,maxW,base);return h+24;}
+  return 0;
+}
+function renderPageCanvas(pageEl){
+  const W=1588,H=2246,PT=112,PB=112,PX=128,CW=1332;
+  const cv=document.createElement("canvas");cv.width=W;cv.height=H;
+  const ctx=cv.getContext("2d");
+  ctx.fillStyle="#ffffff";ctx.fillRect(0,0,W,H);
+  const base=baseFontFor(pageEl);
+  const ph=pageEl.querySelector(".ph"),pf=pageEl.querySelector(".pf"),pb=pageEl.querySelector(".pb");
+  let y=PT;
+  if(ph){
+    const img=ph.querySelector("img");
+    if(img&&img.complete&&img.naturalWidth){
+      const sc=Math.min(1,CW/img.naturalWidth,168/img.naturalHeight);
+      const dw=Math.round(img.naturalWidth*sc),dh=Math.round(img.naturalHeight*sc);
+      ctx.drawImage(img,PX,y,dw,dh);y+=dh+28;
+    }else{
+      const nm=ph.querySelector(".ph-name"),ct=ph.querySelector(".ph-contact");
+      let hh=0;
+      if(nm){ctx.fillStyle="#16181c";ctx.font="700 42px "+base;ctx.textBaseline="alphabetic";ctx.fillText(nm.textContent,PX,y+36);hh+=50;}
+      if(ct&&ct.textContent){hh+=drawTextBlock(ctx,parseRuns(ct),PX,y+hh,CW,23,base,32);}
+      hh+=20;ctx.fillStyle="#222";ctx.fillRect(PX,y+hh,CW,3);hh+=3+28;
+      y+=hh;
+    }
+  }
+  let footH=64,fdh=0,fimg=null;
+  if(pf){
+    fimg=pf.querySelector("img");
+    if(fimg&&fimg.complete&&fimg.naturalWidth){
+      const sc=Math.min(1,CW/fimg.naturalWidth,112/fimg.naturalHeight);
+      fdh=Math.round(fimg.naturalHeight*sc);footH=64+fdh+12;
+    }
+  }
+  const bottom=H-PB-footH;
+  ctx.save();
+  ctx.beginPath();ctx.rect(PX,y,CW,Math.max(0,bottom-y));ctx.clip();
+  if(pb){for(const el of pb.children){if(y>=bottom)break;y+=drawBlock(ctx,el,PX,y,CW,base);}}
+  ctx.restore();
+  if(pf){
+    let fy=H-PB-footH;
+    let ly=fy+24;
+    if(fimg&&fdh){
+      const sc=Math.min(1,CW/fimg.naturalWidth,112/fimg.naturalHeight);
+      const dw=Math.round(fimg.naturalWidth*sc);
+      ctx.drawImage(fimg,PX+(CW-dw)/2,ly,dw,fdh);ly+=fdh+12;
+    }
+    ctx.fillStyle="#bbb";ctx.fillRect(PX,ly,CW,2);ly+=2+16;
+    const spans=pf.querySelectorAll(".pf-line span");
+    ctx.fillStyle="#666";ctx.font="22px "+base;ctx.textBaseline="alphabetic";
+    ctx.fillText(spans[0]?spans[0].textContent:"",PX,ly+18);
+    const rt=spans[1]?spans[1].textContent:"";
+    ctx.fillText(rt,PX+CW-ctx.measureText(rt).width,ly+18);
+  }
+  return cv;
+}
+async function pageToBlob(pageEl,type){
+  const cv=renderPageCanvas(pageEl);
+  return await new Promise(res=>cv.toBlob(res,type==="jpg"?"image/jpeg":"image/png",0.92));
+}
+function downloadBlob(blob,name){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download=name;
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},800);
+}
+function exportName(i,ext){
+  const pre=PRO?$("expPrefix").value.trim():"";
+  return (pre?pre:"letter-mo")+"-page-"+(i+1)+"."+ext;
+}
+async function exportAll(type){
+  const pages=Array.from(document.querySelectorAll("#pages .page"));
+  if(!pages.length)return;
+  try{
+    for(let i=0;i<pages.length;i++){
+      const blob=await pageToBlob(pages[i],type);
+      if(!blob)throw new Error("empty");
+      downloadBlob(blob,exportName(i,type));
+      if(i<pages.length-1)await new Promise(r=>setTimeout(r,250));
+    }
+    toast(T("expDone")+" "+pages.length);
+  }catch(e){toast(T("expFail"));}
+}
+
+/* ================= init & wiring ================= */
+function init(){
+  const st=loadState();
+  if(st){
+    if(st.lang==="zh"||st.lang==="en")LANG=st.lang;
+    if(THEMES.includes(st.theme))THEME=st.theme;
+    if(st.zoom)ZOOM=st.zoom;
+    if(st.font)FONT=st.font;
+    if(typeof st.doc==="string")$("editor").value=st.doc;
+  }else{
+    $("editor").value=TEMPLATES.business.en;
+  }
+  loadLetterhead();
+  $("zoomSel").value=ZOOM;$("fontSel").value=FONT;
+  applyTheme();
+  refreshPro();
+  refreshLHUI();
+  applyLang(); // also calls renderAll
+  const s=storedPro();if(s&&s.key){PRO=true;refreshPro();revalidatePro();}
+
+  $("drawerBtn").onclick=openDrawer;
+  document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>{const id=b.dataset.close;if(id==="drawer")closeDrawer();else if(id==="proModal")closeProModal();});
+  $("drawer").addEventListener("click",e=>{if(e.target===$("drawer"))closeDrawer();});
+  $("proModal").addEventListener("click",e=>{if(e.target===$("proModal"))closeProModal();});
+  $("proBtn").onclick=()=>{if(PRO){toast(T("proActive"));}else openProModal();};
+  $("themeBtn").onclick=()=>{THEME=THEMES[(THEMES.indexOf(THEME)+1)%THEMES.length];applyTheme();saveState();};
+  $("langBtn").onclick=()=>{LANG=LANG==="en"?"zh":"en";applyLang();saveState();};
+  $("tabEdit").onclick=()=>{document.body.dataset.tab="edit";$("tabEdit").classList.add("sel");$("tabPreview").classList.remove("sel");};
+  $("tabPreview").onclick=()=>{document.body.dataset.tab="preview";$("tabPreview").classList.add("sel");$("tabEdit").classList.remove("sel");applyZoom();};
+  $("editor").addEventListener("input",onDocInput);
+  $("zoomSel").onchange=e=>{ZOOM=e.target.value;applyZoom();saveState();};
+  $("fontSel").onchange=e=>{
+    const v=e.target.value;
+    if(v!=="default"&&!PRO){needPro();e.target.value=FONT;return;}
+    FONT=v;renderAll();
+  };
+  document.querySelectorAll("#toolbar .toolbtn").forEach(b=>{b.onclick=()=>INS[b.dataset.ins]();});
+
+  // letterhead
+  document.querySelectorAll("#lhModeSeg button").forEach(b=>{b.onclick=()=>{LH.mode=b.dataset.mode;refreshLHUI();saveLetterhead();renderAll();};});
+  $("pickHead").onclick=()=>$("fileHead").click();
+  $("pickFoot").onclick=()=>$("fileFoot").click();
+  $("fileHead").onchange=e=>{const f=e.target.files[0];if(!f)return;downscaleImage(f,url=>{LH.imgHead=url;LH.imgHeadName=f.name;refreshLHUI();saveLetterhead();renderAll();toast(T("imgLoaded"));});e.target.value="";};
+  $("fileFoot").onchange=e=>{const f=e.target.files[0];if(!f)return;downscaleImage(f,url=>{LH.imgFoot=url;LH.imgFootName=f.name;refreshLHUI();saveLetterhead();renderAll();toast(T("imgLoaded"));});e.target.value="";};
+  ["lhCompany","lhAddress","lhPhone","lhEmail"].forEach(id=>{
+    $(id).addEventListener("input",()=>{
+      LH.company=$("lhCompany").value;LH.address=$("lhAddress").value;
+      LH.phone=$("lhPhone").value;LH.email=$("lhEmail").value;
+      saveLetterhead();clearTimeout(renderT);renderT=setTimeout(renderAll,250);
+    });
+  });
+  $("lhScope").onchange=e=>{LH.headerOn=e.target.value;saveLetterhead();renderAll();};
+  $("lhReset").onclick=()=>{
+    LH.mode="none";LH.imgHead=null;LH.imgFoot=null;LH.imgHeadName="";LH.imgFootName="";
+    LH.company="";LH.address="";LH.phone="";LH.email="";
+    refreshLHUI();saveLetterhead();renderAll();toast(T("lhRemoved"));
+  };
+  $("saveProfile").onclick=()=>{
+    const data=currentProfileData();
+    if(!data.name){$("profileName").focus();return;}
+    if(!PRO&&LH.profiles.length>=1){needPro();return;}
+    const ex=LH.profiles.findIndex(p=>p.name===data.name);
+    if(ex>=0)LH.profiles[ex]=data;else LH.profiles.push(data);
+    LH.activeProfile=LH.profiles.findIndex(p=>p.name===data.name);
+    saveLetterhead();refreshLHUI();toast(T("profileSaved"));
+  };
+  $("profileSelect").onchange=e=>{
+    const i=parseInt(e.target.value,10);
+    if(i<0)return;
+    LH.activeProfile=i;applyProfile(LH.profiles[i]);
+    saveLetterhead();refreshLHUI();renderAll();
+  };
+  $("deleteProfile").onclick=()=>{
+    const i=LH.activeProfile;
+    if(i<0)return;
+    LH.profiles.splice(i,1);LH.activeProfile=-1;
+    saveLetterhead();refreshLHUI();toast(T("profileDeleted"));
+  };
+
+  // templates
+  document.querySelectorAll("[data-tpl]").forEach(b=>{
+    b.onclick=()=>{
+      const t=TEMPLATES[b.dataset.tpl];
+      if(!t.free&&!PRO){needPro();return;}
+      $("editor").value=t[LANG]||t.en;
+      document.body.dataset.tab="edit";
+      $("tabEdit").classList.add("sel");$("tabPreview").classList.remove("sel");
+      renderAll();toast(T("tplLoaded"));
+    };
+  });
+
+  // export
+  $("expPng").onclick=()=>exportAll("png");
+  $("expJpg").onclick=()=>{if(!PRO){needPro();return;}exportAll("jpg");};
+  $("expPrint").onclick=()=>window.print();
+
+  // pro
+  $("proKeyBtn").onclick=()=>validateKey(false);
+  $("proKeyBtn2").onclick=()=>validateKey(true);
+  $("buyBtn").onclick=()=>window.open(CONFIG.buyMonthly,"_blank");
+  $("buyBtn2").onclick=()=>window.open(CONFIG.buyMonthly,"_blank");
+
+  window.addEventListener("resize",applyZoom);
+}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>
